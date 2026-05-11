@@ -11,6 +11,7 @@
     "check": "tsc --noEmit",
     "verify": "npm run check && npm run test:run && npm run build",
     "ci": "npm run verify",
+    "runtime:validate": "npm run build && node scripts/runtime-validation.mjs",
     "setup:hooks": "node scripts/setup-git-hooks.mjs"
   },
   "dependencies": {
@@ -27,6 +28,7 @@
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
     "@vitejs/plugin-react": "^4.5.0",
+    "playwright": "^1.55.0",
     "tsx": "^4.21.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.5"

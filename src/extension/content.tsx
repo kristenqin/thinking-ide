@@ -8,7 +8,14 @@ const ROOT_ID = "thinking-ide-root";
 const APP_ID = "thinking-ide-app";
 
 function isTargetPage(): boolean {
-  return /chatgpt\.com|chat\.openai\.com/.test(location.hostname);
+  if (/chatgpt\.com|chat\.openai\.com/.test(location.hostname)) {
+    return true;
+  }
+
+  return (
+    /localhost|127\.0\.0\.1/.test(location.hostname) &&
+    document.documentElement.getAttribute("data-thinking-ide-runtime-validation") === "true"
+  );
 }
 
 function ensureMount() {

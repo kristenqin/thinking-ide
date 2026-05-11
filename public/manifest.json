@@ -4,14 +4,24 @@
   "version": "0.1.0",
   "description": "AI-assisted concept map workspace for ChatGPT.",
   "permissions": ["storage", "activeTab", "scripting"],
-  "host_permissions": ["https://chatgpt.com/*", "https://chat.openai.com/*"],
+  "host_permissions": [
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
   "content_scripts": [
     {
-      "matches": ["https://chatgpt.com/*", "https://chat.openai.com/*"],
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "http://127.0.0.1/*",
+        "http://localhost/*"
+      ],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
@@ -19,7 +29,12 @@
   "web_accessible_resources": [
     {
       "resources": ["assets/*"],
-      "matches": ["https://chatgpt.com/*", "https://chat.openai.com/*"]
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "http://127.0.0.1/*",
+        "http://localhost/*"
+      ]
     }
   ]
 }

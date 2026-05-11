@@ -23,6 +23,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 2. Improve source anchoring further with stronger identity strategies and source-lost handling.
 3. Add delete flows and richer canvas editing actions from the interaction spec.
 4. Start trimming the content bundle before the runtime spine grows further.
+5. Revisit full unpacked-extension automation after the local runtime smoke path is stable.
 
 ## Blocked
 
@@ -44,6 +45,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 6. Added repo-level git workflow and local pre-commit gate so version-control discipline is tool-backed too.
 7. Added incremental chat observation via `MessageObserver`, safer regeneration merging, and stronger source anchors.
 8. Added a first automated test layer for stable services and store behavior, and wired it into `verify` / `ci`.
+9. Added local runtime black-box validation with a mock host and a real-browser smoke script via `npm run runtime:validate`.
 
 ## Quality Gate
 
@@ -59,6 +61,7 @@ For a feature slice to move to `done`, it must satisfy every item in [docs/defin
 6. Architecture decisions: [docs/architecture-decisions/ADR-0001-runtime-spine.md](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions/ADR-0001-runtime-spine.md), [docs/architecture-decisions/ADR-0002-shadow-dom-and-local-persistence.md](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions/ADR-0002-shadow-dom-and-local-persistence.md)
 7. Git workflow: [docs/git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
 8. Local hook setup: run `npm run setup:hooks`
+9. Runtime validation: [docs/runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md), run `npm run runtime:validate`
 
 ## Notes
 

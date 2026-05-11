@@ -8,6 +8,7 @@ This folder contains the operational engineering guardrails for autonomous execu
 2. Done gate: [definition-of-done.md](/Users/qyx/Desktop/project/thinking-ide/docs/definition-of-done.md)
 3. Multi-agent rules: [multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md)
 4. Git workflow: [git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
+5. Runtime validation: [runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md)
 
 ## Execution Tracking
 
