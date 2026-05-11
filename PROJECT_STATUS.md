@@ -13,33 +13,29 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 ## Now
 
-1. Stabilize the runtime spine around `content script -> chat scan -> draft generation -> canvas render -> local persistence`.
-2. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
-3. Keep the implementation aligned with the existing PRD, technical design, component spec, and task breakdown documents.
-4. Treat UI/UX acceptance as a first-class delivery constraint alongside logic, runtime, and persistence.
+1. Run a spec-alignment phase before counting more product progress.
+2. Treat [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active execution order.
+3. Re-rank progress by spec satisfaction rather than runtime-spine completeness.
+4. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
 5. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
-6. Treat the new design-system layer as the required bridge between UI specs and frontend implementation.
-7. Treat automatic delegation as a trigger-based default so the user does not need to manually request sidecars for naturally parallel work.
 
 ## Next
 
-1. Harden merge rules so more kinds of user-curated nodes and edges survive regeneration safely.
-   Current baseline now preserves reordered same-source concepts by title identity and stops one removed concept from suppressing all sibling concepts.
-2. Continue moving panel, canvas, and overlay surfaces onto the shared design-system token layer while keeping the Notion-derived baseline intact.
-3. Add richer canvas editing actions beyond the current delete, relation-edit, single-step undo, and low-frequency role-conversion baseline.
-4. Start trimming the content bundle before the runtime spine grows much further.
-5. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
-6. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
+1. Execute Wave 1 from the alignment plan: true `4:6` split-pane by default, overlay fallback only, and collapse/expand rail behavior.
+2. Execute Wave 2 from the alignment plan: ChatAdapter acceptance for conversation identity, full available history scan, completion detection, and restoration.
+3. Continue Wave 3 preparation in parallel: provider-backed AI structuring baseline with `DeepSeek` in the first candidate batch.
+4. Realign acceptance testing around layout, history, completion detection, semantic fixtures, and privacy-boundary checks.
 
 ## Blocked
 
 1. No hard blocker right now.
-2. Real AI structuring is intentionally deferred until the local runtime and persistence path are stable.
+2. Product-completion reporting is intentionally constrained until the alignment-plan waves land.
 
 ## Risks
 
 1. The current `content.js` production bundle is above Vite's default chunk warning threshold at roughly `538 kB` minified, so bundle-splitting or dependency trimming should be scheduled before the extension grows much further.
 2. ChatGPT DOM selectors and source anchors are better than the first cut, but they are still heuristic and need stronger identity handling before the runtime spine can be treated as robust.
+3. The current implementation still diverges from the product spec on default layout mode, ChatAdapter completeness, semantic extraction quality, and privacy storage boundaries; see [docs/spec-gap-assessment-2026-05-12.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-gap-assessment-2026-05-12.md).
 
 ## Done
 
@@ -70,6 +66,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 25. Tightened repo governance so automatic delegation triggers now require the main thread to spawn sidecars proactively for naturally parallel slices.
 26. Fixed the canvas first-load viewport so persisted or freshly generated maps auto-frame reliably after async hydration, corrected the panel layout chain so the canvas no longer collapses when the status bar is absent, and added an explicit `Reset view` recovery action plus a runtime-validation guard for collapsed canvas height.
 27. Added a lightweight header settings surface for `auto-refresh from chat` and `Clear current map`, wired to the persisted settings/repository groundwork with an in-panel confirmation flow.
+28. Added a complete spec-gap assessment and turned the alignment phase into repo-backed contracts for layout fidelity, ChatAdapter acceptance, AI structuring baseline, and test-alignment baseline.
 
 ## Quality Gate
 
@@ -91,6 +88,7 @@ For a feature slice to move to `done`, it must satisfy every item in [docs/defin
 12. Debug triage policy: [docs/debug-triage-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/debug-triage-policy.md)
 13. Frontend UI contract: [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md)
 14. Design system: [docs/design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md)
+15. Alignment plan: [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md)
 
 ## Notes
 

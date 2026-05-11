@@ -6,15 +6,18 @@ This folder contains the operational engineering guardrails for autonomous execu
 
 1. Ready gate: [definition-of-ready.md](/Users/qyx/Desktop/project/thinking-ide/docs/definition-of-ready.md)
 2. Done gate: [definition-of-done.md](/Users/qyx/Desktop/project/thinking-ide/docs/definition-of-done.md)
-3. Multi-agent rules: [multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md)
-4. Document sync policy: [document-sync-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-sync-policy.md)
-5. Document system map: [document-system-map.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-system-map.md)
-6. Debug triage policy: [debug-triage-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/debug-triage-policy.md)
-7. Frontend UI contract: [frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md)
-8. Design system: [design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md)
-9. Git workflow: [git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
-10. Runtime validation: [runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md)
-11. Bundle notes: [bundle-reduction-notes.md](/Users/qyx/Desktop/project/thinking-ide/docs/bundle-reduction-notes.md)
+3. Adapter acceptance contract: [adapter-acceptance-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/adapter-acceptance-contract.md)
+4. Multi-agent rules: [multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md)
+5. Document sync policy: [document-sync-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-sync-policy.md)
+6. Document system map: [document-system-map.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-system-map.md)
+7. Debug triage policy: [debug-triage-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/debug-triage-policy.md)
+8. Frontend UI contract: [frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md)
+9. Design system: [design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md)
+10. Git workflow: [git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
+11. Runtime validation: [runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md)
+12. Bundle notes: [bundle-reduction-notes.md](/Users/qyx/Desktop/project/thinking-ide/docs/bundle-reduction-notes.md)
+13. Layout fidelity contract: [layout-fidelity-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/layout-fidelity-contract.md)
+14. Test alignment baseline: [test-alignment-baseline.md](/Users/qyx/Desktop/project/thinking-ide/docs/test-alignment-baseline.md)
 
 ## Execution Tracking
 
@@ -25,6 +28,8 @@ This folder contains the operational engineering guardrails for autonomous execu
 ## Current Assessments
 
 1. Spec gap assessment: [spec-gap-assessment-2026-05-12.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-gap-assessment-2026-05-12.md)
+2. AI structuring baseline: [ai-structuring-baseline.md](/Users/qyx/Desktop/project/thinking-ide/docs/ai-structuring-baseline.md)
+3. Spec alignment execution plan: [spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md)
 
 ## Architecture History
 

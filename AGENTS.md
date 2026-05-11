@@ -122,13 +122,11 @@ Check these before changing core behavior:
 
 The current next slices are:
 
-1. Continue aligning the panel, canvas chrome, and editing surfaces with the spec-defined workspace UX.
-2. Continue moving runtime UI surfaces onto the shared design-system token layer instead of page-local styling.
-3. Harden regeneration merge rules beyond the current title-based concept identity and removed-sibling protections.
-4. Add richer canvas editing beyond the current delete, relation-edit, single-step undo, and low-frequency role-conversion baseline.
-5. Trim the content bundle before the runtime spine grows further.
-6. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
-7. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
+1. Follow [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active ordering baseline.
+2. Implement Wave 1 first: true `4:6` split-pane default, overlay fallback only, and collapse/expand rail behavior.
+3. Implement Wave 2 next: `ChatAdapter` acceptance for conversation identity, historical scan, completion detection, and restoration.
+4. Prepare Wave 3 in parallel: provider-backed AI structuring with `DeepSeek` in the first candidate batch.
+5. Delay lower-priority canvas expansion and polish work until the alignment waves above are substantially landed.
 
 ## Completion Reporting
 
