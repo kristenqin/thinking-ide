@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite build --watch",
+    "test": "tsx --watch --test src/services/*.test.ts src/stores/*.test.ts",
+    "test:run": "tsx --test src/services/*.test.ts src/stores/*.test.ts",
     "build": "tsc --noEmit && vite build",
     "check": "tsc --noEmit",
-    "verify": "npm run check && npm run build",
+    "verify": "npm run check && npm run test:run && npm run build",
     "ci": "npm run verify",
     "setup:hooks": "node scripts/setup-git-hooks.mjs"
   },
@@ -21,9 +23,11 @@
   },
   "devDependencies": {
     "@types/chrome": "^0.0.327",
+    "@types/node": "^24.10.0",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
     "@vitejs/plugin-react": "^4.5.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.5"
   }

@@ -1,0 +1,225 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { buildThinkingDocument } from "./documentBuilder";
+import type { ThinkingDocument } from "../models/document";
+import type { ConceptMapEdgeRecord, EdgeRelationType } from "../models/edge";
+import type { MessageRef } from "../models/messageRef";
+import type { ConceptMapNodeRecord } from "../models/node";
+import type { SourceRef } from "../models/source";
+import type { UserSettings } from "../models/settings";
+
+const conversation = {
+  id: "conversation-1",
+  title: "Runtime spine",
+  sourceUrl: "https://chatgpt.com/c/conversation-1",
+  updatedAt: "2026-05-10T00:00:00.000Z"
+};
+
+const messages: MessageRef[] = [
+  {
+    id: "user-1",
+    role: "user",
+    text: "How should the panel recover after refresh?",
+    createdAt: "2026-05-10T00:00:00.000Z"
+  },
+  {
+    id: "assistant-1",
+    role: "assistant",
+    text: "It should reload the saved document and keep manual edits.",
+    createdAt: "2026-05-10T00:01:00.000Z"
+  }
+];
+
+const sources: SourceRef[] = [
+  {
+    id: "source-1",
+    messageId: "assistant-1",
+    status: "active",
+    anchor: {
+      selector: "[data-message]",
+      role: "assistant",
+      occurrenceIndex: 0,
+      previewStart: "It should reload",
+      previewEnd: "manual edits."
+    }
+  }
+];
+
+const defaultSettings: UserSettings = {
+  panelMode: "layout",
+  panelWidth: 480
+};
+
+function createNode(
+  id: string,
+  role: ConceptMapNodeRecord["data"]["role"],
+  title: string,
+  sourceId?: string
+): ConceptMapNodeRecord {
+  return {
+    id,
+    type: "concept",
+    position: { x: 100, y: 100 },
+    data: {
+      title,
+      summary: title,
+      role,
+      status: "confirmed",
+      sourceId
+    }
+  };
+}
+
+function createEdge(
+  id: string,
+  source: string,
+  target: string,
+  relation: EdgeRelationType
+): ConceptMapEdgeRecord {
+  return {
+    id,
+    source,
+    target,
+    label: relation,
+    data: {
+      relation,
+      status: relation === "relates" ? "draft" : "confirmed"
+    }
+  };
+}
+
+test("buildThinkingDocument keeps generated data unchanged when there is no previous document", () => {
+  const generatedNodes = [
+    createNode("node-question", "question", "Refresh behavior"),
+    createNode("node-answer", "answer", "Restore from storage", "source-1")
+  ];
+  const generatedEdges = [createEdge("edge-1", "node-question", "node-answer", "answers")];
+
+  const document = buildThinkingDocument({
+    conversation,
+    messages,
+    sources,
+    generatedNodes,
+    generatedEdges,
+    settings: defaultSettings
+  });
+
+  assert.deepEqual(document.nodes, generatedNodes);
+  assert.deepEqual(document.edges, generatedEdges);
+  assert.deepEqual(document.settings, defaultSettings);
+  assert.deepEqual(document.messages, messages);
+  assert.deepEqual(document.sources, sources);
+  assert.match(document.updatedAt, /^\d{4}-\d{2}-\d{2}T/);
+  assert.match(document.conversation.updatedAt, /^\d{4}-\d{2}-\d{2}T/);
+});
+
+test("buildThinkingDocument preserves manual node edits, settings, and manual relates edges", () => {
+  const generatedNodes = [
+    createNode("generated-question", "question", "Refresh behavior"),
+    createNode("generated-answer", "answer", "Restore from storage", "source-1"),
+    createNode("generated-concept", "concept", "Keep manual positions", "source-1")
+  ];
+  const generatedEdges = [
+    createEdge("generated-answers", "generated-question", "generated-answer", "answers"),
+    createEdge("generated-expands", "generated-answer", "generated-concept", "expands")
+  ];
+  const previous: ThinkingDocument = {
+    conversation,
+    messages,
+    sources,
+    nodes: [
+      {
+        ...createNode("manual-question", "question", "Refresh behavior"),
+        position: { x: 48, y: 80 }
+      },
+      {
+        ...createNode("manual-answer", "answer", "Restore from storage", "source-1"),
+        position: { x: 320, y: 80 }
+      },
+      {
+        ...createNode("manual-concept", "concept", "Keep manual positions", "source-1"),
+        position: { x: 640, y: 160 },
+        data: {
+          ...createNode("manual-concept", "concept", "Keep manual positions", "source-1").data,
+          title: "Keep manual positions",
+          status: "confirmed"
+        }
+      }
+    ],
+    edges: [
+      createEdge("manual-relates", "manual-question", "manual-concept", "relates")
+    ],
+    settings: {
+      panelMode: "overlay",
+      panelWidth: 420
+    },
+    updatedAt: "2026-05-10T00:02:00.000Z"
+  };
+
+  const document = buildThinkingDocument({
+    conversation,
+    messages,
+    sources,
+    generatedNodes,
+    generatedEdges,
+    settings: defaultSettings,
+    previous
+  });
+
+  assert.deepEqual(
+    document.nodes.map((node) => ({
+      id: node.id,
+      title: node.data.title,
+      status: node.data.status,
+      position: node.position
+    })),
+    [
+      {
+        id: "manual-question",
+        title: "Refresh behavior",
+        status: "confirmed",
+        position: { x: 48, y: 80 }
+      },
+      {
+        id: "manual-answer",
+        title: "Restore from storage",
+        status: "confirmed",
+        position: { x: 320, y: 80 }
+      },
+      {
+        id: "manual-concept",
+        title: "Keep manual positions",
+        status: "confirmed",
+        position: { x: 640, y: 160 }
+      }
+    ]
+  );
+  assert.deepEqual(document.settings, previous.settings);
+  assert.equal(
+    document.edges.some(
+      (edge) =>
+        edge.data?.relation === "relates" &&
+        edge.source === "manual-question" &&
+        edge.target === "manual-concept"
+    ),
+    true
+  );
+  assert.equal(
+    document.edges.some(
+      (edge) =>
+        edge.data?.relation === "answers" &&
+        edge.source === "manual-question" &&
+        edge.target === "manual-answer"
+    ),
+    true
+  );
+  assert.equal(
+    document.edges.some(
+      (edge) =>
+        edge.data?.relation === "expands" &&
+        edge.source === "manual-answer" &&
+        edge.target === "manual-concept"
+    ),
+    true
+  );
+});

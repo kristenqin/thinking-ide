@@ -14,6 +14,7 @@ type ThinkingState = {
   status: Status;
   error?: string;
   hydrate: (conversationId: string) => Promise<void>;
+  getDocument: () => ThinkingDocument | undefined;
   replaceDocument: (document: ThinkingDocument) => Promise<void>;
   setStatus: (status: Status, error?: string) => void;
   onNodesChange: (changes: NodeChange<ConceptMapNodeRecord>[]) => Promise<void>;
@@ -36,6 +37,9 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
     if (existing) {
       set({ document: existing, status: "ready", error: undefined });
     }
+  },
+  getDocument() {
+    return get().document;
   },
   async replaceDocument(document) {
     set({ document, status: "ready", error: undefined });

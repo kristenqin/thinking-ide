@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { ThinkingPanel } from "../components/panel/ThinkingPanel";
-import type { ThinkingDocument } from "../models/document";
+import { buildThinkingDocument } from "../services/documentBuilder";
 import { generateDraftMap } from "../services/generator";
 import { getConversationRef, scanMessages } from "../services/chatAdapter";
+import { observeChatMutations } from "../services/messageObserver";
 import { useThinkingStore } from "../stores/useThinkingStore";
 
 const DEFAULT_SETTINGS = {
@@ -11,7 +12,7 @@ const DEFAULT_SETTINGS = {
 };
 
 export function App() {
-  const { hydrate, replaceDocument, setStatus } = useThinkingStore();
+  const { hydrate, getDocument, replaceDocument, setStatus } = useThinkingStore();
   const conversation = getConversationRef();
 
   useEffect(() => {
@@ -23,19 +24,15 @@ export function App() {
       setStatus("scanning");
       const { messages, sources } = scanMessages();
       const generated = generateDraftMap(messages, sources);
-
-      const document: ThinkingDocument = {
-        conversation: {
-          ...conversation,
-          updatedAt: new Date().toISOString()
-        },
+      const document = buildThinkingDocument({
+        conversation,
         messages,
         sources,
-        nodes: generated.nodes,
-        edges: generated.edges,
+        generatedNodes: generated.nodes,
+        generatedEdges: generated.edges,
         settings: DEFAULT_SETTINGS,
-        updatedAt: new Date().toISOString()
-      };
+        previous: getDocument()
+      });
 
       await replaceDocument(document);
     } catch (error) {
@@ -45,6 +42,16 @@ export function App() {
 
   useEffect(() => {
     void regenerate();
+  }, []);
+
+  useEffect(() => {
+    const handle = observeChatMutations(() => {
+      void regenerate();
+    });
+
+    return () => {
+      handle.disconnect();
+    };
   }, []);
 
   return <ThinkingPanel onGenerate={regenerate} />;

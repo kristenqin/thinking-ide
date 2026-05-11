@@ -19,10 +19,10 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 ## Next
 
-1. Add incremental `MessageObserver` support so the map can refresh from chat changes without full-page reload assumptions.
-2. Harden source anchoring and jump-to-source behavior for real ChatGPT DOM variance.
-3. Introduce a small automated test layer for pure services and stores.
-4. Start breaking the runtime spine into milestone-sized feature slices with explicit acceptance criteria.
+1. Harden merge rules so more kinds of user-curated nodes and edges survive regeneration safely.
+2. Improve source anchoring further with stronger identity strategies and source-lost handling.
+3. Add delete flows and richer canvas editing actions from the interaction spec.
+4. Start trimming the content bundle before the runtime spine grows further.
 
 ## Blocked
 
@@ -32,7 +32,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 ## Risks
 
 1. The current `content.js` production bundle is above Vite's default chunk warning threshold, so bundle-splitting or dependency trimming should be scheduled before the extension grows much further.
-2. ChatGPT DOM selectors are still heuristic and need a more defensive observation layer before the runtime spine can be treated as robust.
+2. ChatGPT DOM selectors and source anchors are better than the first cut, but they are still heuristic and need stronger identity handling before the runtime spine can be treated as robust.
 
 ## Done
 
@@ -42,6 +42,8 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 4. Established repository-level process guardrails: execution board, definition of done, and CI quality gate.
 5. Added repo-level readiness, multi-agent governance, ADR, risk, and traceability artifacts for autonomous execution.
 6. Added repo-level git workflow and local pre-commit gate so version-control discipline is tool-backed too.
+7. Added incremental chat observation via `MessageObserver`, safer regeneration merging, and stronger source anchors.
+8. Added a first automated test layer for stable services and store behavior, and wired it into `verify` / `ci`.
 
 ## Quality Gate
 
