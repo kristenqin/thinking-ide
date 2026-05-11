@@ -1,4 +1,12 @@
-import { Background, Controls, MiniMap, NodeToolbar, Position, ReactFlow } from "@xyflow/react";
+import {
+  Background,
+  Controls,
+  MiniMap,
+  NodeToolbar,
+  Position,
+  ReactFlow,
+  type ReactFlowInstance
+} from "@xyflow/react";
 import { AlertTriangle, Ellipsis, FileText, Link2, PencilLine, RefreshCcw, Shapes, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ConceptMapEdgeRecord, EdgeRelationType } from "../../models/edge";
@@ -40,6 +48,8 @@ export function ConceptMapCanvas() {
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [showPropertiesForNodeId, setShowPropertiesForNodeId] = useState<string>();
   const renameCardRef = useRef<HTMLDivElement>(null);
+  const reactFlowRef = useRef<ReactFlowInstance<ConceptMapNodeRecord, ConceptMapEdgeRecord> | null>(null);
+  const autoFramedConversationIdRef = useRef<string | undefined>(undefined);
   const sourceStatusById = useMemo(
     () => new Map((document?.sources ?? []).map((source) => [source.id, source.status])),
     [document?.sources]
@@ -189,6 +199,37 @@ export function ConceptMapCanvas() {
     return () => window.clearTimeout(timeout);
   }, [canvasHint]);
 
+  function fitCanvasToContent(duration = 220) {
+    const instance = reactFlowRef.current;
+    if (!instance || nodes.length === 0) {
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        void instance.fitView({
+          padding: 0.18,
+          duration,
+          minZoom: 0.55,
+          maxZoom: 1.15
+        });
+      });
+    });
+  }
+
+  useEffect(() => {
+    if (!document || nodes.length === 0) {
+      return;
+    }
+
+    if (autoFramedConversationIdRef.current === document.conversation.id) {
+      return;
+    }
+
+    autoFramedConversationIdRef.current = document.conversation.id;
+    fitCanvasToContent(0);
+  }, [document, nodes.length]);
+
   if (!document) {
     return (
       <div className="ti-empty-state">
@@ -240,6 +281,12 @@ export function ConceptMapCanvas() {
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        onInit={(instance) => {
+          reactFlowRef.current = instance;
+          if (document && nodes.length > 0) {
+            fitCanvasToContent(0);
+          }
+        }}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={addConnection}
@@ -400,6 +447,17 @@ export function ConceptMapCanvas() {
         <Controls />
         <Background gap={20} size={1} />
       </ReactFlow>
+
+      <div className="ti-canvas-utility">
+        <Button
+          variant="ghost"
+          className="ti-canvas-utility__button"
+          onClick={() => fitCanvasToContent()}
+        >
+          <RefreshCcw size={14} />
+          Reset view
+        </Button>
+      </div>
 
       {canvasHint ? <div className="ti-canvas-hint">{canvasHint}</div> : null}
 

@@ -303,6 +303,17 @@
   line-height: 1.45;
 }
 
+.ti-canvas-utility {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 8;
+}
+
+.ti-canvas-utility__button {
+  backdrop-filter: blur(8px);
+}
+
 .react-flow {
   background:
     radial-gradient(circle at top left, rgba(229, 221, 207, 0.48), transparent 24%),
