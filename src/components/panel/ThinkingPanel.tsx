@@ -8,10 +8,10 @@ type ThinkingPanelProps = {
 };
 
 export function ThinkingPanel({ onGenerate }: ThinkingPanelProps) {
-  const { document, status, error } = useThinkingStore();
+  const { document, status, error, notice, recentAction, undoLastRemoval, setNotice } = useThinkingStore();
   const conversationTitle = document?.conversation.title || "Current chat";
-  const nodeCount = document?.nodes.length ?? 0;
-  const edgeCount = document?.edges.length ?? 0;
+  const nodeCount = document?.nodes.filter((node) => node.data.status !== "removed").length ?? 0;
+  const edgeCount = document?.edges.filter((edge) => edge.data?.status !== "removed").length ?? 0;
 
   return (
     <section className="ti-panel">
@@ -38,6 +38,25 @@ export function ThinkingPanel({ onGenerate }: ThinkingPanelProps) {
       </div>
 
       {error ? <div className="ti-error">{error}</div> : null}
+      {notice ? (
+        <div className="ti-notice">
+          <span>{notice}</span>
+          {recentAction ? (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                void undoLastRemoval();
+              }}
+            >
+              Undo
+            </Button>
+          ) : (
+            <Button variant="ghost" onClick={() => setNotice(undefined)}>
+              Dismiss
+            </Button>
+          )}
+        </div>
+      ) : null}
       <ConceptMapCanvas />
     </section>
   );

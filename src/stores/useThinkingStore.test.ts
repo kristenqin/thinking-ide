@@ -10,8 +10,31 @@ const documentFixture: ThinkingDocument = {
     updatedAt: "2026-05-10T00:00:00.000Z"
   },
   messages: [],
-  nodes: [],
-  edges: [],
+  nodes: [
+    {
+      id: "node-1",
+      type: "concept",
+      position: { x: 40, y: 60 },
+      data: {
+        title: "Question",
+        role: "question",
+        status: "confirmed",
+        sourceId: "source-1"
+      }
+    }
+  ],
+  edges: [
+    {
+      id: "edge-1",
+      source: "node-1",
+      target: "node-2",
+      label: "relates",
+      data: {
+        relation: "relates",
+        status: "draft"
+      }
+    }
+  ],
   sources: [
     {
       id: "source-1",
@@ -37,6 +60,8 @@ beforeEach(() => {
   useThinkingStore.setState({
     status: "idle",
     error: undefined,
+    notice: undefined,
+    recentAction: undefined,
     document: undefined
   });
 });
@@ -56,4 +81,55 @@ test("focusSource returns a source from the current document", () => {
 
   assert.deepEqual(source, documentFixture.sources[0]);
   assert.deepEqual(useThinkingStore.getState().getDocument(), documentFixture);
+});
+
+test("removeNode marks the node and related edges as removed and can undo once", async () => {
+  useThinkingStore.setState({
+    document: {
+      ...documentFixture,
+      nodes: [
+        documentFixture.nodes[0],
+        {
+          id: "node-2",
+          type: "concept",
+          position: { x: 200, y: 60 },
+          data: {
+            title: "Concept",
+            role: "concept",
+            status: "confirmed",
+            sourceId: "source-1"
+          }
+        }
+      ]
+    }
+  });
+
+  await useThinkingStore.getState().removeNode("node-1");
+
+  let state = useThinkingStore.getState();
+  assert.equal(state.document?.nodes[0]?.data.status, "removed");
+  assert.equal(state.document?.edges[0]?.data?.status, "removed");
+  assert.equal(state.notice, "Node deleted.");
+  assert.equal(state.recentAction?.type, "remove_node");
+
+  await useThinkingStore.getState().undoLastRemoval();
+  state = useThinkingStore.getState();
+  assert.equal(state.document?.nodes[0]?.data.status, "confirmed");
+  assert.equal(state.document?.edges[0]?.data?.status, "draft");
+  assert.equal(state.notice, "Deletion undone.");
+  assert.equal(state.recentAction, undefined);
+});
+
+test("markSourceLost updates the source status and preserves the node", async () => {
+  useThinkingStore.setState({ document: documentFixture });
+
+  await useThinkingStore.getState().markSourceLost("source-1");
+
+  const state = useThinkingStore.getState();
+  assert.equal(state.document?.sources[0]?.status, "lost");
+  assert.equal(state.document?.nodes[0]?.data.status, "confirmed");
+  assert.equal(
+    state.notice,
+    "Original chat location is unavailable, but the node is still editable."
+  );
 });

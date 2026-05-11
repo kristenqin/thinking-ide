@@ -223,3 +223,35 @@ test("buildThinkingDocument preserves manual node edits, settings, and manual re
     true
   );
 });
+
+test("buildThinkingDocument does not revive previously removed generated nodes", () => {
+  const previous: ThinkingDocument = {
+    conversation,
+    messages,
+    sources,
+    nodes: [
+      {
+        ...createNode("removed-concept", "concept", "Discarded concept", "source-1"),
+        data: {
+          ...createNode("removed-concept", "concept", "Discarded concept", "source-1").data,
+          status: "removed"
+        }
+      }
+    ],
+    edges: [],
+    settings: defaultSettings,
+    updatedAt: "2026-05-10T00:02:00.000Z"
+  };
+
+  const document = buildThinkingDocument({
+    conversation,
+    messages,
+    sources,
+    generatedNodes: [createNode("generated-concept", "concept", "Discarded concept", "source-1")],
+    generatedEdges: [],
+    settings: defaultSettings,
+    previous
+  });
+
+  assert.deepEqual(document.nodes, []);
+});

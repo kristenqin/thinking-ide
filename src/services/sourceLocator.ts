@@ -1,6 +1,8 @@
 import { normalizeText } from "../utils/text";
 import type { SourceRef } from "../models/source";
 
+export type RevealSourceResult = "revealed" | "lost" | "missing";
+
 function findSourceElement(source: SourceRef): Element | undefined {
   const { anchor } = source;
   const elements = Array.from(document.querySelectorAll(anchor.selector));
@@ -34,15 +36,15 @@ function findSourceElement(source: SourceRef): Element | undefined {
   return roleMatches[0];
 }
 
-export function revealSource(source: SourceRef | undefined): boolean {
+export function revealSource(source: SourceRef | undefined): RevealSourceResult {
   if (!source) {
-    return false;
+    return "missing";
   }
 
   const match = findSourceElement(source);
 
   if (!match) {
-    return false;
+    return "lost";
   }
 
   match.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -51,5 +53,5 @@ export function revealSource(source: SourceRef | undefined): boolean {
     match.removeAttribute("data-thinking-ide-highlight");
   }, 2200);
 
-  return true;
+  return "revealed";
 }

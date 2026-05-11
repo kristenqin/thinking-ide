@@ -1,7 +1,7 @@
 import type { Edge } from "@xyflow/react";
 
 export type EdgeRelationType = "answers" | "expands" | "relates";
-export type EdgeStatus = "draft" | "confirmed";
+export type EdgeStatus = "draft" | "confirmed" | "removed";
 
 export type ConceptMapEdgeData = {
   relation: EdgeRelationType;

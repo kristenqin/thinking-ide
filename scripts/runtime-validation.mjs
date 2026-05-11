@@ -59,6 +59,13 @@ async function run() {
       return Boolean(host?.shadowRoot?.getElementById("thinking-ide-app"));
     });
 
+    await page.waitForFunction(() => {
+      const root = document.getElementById("thinking-ide-root");
+      const statusText = root?.shadowRoot?.querySelector(".ti-statusbar")?.textContent ?? "";
+      const nodeCount = root?.shadowRoot?.querySelectorAll(".react-flow__node").length ?? 0;
+      return /Status:\s*ready/i.test(statusText) && nodeCount >= 3;
+    });
+
     const initialNodeCount = await page.evaluate(() => {
       const root = document.getElementById("thinking-ide-root");
       return root?.shadowRoot?.querySelectorAll(".react-flow__node").length ?? 0;

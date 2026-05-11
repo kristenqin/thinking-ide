@@ -1,4 +1,4 @@
-export type SourceStatus = "active" | "missing";
+export type SourceStatus = "active" | "lost";
 
 export type SourceAnchor = {
   selector: string;

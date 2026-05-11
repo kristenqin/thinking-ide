@@ -20,10 +20,10 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 ## Next
 
 1. Harden merge rules so more kinds of user-curated nodes and edges survive regeneration safely.
-2. Improve source anchoring further with stronger identity strategies and source-lost handling.
-3. Add delete flows and richer canvas editing actions from the interaction spec.
-4. Start trimming the content bundle before the runtime spine grows further.
-5. Revisit full unpacked-extension automation after the local runtime smoke path is stable.
+2. Add richer canvas editing actions beyond delete, especially relation editing and lightweight undo ergonomics.
+3. Start trimming the content bundle before the runtime spine grows further.
+4. Revisit full unpacked-extension automation after the local runtime smoke path is stable.
+5. Add clearer source-lost iconography and tooltip treatment in the node surface.
 
 ## Blocked
 
@@ -46,6 +46,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 7. Added incremental chat observation via `MessageObserver`, safer regeneration merging, and stronger source anchors.
 8. Added a first automated test layer for stable services and store behavior, and wired it into `verify` / `ci`.
 9. Added local runtime black-box validation with a mock host and a real-browser smoke script via `npm run runtime:validate`.
+10. Added logical delete, latest-removal undo, and source-lost persistence/feedback in the canvas editing flow.
 
 ## Quality Gate
 
@@ -62,6 +63,7 @@ For a feature slice to move to `done`, it must satisfy every item in [docs/defin
 7. Git workflow: [docs/git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
 8. Local hook setup: run `npm run setup:hooks`
 9. Runtime validation: [docs/runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md), run `npm run runtime:validate`
+10. Bundle notes: [docs/bundle-reduction-notes.md](/Users/qyx/Desktop/project/thinking-ide/docs/bundle-reduction-notes.md)
 
 ## Notes
 

@@ -28,9 +28,14 @@ function mergeNodes(
   generatedNodes: ConceptMapNodeRecord[]
 ): ConceptMapNodeRecord[] {
   const previousGroups = new Map<string, ConceptMapNodeRecord[]>();
+  const removedKeys = new Set<string>();
 
   previousNodes.forEach((node) => {
     const key = buildNodeGroupKey(node);
+    if (node.data.status === "removed") {
+      removedKeys.add(key);
+      return;
+    }
     const group = previousGroups.get(key) ?? [];
     group.push(node);
     previousGroups.set(key, group);
@@ -38,27 +43,33 @@ function mergeNodes(
 
   const groupIndexes = new Map<string, number>();
 
-  return generatedNodes.map((node) => {
+  return generatedNodes.flatMap((node) => {
     const key = buildNodeGroupKey(node);
+    if (removedKeys.has(key)) {
+      return [];
+    }
+
     const group = previousGroups.get(key) ?? [];
     const index = groupIndexes.get(key) ?? 0;
     const previous = group[index];
     groupIndexes.set(key, index + 1);
 
     if (!previous) {
-      return node;
+      return [node];
     }
 
-    return {
-      ...node,
-      id: previous.id,
-      position: previous.position,
-      data: {
-        ...node.data,
-        title: previous.data.title,
-        status: previous.data.status
+    return [
+      {
+        ...node,
+        id: previous.id,
+        position: previous.position,
+        data: {
+          ...node.data,
+          title: previous.data.title,
+          status: previous.data.status
+        }
       }
-    };
+    ];
   });
 }
 
@@ -81,6 +92,7 @@ function mergeEdges(
   }));
 
   const preservedManualEdges = previousEdges
+    .filter((edge) => edge.data?.status !== "removed")
     .filter((edge) => edge.data?.relation === "relates")
     .filter((edge) =>
       mergedNodes.some((node) => node.id === edge.source) && mergedNodes.some((node) => node.id === edge.target)

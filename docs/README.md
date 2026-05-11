@@ -9,6 +9,7 @@ This folder contains the operational engineering guardrails for autonomous execu
 3. Multi-agent rules: [multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md)
 4. Git workflow: [git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
 5. Runtime validation: [runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md)
+6. Bundle notes: [bundle-reduction-notes.md](/Users/qyx/Desktop/project/thinking-ide/docs/bundle-reduction-notes.md)
 
 ## Execution Tracking
 
