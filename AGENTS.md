@@ -115,10 +115,10 @@ Check these before changing core behavior:
 
 The current next slices are:
 
-1. Harden regeneration merge rules so more user-curated nodes and edges survive refresh safely.
+1. Harden regeneration merge rules beyond the current title-based concept identity and removed-sibling protections.
 2. Add richer canvas editing beyond the current delete, relation-edit, and single-step undo baseline.
 3. Trim the content bundle before the runtime spine grows further.
-4. Add clearer source-lost iconography and tooltip treatment in the node surface.
+4. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
 5. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
 
 ## Completion Reporting
