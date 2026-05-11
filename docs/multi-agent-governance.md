@@ -14,6 +14,8 @@ This repo allows concurrent execution, but each agent must stay inside a declare
    Treat unexpected diffs as active teammate work unless proven otherwise.
 5. Prefer additive coordination.
    Update docs/status to record gaps instead of overwriting another agent's partial solution.
+6. Keep the main thread thin.
+   The primary thread should prefer orchestration, integration, and final verification over holding every implementation detail locally.
 
 ## Ownership Model
 
@@ -55,12 +57,27 @@ Rules:
 ## Task Flow
 
 1. Confirm the task is ready per [docs/definition-of-ready.md](/Users/qyx/Desktop/project/thinking-ide/docs/definition-of-ready.md).
-2. Declare owner, write set, and verification plan.
-3. Implement only the assigned slice.
-4. Run the smallest meaningful verification set.
-5. Report outcome, gaps, and exact files changed.
-6. If done, ensure the slice still satisfies [docs/definition-of-done.md](/Users/qyx/Desktop/project/thinking-ide/docs/definition-of-done.md).
-7. For user-facing slices, apply [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) before calling the slice complete.
+2. Split the work into one local blocker and as many non-overlapping sidecar slices as the current agent capacity safely allows.
+3. Declare owner, write set, and verification plan.
+4. Implement only the assigned slice.
+5. Run the smallest meaningful verification set.
+6. Report outcome, gaps, and exact files changed.
+7. Close or recycle completed sidecar agents promptly so capacity stays available for the next slice.
+8. If done, ensure the slice still satisfies [docs/definition-of-done.md](/Users/qyx/Desktop/project/thinking-ide/docs/definition-of-done.md).
+9. For user-facing slices, apply [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) before calling the slice complete.
+
+## Parallelism Default
+
+Default execution posture for non-trivial work:
+
+1. Keep one immediate blocker on the main thread.
+2. Delegate bounded sidecar work by lane whenever the write sets do not overlap.
+3. Prefer at least two parallel sidecars when the task naturally decomposes into UI, runtime, mapping, persistence, tests, or docs.
+4. Reuse existing agents when possible instead of spawning redundant new ones.
+5. Close idle agents after integration to avoid exhausting the agent/thread budget.
+6. Summarize sidecar results into repo artifacts or commit messages so the main thread does not become the only place where context lives.
+
+This default exists to reduce delivery time and keep main-thread context pressure low enough that compaction is less likely.
 
 ## Reporting Format
 
@@ -104,3 +121,11 @@ Needs handoff:
    Run `npm run verify` and record any manual extension/UI checks performed.
 5. UI-facing slice
    Name the governing UI spec docs and classify the slice as `logic-only`, `UI-coupled`, or `UI-alignment`.
+
+## Capacity Hygiene
+
+To keep parallelism available across long-running sessions:
+
+1. Do not leave completed agents idle indefinitely.
+2. After integration, close agents that no longer need follow-up context.
+3. If the agent budget is exhausted, prefer recycling an existing lane owner before pulling more work back into the main thread.

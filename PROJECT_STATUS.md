@@ -17,6 +17,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 2. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
 3. Keep the implementation aligned with the existing PRD, technical design, component spec, and task breakdown documents.
 4. Treat UI/UX acceptance as a first-class delivery constraint alongside logic, runtime, and persistence.
+5. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
 
 ## Next
 

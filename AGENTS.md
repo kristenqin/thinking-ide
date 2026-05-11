@@ -64,6 +64,7 @@ Do not let UI components directly own DOM scanning or persistence logic.
 5. Do not revert unrelated work.
 6. If a task crosses a shared runtime boundary, escalate before changing it.
 7. If a task changes user-visible UI or interaction behavior, classify it using `frontend-ui-contract` before implementation.
+8. Default to parallel sidecar execution for non-trivial work; keep the main thread focused on orchestration, integration, and final gates whenever write sets allow.
 
 Shared runtime boundaries are:
 
@@ -84,6 +85,8 @@ Use the smallest valid gate for the slice:
 4. Runtime-boundary behavior change: `npm run runtime:validate`
 5. UI-facing behavior change: apply the acceptance checks in [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) in addition to the command gate
 6. Release or integration parity check: `npm run ci`
+
+Also follow the parallelism default and capacity-hygiene rules in [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md) so the main thread does not become the only place holding implementation context.
 
 Install local hooks with:
 

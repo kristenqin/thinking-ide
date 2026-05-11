@@ -39,3 +39,4 @@ This folder contains the operational engineering guardrails for autonomous execu
 6. Use `npm run runtime:validate` for the full extension-load smoke pass, or rely on `npm run ci` to run the built-artifact runtime gate automatically.
 7. Use `document-sync-policy` whenever a slice changes runtime guarantees, repo gates, current focus, or risk posture.
 8. Use `frontend-ui-contract` whenever a slice changes user-visible UI or interaction behavior.
+9. For non-trivial work, default to sidecar agents with non-overlapping write sets and keep the main thread focused on orchestration and integration.
