@@ -39,6 +39,7 @@ async function readPanelState(page) {
     const titles = Array.from(shadowRoot?.querySelectorAll(".ti-node__title") ?? []).map((node) =>
       node.textContent?.trim() ?? ""
     );
+    const canvasShellRect = shadowRoot?.querySelector(".ti-canvas-shell")?.getBoundingClientRect();
     const statusText =
       shadowRoot?.querySelector(".ti-status-pill")?.textContent?.trim() ??
       shadowRoot?.querySelector(".ti-statusbar__label")?.textContent?.trim() ??
@@ -50,9 +51,30 @@ async function readPanelState(page) {
       statusText,
       hasError,
       nodeCount: shadowRoot?.querySelectorAll(".react-flow__node").length ?? 0,
-      titles
+      titles,
+      canvasShellHeight: canvasShellRect?.height ?? 0
     };
   });
+}
+
+async function assertCanvasShellHasMeaningfulHeight(page) {
+  const canvasShellHeight = await page.evaluate(() => {
+    const root = document.getElementById("thinking-ide-root");
+    const shadowRoot = root?.shadowRoot;
+    const canvasShell = shadowRoot?.querySelector(".ti-canvas-shell");
+
+    if (!(canvasShell instanceof HTMLElement)) {
+      throw new Error("Runtime validation could not find .ti-canvas-shell after panel injection");
+    }
+
+    return canvasShell.getBoundingClientRect().height;
+  });
+
+  if (canvasShellHeight <= 300) {
+    throw new Error(
+      `Collapsed canvas shell regression: expected .ti-canvas-shell height to be greater than 300px after panel injection, received ${canvasShellHeight}px`
+    );
+  }
 }
 
 async function clickNodeByTitle(page, expectedText) {
@@ -134,6 +156,12 @@ async function run() {
       const host = document.getElementById("thinking-ide-root");
       return Boolean(host?.shadowRoot?.getElementById("thinking-ide-app"));
     });
+
+    await page.waitForFunction(() => {
+      const root = document.getElementById("thinking-ide-root");
+      return Boolean(root?.shadowRoot?.querySelector(".ti-canvas-shell"));
+    });
+    await assertCanvasShellHasMeaningfulHeight(page);
 
     await page.waitForFunction(() => {
       const root = document.getElementById("thinking-ide-root");

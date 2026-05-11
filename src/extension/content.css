@@ -56,8 +56,8 @@
 }
 
 .ti-panel {
-  display: grid;
-  grid-template-rows: auto auto 1fr auto;
+  display: flex;
+  flex-direction: column;
   height: 100%;
 }
 
@@ -196,6 +196,8 @@
 }
 
 .ti-panel__main {
+  display: flex;
+  flex: 1 1 auto;
   min-height: 0;
   padding: 12px 16px 0;
 }
@@ -250,6 +252,7 @@
 
 .ti-canvas-shell {
   position: relative;
+  flex: 1 1 auto;
   min-height: 0;
   height: 100%;
   overflow: hidden;
@@ -637,6 +640,7 @@
 
 .ti-bottomlog {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
   gap: 16px;

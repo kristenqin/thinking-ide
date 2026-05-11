@@ -69,7 +69,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 23. Added the first code-level design-system token pass in `content.css` and moved the shared shell toward the documented Notion-derived baseline.
 24. Simplified the panel information hierarchy by removing repeated stats and always-on guidance, and downgraded the top-right regenerate CTA into a lighter `Refresh` action.
 25. Tightened repo governance so automatic delegation triggers now require the main thread to spawn sidecars proactively for naturally parallel slices.
-26. Fixed the canvas first-load viewport so persisted or freshly generated maps auto-frame reliably after async hydration, and added an explicit `Reset view` recovery action inside the canvas.
+26. Fixed the canvas first-load viewport so persisted or freshly generated maps auto-frame reliably after async hydration, corrected the panel layout chain so the canvas no longer collapses when the status bar is absent, and added an explicit `Reset view` recovery action plus a runtime-validation guard for collapsed canvas height.
 
 ## Quality Gate
 

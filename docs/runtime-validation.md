@@ -44,9 +44,10 @@ What the harness does:
 2. Serves `runtime-validation/mock-chat.html` on a temporary localhost port.
 3. Launches a persistent Chromium context with the unpacked `dist/` extension loaded.
 4. Opens the mock host and waits for the real content script to inject automatically.
-5. Appends new mock chat content and checks that the panel remains healthy.
-6. Selects the latest answer node and proves `Jump to source` highlights the correct assistant message even when dynamic mock messages do not expose stable DOM ids.
-7. Removes the indexed assistant source from the host after the map is already rendered and proves `Jump to source` degrades into source-lost feedback instead of failing silently or highlighting a different remaining assistant message.
+5. Verifies that the injected canvas shell has real working height instead of collapsing into a near-zero strip after mount.
+6. Appends new mock chat content and checks that the panel remains healthy.
+7. Selects the latest answer node and proves `Jump to source` highlights the correct assistant message even when dynamic mock messages do not expose stable DOM ids.
+8. Removes the indexed assistant source from the host after the map is already rendered and proves `Jump to source` degrades into source-lost feedback instead of failing silently or highlighting a different remaining assistant message.
 
 ## What The Smoke Test Must Prove
 
@@ -57,10 +58,11 @@ For the current milestone, runtime smoke validation must prove all of the follow
 2. The content script creates `#thinking-ide-root` and mounts the app inside Shadow DOM.
 3. The runtime can scan the mock chat DOM and produce an initial concept-map render.
 4. The rendered map contains real nodes after boot, not just an empty shell.
-5. Appending new chat content changes the rendered concept map in a way that proves the observer/regeneration path ran, not just that the panel stayed mounted.
-6. The injected panel reaches a healthy `synced`/ready-like state after boot and refresh.
-7. `Jump to source` can reveal and highlight the expected message in the mock host after refresh, including fallback source matching when DOM ids are unavailable.
-8. When a previously indexed assistant source disappears from the host DOM, the panel surfaces a source-lost feedback state instead of silently doing nothing or falling back to the wrong remaining assistant block.
+5. The canvas shell has enough visible height to act as a usable workspace, not a collapsed layout strip.
+6. Appending new chat content changes the rendered concept map in a way that proves the observer/regeneration path ran, not just that the panel stayed mounted.
+7. The injected panel reaches a healthy `synced`/ready-like state after boot and refresh.
+8. `Jump to source` can reveal and highlight the expected message in the mock host after refresh, including fallback source matching when DOM ids are unavailable.
+9. When a previously indexed assistant source disappears from the host DOM, the panel surfaces a source-lost feedback state instead of silently doing nothing or falling back to the wrong remaining assistant block.
 
 This is intentionally narrower than full product validation. It is the minimum black-box proof that the M1 runtime spine still works as an integrated extension.
 
