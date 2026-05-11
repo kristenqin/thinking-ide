@@ -39,7 +39,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 ## Risks
 
-1. The current `content.js` production bundle is above Vite's default chunk warning threshold at roughly `540 kB` minified, so bundle-splitting or dependency trimming should be scheduled before the extension grows much further.
+1. The current `content.js` production bundle is above Vite's default chunk warning threshold at roughly `538 kB` minified, so bundle-splitting or dependency trimming should be scheduled before the extension grows much further.
 2. ChatGPT DOM selectors and source anchors are better than the first cut, but they are still heuristic and need stronger identity handling before the runtime spine can be treated as robust.
 
 ## Done
@@ -67,6 +67,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 21. Added a node `More` menu with low-frequency role conversion and property inspection, and preserved manual role edits through regeneration.
 22. Added persisted settings defaults plus store/repository groundwork for `autoGenerate`, language metadata, and `clearCurrentMap`, and wired runtime observation to respect `autoGenerate`.
 23. Added the first code-level design-system token pass in `content.css` and moved the shared shell toward the documented Notion-derived baseline.
+24. Simplified the panel information hierarchy by removing repeated stats and always-on guidance, and downgraded the top-right regenerate CTA into a lighter `Refresh` action.
 24. Tightened repo governance so automatic delegation triggers now require the main thread to spawn sidecars proactively for naturally parallel slices.
 
 ## Quality Gate

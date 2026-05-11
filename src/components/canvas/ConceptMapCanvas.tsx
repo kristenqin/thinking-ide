@@ -68,8 +68,6 @@ export function ConceptMapCanvas() {
         })),
     [document?.edges]
   );
-  const activeNodeCount = nodes.length;
-  const activeEdgeCount = edges.length;
   const selectedNode = document?.nodes.find(
     (node) => node.id === selectedNodeId && node.data.status !== "removed"
   );
@@ -209,30 +207,34 @@ export function ConceptMapCanvas() {
   const workspaceHeadline = selectedNode
     ? selectedNode.data.title
     : selectedEdge
-      ? selectedEdge.data?.relation ?? "Relation"
-      : "Concept map draft";
+      ? "Relation selected"
+      : selectedNodeSourceLost
+        ? "Source needs review"
+        : undefined;
   const workspaceDetail = selectedNode
     ? selectedNodeSourceLost
       ? "This node still edits normally, but its original source needs review."
-      : "Selected node. Use the floating toolbar for rename, source jump, connect, or delete."
+      : "Use the floating toolbar to rename, connect, jump to source, or remove this node."
     : selectedEdge
-      ? "Selected relation. Adjust its meaning here without leaving the canvas."
-      : "Directly arrange concepts on the canvas, then jump back to source only when you need context.";
+      ? "Adjust the relation meaning here without leaving the canvas."
+      : selectedNodeSourceLost
+        ? sourceLostTooltip()
+        : undefined;
+  const showCanvasChrome = Boolean(workspaceHeadline && workspaceDetail);
 
   return (
     <div className="ti-canvas-shell">
-      <div className="ti-canvas-chrome">
-        <div className="ti-canvas-chrome__copy">
-          <div className="ti-canvas-chrome__eyebrow">Concept map canvas</div>
-          <h3>{workspaceHeadline}</h3>
-          <p>{workspaceDetail}</p>
+      {showCanvasChrome ? (
+        <div className="ti-canvas-chrome">
+          <div className="ti-canvas-chrome__copy">
+            <div className="ti-canvas-chrome__eyebrow">
+              {selectedNode ? "Selected node" : selectedEdge ? "Selected relation" : "Source review"}
+            </div>
+            <h3>{workspaceHeadline}</h3>
+            <p>{workspaceDetail}</p>
+          </div>
         </div>
-        <div className="ti-canvas-chrome__meta">
-          <div className="ti-canvas-chip">{activeNodeCount} concepts</div>
-          <div className="ti-canvas-chip">{activeEdgeCount} links</div>
-          {selectedNodeSourceLost ? <div className="ti-canvas-chip ti-canvas-chip--warning">Source needs review</div> : null}
-        </div>
-      </div>
+      ) : null}
       <ReactFlow
         fitView
         nodes={nodes}

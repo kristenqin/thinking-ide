@@ -1,4 +1,4 @@
-import { RefreshCcw, Sparkles } from "lucide-react";
+import { RefreshCcw } from "lucide-react";
 import { useThinkingStore } from "../../stores/useThinkingStore";
 import { Button } from "../ui/button";
 import { ConceptMapCanvas } from "../canvas/ConceptMapCanvas";
@@ -28,13 +28,12 @@ export function ThinkingPanel({ onGenerate }: ThinkingPanelProps) {
             ? "Waiting"
             : "Ready";
   const statusMessage =
-    status === "synced"
-      ? "Keep shaping the map directly on the canvas. Your edits stay local to this chat."
-      : status === "generating"
-        ? "Scanning the current chat and refreshing the draft without interrupting your workspace."
+    status === "generating"
+      ? "Scanning the current chat and refreshing the draft without interrupting your workspace."
       : status === "waiting"
         ? "Waiting for more conversation before expanding the current draft."
-      : error ?? "Something blocked map generation. You can try the current scan again.";
+        : error ?? "Something blocked map generation. You can try the current scan again.";
+  const showStatusBar = status === "generating" || status === "waiting" || status === "failed";
   const bottomLog = notice
     ? notice
     : document
@@ -50,36 +49,32 @@ export function ThinkingPanel({ onGenerate }: ThinkingPanelProps) {
               <div className="ti-eyebrow">Thinking IDE</div>
               <span className={`ti-status-pill ti-status-pill--${status}`}>{statusLabel}</span>
             </div>
-            <p className="ti-header__kicker">{mapSummary}</p>
           </div>
           <h1>{conversationTitle}</h1>
-          <p className="ti-header__summary">
-            Shape the conversation into a concept map without leaving the chat flow.
-          </p>
+          <p className="ti-header__summary">Shape the conversation into a concept map without leaving the chat flow.</p>
         </div>
         <div className="ti-header__actions">
-          <Button onClick={() => void onGenerate()}>
-            <Sparkles size={16} />
-            Regenerate draft
+          <Button variant="ghost" onClick={() => void onGenerate()}>
+            <RefreshCcw size={14} />
+            Refresh
           </Button>
         </div>
       </header>
 
-      <div className="ti-statusbar">
-        <div className="ti-statusbar__copy">
-          <span className="ti-statusbar__label">{statusLabel}</span>
-          <p>{statusMessage}</p>
+      {showStatusBar ? (
+        <div className="ti-statusbar">
+          <div className="ti-statusbar__copy">
+            <span className="ti-statusbar__label">{statusLabel}</span>
+            <p>{statusMessage}</p>
+          </div>
+          <div className="ti-statusbar__rail">
+            <Button variant="ghost" className="ti-statusbar__action" onClick={() => void onGenerate()}>
+              <RefreshCcw size={14} />
+              Refresh
+            </Button>
+          </div>
         </div>
-        <div className="ti-statusbar__rail" aria-label="workspace guidance">
-          <div className="ti-status-chip">Click to select</div>
-          <div className="ti-status-chip">Double-click to rename</div>
-          <div className="ti-status-chip">Drag to arrange</div>
-          <Button variant="ghost" className="ti-statusbar__action" onClick={() => void onGenerate()}>
-            <RefreshCcw size={14} />
-            Refresh scan
-          </Button>
-        </div>
-      </div>
+      ) : null}
 
       <div className="ti-panel__main">
         <ConceptMapCanvas />
