@@ -146,7 +146,9 @@
       function appendMessage(role, id, text) {
         const article = document.createElement("article");
         article.className = "message";
-        article.id = id;
+        if (id) {
+          article.id = id;
+        }
         article.setAttribute("data-message-author-role", role);
         article.innerHTML = `<div class="meta">${role}</div>${text}`;
         chatRoot.appendChild(article);
@@ -156,12 +158,12 @@
         exchangeCount += 1;
         appendMessage(
           "user",
-          `user_dynamic_${exchangeCount}`,
+          "",
           `Map the next exchange number ${exchangeCount} and keep user layout edits when the canvas refreshes.`
         );
         appendMessage(
           "assistant",
-          `assistant_dynamic_${exchangeCount}`,
+          "",
           `Exchange ${exchangeCount} should trigger the observer, regenerate the draft, and preserve manual node positions.`
         );
       });
@@ -170,7 +172,7 @@
         assistantCount += 1;
         appendMessage(
           "assistant",
-          `assistant_followup_${assistantCount}`,
+          "",
           `Assistant follow-up ${assistantCount} adds more detail about source anchoring and runtime validation.`
         );
       });

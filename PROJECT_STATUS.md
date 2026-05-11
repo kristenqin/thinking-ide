@@ -24,7 +24,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 2. Add richer canvas editing actions beyond the current delete, relation-edit, and single-step undo baseline.
 3. Start trimming the content bundle before the runtime spine grows further.
 4. Add clearer source-lost iconography and tooltip treatment in the node surface.
-5. Expand runtime validation coverage toward more source-jump and selector edge cases.
+5. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
 
 ## Blocked
 
@@ -51,6 +51,8 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 11. Upgraded runtime validation so `ci` now proves the unpacked extension can be loaded and auto-inject in a real browser.
 12. Added editable edge relations in the canvas and taught regeneration to keep user-curated draft edges authoritative on the same node pair.
 13. Added a repo-level frontend UI contract so user-facing slices now carry explicit UI acceptance and parallel delivery rules.
+14. Expanded runtime validation so the smoke harness now proves `Jump to source` works against dynamically added messages without relying on DOM ids.
+15. Reworked the panel and canvas presentation toward the product specs with a workspace-style header, node toolbar actions, stronger empty state, and calmer canvas chrome.
 
 ## Quality Gate
 

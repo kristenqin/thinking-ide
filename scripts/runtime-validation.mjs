@@ -39,13 +39,52 @@ async function readPanelState(page) {
     const titles = Array.from(shadowRoot?.querySelectorAll(".ti-node__title") ?? []).map((node) =>
       node.textContent?.trim() ?? ""
     );
+    const statusText =
+      shadowRoot?.querySelector(".ti-status-pill")?.textContent?.trim() ??
+      shadowRoot?.querySelector(".ti-statusbar__label")?.textContent?.trim() ??
+      shadowRoot?.querySelector(".ti-statusbar")?.textContent?.trim() ??
+      "";
+    const hasError = Boolean(shadowRoot?.querySelector(".ti-error"));
 
     return {
-      statusText: shadowRoot?.querySelector(".ti-statusbar")?.textContent ?? "",
+      statusText,
+      hasError,
       nodeCount: shadowRoot?.querySelectorAll(".react-flow__node").length ?? 0,
       titles
     };
   });
+}
+
+async function clickNodeByTitle(page, expectedText) {
+  await page.evaluate((titleSnippet) => {
+    const root = document.getElementById("thinking-ide-root");
+    const shadowRoot = root?.shadowRoot;
+    const answerNode = Array.from(shadowRoot?.querySelectorAll(".react-flow__node") ?? []).find((node) =>
+      node.textContent?.includes(titleSnippet)
+    );
+
+    if (!(answerNode instanceof HTMLElement)) {
+      throw new Error(`Could not find node in runtime validation panel containing: ${titleSnippet}`);
+    }
+
+    answerNode.click();
+  }, expectedText);
+}
+
+async function clickShadowButtonByText(page, expectedTexts) {
+  await page.evaluate((texts) => {
+    const root = document.getElementById("thinking-ide-root");
+    const shadowRoot = root?.shadowRoot;
+    const button = Array.from(shadowRoot?.querySelectorAll("button") ?? []).find((entry) =>
+      texts.some((text) => entry.textContent?.trim().includes(text))
+    );
+
+    if (!(button instanceof HTMLButtonElement)) {
+      throw new Error(`Could not find button containing any of: ${texts.join(", ")}`);
+    }
+
+    button.click();
+  }, expectedTexts);
 }
 
 async function run() {
@@ -85,9 +124,16 @@ async function run() {
 
     await page.waitForFunction(() => {
       const root = document.getElementById("thinking-ide-root");
-      const statusText = root?.shadowRoot?.querySelector(".ti-statusbar")?.textContent ?? "";
-      const nodeCount = root?.shadowRoot?.querySelectorAll(".react-flow__node").length ?? 0;
-      return /Status:\s*ready/i.test(statusText) && nodeCount >= 3;
+      const shadowRoot = root?.shadowRoot;
+      const nodeCount = shadowRoot?.querySelectorAll(".react-flow__node").length ?? 0;
+      const hasError = Boolean(shadowRoot?.querySelector(".ti-error"));
+      const statusText =
+        shadowRoot?.querySelector(".ti-status-pill")?.textContent?.trim() ??
+        shadowRoot?.querySelector(".ti-statusbar__label")?.textContent?.trim() ??
+        shadowRoot?.querySelector(".ti-statusbar")?.textContent?.trim() ??
+        "";
+
+      return nodeCount >= 3 && !hasError && !/needs review|error/i.test(statusText);
     });
 
     const initialState = await readPanelState(page);
@@ -132,10 +178,24 @@ async function run() {
       throw new Error("Expected the refreshed concept map to include the appended exchange");
     }
 
-    const statusText = refreshedState.statusText;
+    await clickNodeByTitle(page, "Exchange 1 should trigger");
+    await clickShadowButtonByText(page, ["Jump to source", "Source"]);
+    await page.waitForFunction(() =>
+      Array.from(document.querySelectorAll('[data-message-author-role="assistant"]')).some((element) => {
+        const text = element.textContent ?? "";
+        return (
+          text.includes("Exchange 1 should trigger the observer") &&
+          element.getAttribute("data-thinking-ide-highlight") === "true"
+        );
+      })
+    );
 
-    if (!/Status:\s*ready/i.test(statusText)) {
-      throw new Error(`Expected ready status in injected panel, received: ${statusText}`);
+    if (refreshedState.hasError) {
+      throw new Error(`Expected healthy injected panel after refresh, received error state: ${refreshedState.statusText}`);
+    }
+
+    if (!/(ready|synced)/i.test(refreshedState.statusText)) {
+      throw new Error(`Expected ready-like status in injected panel, received: ${refreshedState.statusText}`);
     }
 
     console.log("runtime validation passed");

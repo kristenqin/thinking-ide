@@ -116,7 +116,7 @@ The current next slices are:
 2. Add richer canvas editing beyond the current delete, relation-edit, and single-step undo baseline.
 3. Trim the content bundle before the runtime spine grows further.
 4. Add clearer source-lost iconography and tooltip treatment in the node surface.
-5. Expand runtime validation coverage toward more source-jump and selector edge cases.
+5. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
 
 ## Completion Reporting
 
