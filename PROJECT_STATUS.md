@@ -13,17 +13,17 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 ## Now
 
-1. Run a spec-alignment phase before counting more product progress.
+1. Wave 1 now has a landed page-level layout slice: default split-pane, overlay fallback, and collapse/expand rail with runtime coverage.
 2. Treat [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active execution order.
-3. Re-rank progress by spec satisfaction rather than runtime-spine completeness.
+3. Shift the main implementation focus to Wave 2 while keeping remaining Wave 1 polish tracked as a tail item, not as an unbounded design rewrite.
 4. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
 5. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
 
 ## Next
 
-1. Execute Wave 1 from the alignment plan: true `4:6` split-pane by default, overlay fallback only, and collapse/expand rail behavior.
-2. Execute Wave 2 from the alignment plan: ChatAdapter acceptance for conversation identity, full available history scan, completion detection, and restoration.
-3. Continue Wave 3 preparation in parallel: provider-backed AI structuring baseline with `DeepSeek` in the first candidate batch.
+1. Execute Wave 2 from the alignment plan: ChatAdapter acceptance for conversation identity, full available history scan, completion detection, and restoration.
+2. Continue Wave 3 preparation in parallel: provider-backed AI structuring baseline with `DeepSeek` in the first candidate batch.
+3. Finish the remaining Wave 1 parity tail: align the collapse affordance more directly with header-owned controls if the product spec still requires it after the page-level split-pane lands.
 4. Realign acceptance testing around layout, history, completion detection, semantic fixtures, and privacy-boundary checks.
 
 ## Blocked
@@ -67,6 +67,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 26. Fixed the canvas first-load viewport so persisted or freshly generated maps auto-frame reliably after async hydration, corrected the panel layout chain so the canvas no longer collapses when the status bar is absent, and added an explicit `Reset view` recovery action plus a runtime-validation guard for collapsed canvas height.
 27. Added a lightweight header settings surface for `auto-refresh from chat` and `Clear current map`, wired to the persisted settings/repository groundwork with an in-panel confirmation flow.
 28. Added a complete spec-gap assessment and turned the alignment phase into repo-backed contracts for layout fidelity, ChatAdapter acceptance, AI structuring baseline, and test-alignment baseline.
+29. Landed the first Wave 1 layout-fidelity slice: the extension now prefers a real page-level split-pane workspace, falls back to overlay only when no safe page shell can be established, exposes a collapse/expand rail, and proves the behavior through strengthened runtime validation.
 
 ## Quality Gate
 

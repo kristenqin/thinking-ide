@@ -43,11 +43,14 @@ What the harness does:
 1. Builds the extension.
 2. Serves `runtime-validation/mock-chat.html` on a temporary localhost port.
 3. Launches a persistent Chromium context with the unpacked `dist/` extension loaded.
-4. Opens the mock host and waits for the real content script to inject automatically.
+4. Opens the default mock host and waits for the real content script to inject automatically into a true split-pane page-level workspace.
 5. Verifies that the injected canvas shell has real working height instead of collapsing into a near-zero strip after mount.
-6. Appends new mock chat content and checks that the panel remains healthy.
-7. Selects the latest answer node and proves `Jump to source` highlights the correct assistant message even when dynamic mock messages do not expose stable DOM ids.
-8. Removes the indexed assistant source from the host after the map is already rendered and proves `Jump to source` degrades into source-lost feedback instead of failing silently or highlighting a different remaining assistant message.
+6. Verifies the default layout path itself: the host must become the right-hand sibling of the chat page, occupy roughly `60%` of the width, leave the chat at roughly `40%`, and avoid overlay overlap.
+7. Exercises the collapse/expand rail behavior and proves the workspace can shrink to a narrow right rail and restore the full panel.
+8. Appends new mock chat content and checks that the panel remains healthy.
+9. Selects the latest answer node and proves `Jump to source` highlights the correct assistant message even when dynamic mock messages do not expose stable DOM ids.
+10. Removes the indexed assistant source from the host after the map is already rendered and proves `Jump to source` degrades into source-lost feedback instead of failing silently or highlighting a different remaining assistant message.
+11. Opens an overlay-fallback scenario where no safe page shell exists yet and proves the runtime still injects as a reserved overlay rather than failing to mount.
 
 ## What The Smoke Test Must Prove
 
@@ -59,10 +62,13 @@ For the current milestone, runtime smoke validation must prove all of the follow
 3. The runtime can scan the mock chat DOM and produce an initial concept-map render.
 4. The rendered map contains real nodes after boot, not just an empty shell.
 5. The canvas shell has enough visible height to act as a usable workspace, not a collapsed layout strip.
-6. Appending new chat content changes the rendered concept map in a way that proves the observer/regeneration path ran, not just that the panel stayed mounted.
-7. The injected panel reaches a healthy `synced`/ready-like state after boot and refresh.
-8. `Jump to source` can reveal and highlight the expected message in the mock host after refresh, including fallback source matching when DOM ids are unavailable.
-9. When a previously indexed assistant source disappears from the host DOM, the panel surfaces a source-lost feedback state instead of silently doing nothing or falling back to the wrong remaining assistant block.
+6. In the default success path, the extension uses a real split-pane workspace instead of only a fixed overlay approximation.
+7. Collapse and expand behavior works without destroying the workspace or collapsing the canvas height.
+8. Appending new chat content changes the rendered concept map in a way that proves the observer/regeneration path ran, not just that the panel stayed mounted.
+9. The injected panel reaches a healthy `synced`/ready-like state after boot and refresh.
+10. `Jump to source` can reveal and highlight the expected message in the mock host after refresh, including fallback source matching when DOM ids are unavailable.
+11. When a previously indexed assistant source disappears from the host DOM, the panel surfaces a source-lost feedback state instead of silently doing nothing or falling back to the wrong remaining assistant block.
+12. When the page cannot safely be promoted into split-pane mode, overlay fallback still mounts correctly instead of failing the runtime spine.
 
 This is intentionally narrower than full product validation. It is the minimum black-box proof that the M1 runtime spine still works as an integrated extension.
 

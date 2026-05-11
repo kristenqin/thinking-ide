@@ -123,10 +123,10 @@ Check these before changing core behavior:
 The current next slices are:
 
 1. Follow [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active ordering baseline.
-2. Implement Wave 1 first: true `4:6` split-pane default, overlay fallback only, and collapse/expand rail behavior.
+2. Treat the first Wave 1 layout slice as landed: split-pane default, overlay fallback, collapse rail, and runtime validation are now in place.
 3. Implement Wave 2 next: `ChatAdapter` acceptance for conversation identity, historical scan, completion detection, and restoration.
 4. Prepare Wave 3 in parallel: provider-backed AI structuring with `DeepSeek` in the first candidate batch.
-5. Delay lower-priority canvas expansion and polish work until the alignment waves above are substantially landed.
+5. Finish the remaining Wave 1 parity tail only where it still closes a documented spec gap; do not reopen broad workspace polish until Waves 2 and 3 advance.
 
 ## Completion Reporting
 

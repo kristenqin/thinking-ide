@@ -19,19 +19,21 @@
         min-height: 100vh;
       }
 
-      .layout {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 280px;
+      .mock-page {
         min-height: 100vh;
+        display: flex;
+        flex-direction: column;
       }
 
       .chat-shell {
-        padding: 32px;
+        width: min(960px, calc(100vw - 64px));
+        margin: 0 auto;
+        padding: 32px 32px 40px;
       }
 
       .chat-header {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         gap: 24px;
         margin-bottom: 24px;
@@ -40,17 +42,21 @@
       .chat-header h1 {
         margin: 0 0 8px;
         font-size: 32px;
+        line-height: 1.05;
       }
 
       .chat-header p {
         margin: 0;
         color: #475569;
+        line-height: 1.6;
       }
 
       .controls {
         display: flex;
         flex-wrap: wrap;
+        justify-content: flex-end;
         gap: 12px;
+        max-width: 360px;
       }
 
       button {
@@ -61,6 +67,17 @@
         padding: 12px 16px;
         font-weight: 700;
         cursor: pointer;
+      }
+
+      .mock-notes {
+        margin-bottom: 24px;
+        padding: 18px 20px;
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background: rgba(255, 255, 255, 0.8);
+        color: #475569;
+        line-height: 1.65;
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.06);
       }
 
       #chat-root {
@@ -88,64 +105,47 @@
         color: #0f766e;
       }
 
-      .sidebar {
-        border-left: 1px solid rgba(148, 163, 184, 0.18);
-        padding: 32px 24px;
-        background: rgba(255, 255, 255, 0.72);
+      .chat-input {
+        margin-top: 24px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 18px 20px;
+        border-radius: 24px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.06);
       }
 
-      .sidebar h2 {
-        margin-top: 0;
+      .chat-input__field {
+        flex: 1 1 auto;
+        min-height: 20px;
+        color: #64748b;
       }
 
-      .sidebar p {
-        color: #475569;
-        line-height: 1.6;
+      .chat-input__send {
+        flex: 0 0 auto;
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.08);
+        color: #0f172a;
+        font-size: 13px;
+        font-weight: 700;
       }
     </style>
   </head>
   <body>
-    <div class="layout">
-      <main class="chat-shell">
-        <section class="chat-header">
-          <div>
-            <h1>Runtime Validation Host</h1>
-            <p>Controlled local page for extension black-box smoke tests.</p>
-          </div>
-          <div class="controls">
-            <button id="append-exchange" type="button">Append Exchange</button>
-            <button id="append-assistant" type="button">Append Assistant Follow-up</button>
-            <button id="remove-latest-assistant" type="button">Remove Latest Assistant</button>
-            <button id="remove-assistant-sources" type="button">Remove Assistant Sources</button>
-          </div>
-        </section>
-
-        <section id="chat-root" aria-live="polite">
-          <article class="message" id="user_seed" data-message-author-role="user">
-            <div class="meta">User</div>
-            I need a concept map for how the runtime spine behaves during message refresh.
-          </article>
-          <article class="message" id="assistant_seed" data-message-author-role="assistant">
-            <div class="meta">Assistant</div>
-            Start with the chat scan. Then map the draft generation. Then show how local persistence restores user work.
-          </article>
-        </section>
-      </main>
-
-      <aside class="sidebar">
-        <h2>Mock Host Notes</h2>
-        <p>
-          This page intentionally mimics the minimum message DOM that the extension currently understands. The smoke test uses it to verify injection, concept-map rendering, and refresh after new chat content appears.
-        </p>
-      </aside>
-    </div>
-
     <script>
-      const chatRoot = document.getElementById("chat-root");
+      const scenario = new URLSearchParams(location.search).get("scenario") ?? "split-pane";
+      let chatRoot = null;
       let exchangeCount = 0;
       let assistantCount = 0;
 
       function appendMessage(role, id, text) {
+        if (!(chatRoot instanceof HTMLElement)) {
+          throw new Error("Mock host has not been bootstrapped yet");
+        }
+
         const article = document.createElement("article");
         article.className = "message";
         if (id) {
@@ -156,39 +156,106 @@
         chatRoot.appendChild(article);
       }
 
-      document.getElementById("append-exchange").addEventListener("click", () => {
-        exchangeCount += 1;
+      function wireControls(root) {
+        root.querySelector("#append-exchange")?.addEventListener("click", () => {
+          exchangeCount += 1;
+          appendMessage(
+            "user",
+            "",
+            `Map the next exchange number ${exchangeCount} and keep user layout edits when the canvas refreshes.`
+          );
+          appendMessage(
+            "assistant",
+            "",
+            `Exchange ${exchangeCount} should trigger the observer, regenerate the draft, and preserve manual node positions.`
+          );
+        });
+
+        root.querySelector("#append-assistant")?.addEventListener("click", () => {
+          assistantCount += 1;
+          appendMessage(
+            "assistant",
+            "",
+            `Assistant follow-up ${assistantCount} adds more detail about source anchoring and runtime validation.`
+          );
+        });
+
+        root.querySelector("#remove-latest-assistant")?.addEventListener("click", () => {
+          const assistants = Array.from(chatRoot?.querySelectorAll('[data-message-author-role="assistant"]') ?? []);
+          assistants.at(-1)?.remove();
+        });
+
+        root.querySelector("#remove-assistant-sources")?.addEventListener("click", () => {
+          Array.from(chatRoot?.querySelectorAll('[data-message-author-role="assistant"]') ?? []).forEach((message) => {
+            message.remove();
+          });
+        });
+      }
+
+      function bootstrapMockHost() {
+        const existing = document.getElementById("mock-page-root");
+        if (existing instanceof HTMLElement) {
+          chatRoot = existing.querySelector("#chat-root");
+          return existing;
+        }
+
+        const pageRoot = document.createElement("div");
+        pageRoot.id = "mock-page-root";
+        pageRoot.className = "mock-page";
+        pageRoot.innerHTML = `
+          <main class="chat-shell">
+            <section class="chat-header">
+              <div>
+                <h1>Runtime Validation Host</h1>
+                <p>Controlled local page for extension black-box smoke tests.</p>
+              </div>
+              <div class="controls">
+                <button id="append-exchange" type="button">Append Exchange</button>
+                <button id="append-assistant" type="button">Append Assistant Follow-up</button>
+                <button id="remove-latest-assistant" type="button">Remove Latest Assistant</button>
+                <button id="remove-assistant-sources" type="button">Remove Assistant Sources</button>
+              </div>
+            </section>
+
+            <section class="mock-notes">
+              This page intentionally mimics the minimum message DOM that the extension currently understands. The
+              runtime harness uses it to verify injection, split-pane layout, concept-map rendering, and refresh after
+              new chat content appears.
+            </section>
+
+            <section id="chat-root" aria-live="polite"></section>
+
+            <section class="chat-input" aria-label="Message input mock">
+              <div class="chat-input__field">Message input...</div>
+              <div class="chat-input__send">Send</div>
+            </section>
+          </main>
+        `;
+
+        document.body.appendChild(pageRoot);
+        chatRoot = pageRoot.querySelector("#chat-root");
+        wireControls(pageRoot);
+
         appendMessage(
           "user",
-          "",
-          `Map the next exchange number ${exchangeCount} and keep user layout edits when the canvas refreshes.`
+          "user_seed",
+          "I need a concept map for how the runtime spine behaves during message refresh."
         );
         appendMessage(
           "assistant",
-          "",
-          `Exchange ${exchangeCount} should trigger the observer, regenerate the draft, and preserve manual node positions.`
+          "assistant_seed",
+          "Start with the chat scan. Then map the draft generation. Then show how local persistence restores user work."
         );
-      });
 
-      document.getElementById("append-assistant").addEventListener("click", () => {
-        assistantCount += 1;
-        appendMessage(
-          "assistant",
-          "",
-          `Assistant follow-up ${assistantCount} adds more detail about source anchoring and runtime validation.`
-        );
-      });
+        return pageRoot;
+      }
 
-      document.getElementById("remove-latest-assistant").addEventListener("click", () => {
-        const assistants = Array.from(chatRoot.querySelectorAll('[data-message-author-role="assistant"]'));
-        assistants.at(-1)?.remove();
-      });
+      window.__thinkingIdeBootstrapMockHost = bootstrapMockHost;
+      window.__thinkingIdeRuntimeScenario = scenario;
 
-      document.getElementById("remove-assistant-sources").addEventListener("click", () => {
-        Array.from(chatRoot.querySelectorAll('[data-message-author-role="assistant"]')).forEach((message) => {
-          message.remove();
-        });
-      });
+      if (scenario !== "overlay-fallback") {
+        bootstrapMockHost();
+      }
     </script>
   </body>
 </html>

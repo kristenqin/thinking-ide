@@ -44,6 +44,14 @@ Goal:
 
 Make the product look and behave like the spec-defined workspace at the page level.
 
+Current status:
+
+1. The first implementation slice is landed.
+2. The repo now defaults to a true page-level split-pane when a single safe page shell can be established.
+3. Overlay is retained only as a fallback path.
+4. Collapse and expand rail behavior is implemented and covered by runtime validation.
+5. Remaining Wave 1 work is now a bounded parity tail, not an unbounded layout rewrite.
+
 Must include:
 
 1. True `4:6` split-pane as the default success path
