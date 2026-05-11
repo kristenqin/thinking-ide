@@ -55,7 +55,7 @@ For the current milestone, runtime smoke validation must prove all of the follow
 2. The content script creates `#thinking-ide-root` and mounts the app inside Shadow DOM.
 3. The runtime can scan the mock chat DOM and produce an initial concept-map render.
 4. The rendered map contains real nodes after boot, not just an empty shell.
-5. Appending new chat content triggers the observer/regeneration path without breaking the panel.
+5. Appending new chat content changes the rendered concept map in a way that proves the observer/regeneration path ran, not just that the panel stayed mounted.
 6. The injected panel reaches a `ready` state after boot and refresh.
 
 This is intentionally narrower than full product validation. It is the minimum black-box proof that the M1 runtime spine still works as an integrated extension.

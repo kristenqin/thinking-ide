@@ -13,8 +13,9 @@ Before starting any task, read these in order:
 1. [PROJECT_STATUS.md](/Users/qyx/Desktop/project/thinking-ide/PROJECT_STATUS.md)
 2. [docs/definition-of-ready.md](/Users/qyx/Desktop/project/thinking-ide/docs/definition-of-ready.md)
 3. [docs/definition-of-done.md](/Users/qyx/Desktop/project/thinking-ide/docs/definition-of-done.md)
-4. [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md)
-5. [docs/git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
+4. [docs/document-sync-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-sync-policy.md)
+5. [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md)
+6. [docs/git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
 
 Use [docs/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/README.md) as the navigation page for all governance artifacts.
 
@@ -77,8 +78,9 @@ Use the smallest valid gate for the slice:
 
 1. Docs-only change: terminology, links, and governance consistency review
 2. Code change without runtime behavior change: `npm run check`
-3. Shipped behavior change: `npm run verify`
-4. Release or integration parity check: `npm run ci`
+3. Shipped behavior change outside runtime boundaries: `npm run verify`
+4. Runtime-boundary behavior change: `npm run runtime:validate`
+5. Release or integration parity check: `npm run ci`
 
 Install local hooks with:
 
@@ -107,9 +109,11 @@ Check these before changing core behavior:
 
 The current next slices are:
 
-1. Incremental `MessageObserver`
-2. Stronger source anchoring and jump-to-source reliability
-3. Small automated test layer for stable runtime services and stores
+1. Harden regeneration merge rules so more user-curated nodes and edges survive refresh safely.
+2. Add richer canvas editing beyond delete, especially relation editing and lightweight undo ergonomics.
+3. Trim the content bundle before the runtime spine grows further.
+4. Add clearer source-lost iconography and tooltip treatment in the node surface.
+5. Expand runtime validation coverage toward more source-jump and selector edge cases.
 
 ## Completion Reporting
 
@@ -119,4 +123,4 @@ When finishing a slice, report:
 2. Files changed
 3. Checks run
 4. Known gaps
-5. Whether `PROJECT_STATUS.md` or another governance artifact needs updating
+5. Whether `PROJECT_STATUS.md` or another governance artifact needs updating under the document sync policy

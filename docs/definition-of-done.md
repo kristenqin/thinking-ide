@@ -13,13 +13,15 @@ This repository uses the following minimum definition of done for any milestone 
 4. Production build passes.
    `npm run build` succeeds.
 5. Local verification passes.
-   `npm run verify` succeeds, or the missing part is explicitly recorded as a known gap.
+   `npm run verify` succeeds, and runtime-boundary slices also run `npm run runtime:validate` or `npm run ci` unless the missing part is explicitly recorded as a known gap.
 6. Known gaps are named.
    Deferred work, temporary heuristics, or risks are documented in `PROJECT_STATUS.md` or the relevant design document.
 7. Architecture stays aligned.
    UI, state, services, and persistence remain separated unless a documented exception is made.
 8. No silent product drift.
    If implementation intentionally diverges from the existing specs, the relevant spec document is updated in the same iteration or the drift is recorded clearly.
+9. Required sync docs are updated.
+   Any slice that triggers [docs/document-sync-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-sync-policy.md) updates the required documents in the same iteration or records the gap clearly.
 
 ## Not Enough On Its Own
 
@@ -36,9 +38,11 @@ The following do not qualify as done by themselves:
 npm run check
 npm run build
 npm run verify
+npm run runtime:validate
 ```
 
 ## Notes
 
 1. `verify` can evolve over time as linting and tests are added.
-2. The bar should stay strict enough to protect quality, but not so heavy that it blocks iteration on every small step.
+2. `runtime:validate` is the default runtime-boundary gate; `ci` remains the heavier integration-parity gate.
+3. The bar should stay strict enough to protect quality, but not so heavy that it blocks iteration on every small step.

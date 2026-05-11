@@ -7,7 +7,7 @@ Governing sources:
 `PROJECT_STATUS.md`, `thinking_ide_mvp_项目文档.md`, `thinking_ide_技术方案文档.md`, [docs/risk-register.md](/Users/qyx/Desktop/project/thinking-ide/docs/risk-register.md), [docs/architecture-decisions/ADR-0001-runtime-spine.md](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions/ADR-0001-runtime-spine.md), and [docs/architecture-decisions/ADR-0002-shadow-dom-and-local-persistence.md](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions/ADR-0002-shadow-dom-and-local-persistence.md).
 
 Current warning context:
-The repo already tracks bundle size as active risk `R-07`. The current built `dist/content.js` in the workspace is about `510 KB`, which matches the `PROJECT_STATUS.md` note that the content bundle is above Vite's default warning threshold. Direct inspection of `src/extension/content.tsx`, `src/app/App.tsx`, and the existing sourcemap shows that the content entry eagerly pulls in the full React app, `@xyflow/react` plus its `d3` stack, and Dexie. `react-dom` and React Flow are the dominant payloads; Dexie is secondary; Zustand and the two Lucide icons are not the main problem.
+The repo already tracks bundle size as active risk `R-07`. The current built `dist/content.js` in the workspace is about `514 KB`, which matches the `PROJECT_STATUS.md` note that the content bundle is above Vite's default warning threshold. Direct inspection of `src/extension/content.tsx` and `src/app/App.tsx` shows that the content entry eagerly pulls in the full React app, `@xyflow/react` plus its `d3` stack, and Dexie. `react-dom` and React Flow are the dominant payloads; Dexie is secondary; Zustand and the two Lucide icons are not the main problem.
 
 Lowest-risk opportunities:
 
@@ -31,5 +31,5 @@ Guardrails:
 
 Assumptions:
 
-1. The current `dist/content.js` and `dist/content.js.map` reflect the latest successful content build available in the workspace.
-2. `npm run build` is currently blocked by unrelated TypeScript errors in `src/stores/useThinkingStore.ts`, so this note treats the bundle warning as a documented active risk plus a verified import-graph issue, not as a freshly reproduced clean build warning.
+1. The current `dist/content.js` reflects the latest successful content build available in the workspace.
+2. `npm run build` and `npm run ci` are currently passing, so this note treats the bundle warning as a reproduced active risk plus a verified import-graph issue.

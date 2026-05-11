@@ -32,6 +32,22 @@ function wait(ms) {
   return new Promise((resolveWait) => setTimeout(resolveWait, ms));
 }
 
+async function readPanelState(page) {
+  return page.evaluate(() => {
+    const root = document.getElementById("thinking-ide-root");
+    const shadowRoot = root?.shadowRoot;
+    const titles = Array.from(shadowRoot?.querySelectorAll(".ti-node__title") ?? []).map((node) =>
+      node.textContent?.trim() ?? ""
+    );
+
+    return {
+      statusText: shadowRoot?.querySelector(".ti-statusbar")?.textContent ?? "",
+      nodeCount: shadowRoot?.querySelectorAll(".react-flow__node").length ?? 0,
+      titles
+    };
+  });
+}
+
 async function run() {
   const server = await startMockHostServer();
   const userDataDir = mkdtempSync(join(tmpdir(), "thinking-ide-runtime-validation-"));
@@ -74,31 +90,49 @@ async function run() {
       return /Status:\s*ready/i.test(statusText) && nodeCount >= 3;
     });
 
-    const initialNodeCount = await page.evaluate(() => {
-      const root = document.getElementById("thinking-ide-root");
-      return root?.shadowRoot?.querySelectorAll(".react-flow__node").length ?? 0;
-    });
+    const initialState = await readPanelState(page);
+    const initialNodeCount = initialState.nodeCount;
 
     if (initialNodeCount < 3) {
       throw new Error(`Expected at least 3 nodes after initial injection, received ${initialNodeCount}`);
     }
 
-    await page.locator("#append-exchange").click({ force: true });
-    await wait(1200);
+    if (!initialState.titles.some((title) => title.includes("I need a concept map"))) {
+      throw new Error("Expected the initial concept map to include the seed user exchange");
+    }
 
-    const refreshedNodeCount = await page.evaluate(() => {
-      const root = document.getElementById("thinking-ide-root");
-      return root?.shadowRoot?.querySelectorAll(".react-flow__node").length ?? 0;
+    await page.evaluate(() => {
+      const button = document.getElementById("append-exchange");
+      if (!(button instanceof HTMLButtonElement)) {
+        throw new Error("Missing append-exchange button in runtime validation host");
+      }
+
+      button.click();
     });
+    await page.waitForFunction(() => document.querySelectorAll("[data-message-author-role]").length >= 4);
+    await page.waitForFunction(() => {
+      const root = document.getElementById("thinking-ide-root");
+      const shadowRoot = root?.shadowRoot;
+      const titles = Array.from(shadowRoot?.querySelectorAll(".ti-node__title") ?? []).map((node) =>
+        node.textContent?.trim() ?? ""
+      );
+
+      return titles.some((title) => title.includes("Map the next exchange"));
+    });
+    await wait(200);
+
+    const refreshedState = await readPanelState(page);
+    const refreshedNodeCount = refreshedState.nodeCount;
 
     if (refreshedNodeCount < 3) {
       throw new Error(`Expected refreshed concept map after appending chat exchange, received ${refreshedNodeCount}`);
     }
 
-    const statusText = await page.evaluate(() => {
-      const root = document.getElementById("thinking-ide-root");
-      return root?.shadowRoot?.querySelector(".ti-statusbar")?.textContent ?? "";
-    });
+    if (!refreshedState.titles.some((title) => title.includes("Map the next exchange"))) {
+      throw new Error("Expected the refreshed concept map to include the appended exchange");
+    }
+
+    const statusText = refreshedState.statusText;
 
     if (!/Status:\s*ready/i.test(statusText)) {
       throw new Error(`Expected ready status in injected panel, received: ${statusText}`);

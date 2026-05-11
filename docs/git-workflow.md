@@ -30,10 +30,12 @@ Before opening a PR, merging, or handing off a branch:
 3. Run the smallest valid repo gate for the slice:
    Docs-only: link and terminology review.
    Code without runtime behavior change: `npm run check`.
-   Shipped behavior change: `npm run verify`.
+   Shipped behavior change outside runtime boundaries: `npm run verify`.
+   Runtime-boundary behavior change: `npm run runtime:validate`.
    Release candidate or CI parity check: `npm run ci`.
-4. If `verify` is incomplete because of a known repo gap, record that gap explicitly in `PROJECT_STATUS.md` or the relevant design doc before calling the slice done.
-5. Do not merge code that passes only by relying on unstated local edits.
+4. Apply [docs/document-sync-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-sync-policy.md) before calling the slice done.
+5. If the required gate is incomplete because of a known repo gap, record that gap explicitly in `PROJECT_STATUS.md` or the relevant design doc before calling the slice done.
+6. Do not merge code that passes only by relying on unstated local edits.
 
 ## What Not To Commit
 
@@ -60,7 +62,7 @@ Before opening a PR, merging, or handing off a branch:
    Current milestone anchor: `M1 - MVP runtime spine` from `PROJECT_STATUS.md`.
 2. Create a checkpoint when:
    A milestone slice fully satisfies done criteria.
-   A risky shared-boundary change lands and passes `npm run verify`.
+   A risky shared-boundary change lands and passes `npm run runtime:validate` or `npm run ci`.
    The repo reaches a stable demo or handoff state.
 3. Use lightweight checkpoints for branch handoff even without a tag.
    Minimum: push the branch, report status, files changed, and checks run.
@@ -71,6 +73,7 @@ Before opening a PR, merging, or handing off a branch:
 1. Confirm readiness and write set.
 2. Branch for one slice.
 3. Commit small, observable steps.
-4. Run `check`, `build`, `verify`, or `ci` based on risk.
-5. Record any intentional gaps in repo artifacts.
-6. Merge or hand off without reverting other agents' work.
+4. Run `check`, `verify`, `runtime:validate`, or `ci` based on risk.
+5. Apply the document sync policy and update required docs.
+6. Record any intentional gaps in repo artifacts.
+7. Merge or hand off without reverting other agents' work.
