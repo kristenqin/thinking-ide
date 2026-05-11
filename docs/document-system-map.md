@@ -22,13 +22,14 @@ flowchart TD
     B1["definition-of-ready.md"] --> D
     B2["definition-of-done.md"] --> D
     B3["document-sync-policy.md"] --> D
-    B4["git-workflow.md"] --> D
-    B5["multi-agent-governance.md"] --> D
-    B6["risk-register.md"] --> E
-    B7["traceability-matrix.md"] --> E
-    B8["runtime-validation.md"] --> F
-    B9["bundle-reduction-notes.md"] --> F
-    B10["ADR-0001 / ADR-0002"] --> F
+    B4["frontend-ui-contract.md"] --> D
+    B5["git-workflow.md"] --> D
+    B6["multi-agent-governance.md"] --> D
+    B7["risk-register.md"] --> E
+    B8["traceability-matrix.md"] --> E
+    B9["runtime-validation.md"] --> F
+    B10["bundle-reduction-notes.md"] --> F
+    B11["ADR-0001 / ADR-0002"] --> F
 
     C0["docs/specs/README.md"] --> C
     C1["specs/thinking_ide_prd_产品需求文档.md"] --> G
@@ -49,7 +50,7 @@ The repo should treat documents in four maintenance bands:
 | Band | Purpose | Typical files | Update expectation |
 |---|---|---|---|
 | Entry | Tell a human or agent where the project stands right now | `AGENTS.md`, `PROJECT_STATUS.md`, `docs/README.md` | Update whenever current focus, gates, or navigation changes |
-| Governance | Define how work is executed, verified, and synchronized | `definition-of-ready`, `definition-of-done`, `document-sync-policy`, `git-workflow`, `multi-agent-governance` | Update when process or gate semantics change |
+| Governance | Define how work is executed, verified, and synchronized | `definition-of-ready`, `definition-of-done`, `document-sync-policy`, `frontend-ui-contract`, `git-workflow`, `multi-agent-governance` | Update when process or gate semantics change |
 | Control | Track whether implementation and risk still line up with reality | `risk-register`, `traceability-matrix`, `runtime-validation`, bundle notes | Update when runtime guarantees, coverage, or known risks change |
 | Spec | Define product/design/technical intent for the MVP | `docs/specs/*.md` | Update when implementation intentionally changes spec intent or when the spec becomes misleading |
 
@@ -77,6 +78,7 @@ Do not update every spec file on every slice. Instead:
 2. Update a spec only when a slice changes the contract that spec claims to define.
 3. If implementation temporarily diverges but the spec is still the desired target, record the gap in `traceability-matrix` or `PROJECT_STATUS.md` instead of rewriting the spec to match an incomplete implementation.
 4. If a spec is no longer a desired target and has become misleading, update it in the same slice that establishes the new direction.
+5. For user-facing slices, review [frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) before deciding whether UI deferral is acceptable.
 
 ## Trigger Matrix For Specs
 

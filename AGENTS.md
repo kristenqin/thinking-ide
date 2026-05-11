@@ -14,8 +14,9 @@ Before starting any task, read these in order:
 2. [docs/definition-of-ready.md](/Users/qyx/Desktop/project/thinking-ide/docs/definition-of-ready.md)
 3. [docs/definition-of-done.md](/Users/qyx/Desktop/project/thinking-ide/docs/definition-of-done.md)
 4. [docs/document-sync-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-sync-policy.md)
-5. [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md)
-6. [docs/git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
+5. [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) for any user-facing slice
+6. [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md)
+7. [docs/git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
 
 Use [docs/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/README.md) as the navigation page for all governance artifacts.
 
@@ -62,6 +63,7 @@ Do not let UI components directly own DOM scanning or persistence logic.
 4. Do not silently expand scope.
 5. Do not revert unrelated work.
 6. If a task crosses a shared runtime boundary, escalate before changing it.
+7. If a task changes user-visible UI or interaction behavior, classify it using `frontend-ui-contract` before implementation.
 
 Shared runtime boundaries are:
 
@@ -80,7 +82,8 @@ Use the smallest valid gate for the slice:
 2. Code change without runtime behavior change: `npm run check`
 3. Shipped behavior change outside runtime boundaries: `npm run verify`
 4. Runtime-boundary behavior change: `npm run runtime:validate`
-5. Release or integration parity check: `npm run ci`
+5. UI-facing behavior change: apply the acceptance checks in [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) in addition to the command gate
+6. Release or integration parity check: `npm run ci`
 
 Install local hooks with:
 

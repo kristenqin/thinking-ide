@@ -16,6 +16,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 1. Stabilize the runtime spine around `content script -> chat scan -> draft generation -> canvas render -> local persistence`.
 2. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
 3. Keep the implementation aligned with the existing PRD, technical design, component spec, and task breakdown documents.
+4. Treat UI/UX acceptance as a first-class delivery constraint alongside logic, runtime, and persistence.
 
 ## Next
 
@@ -49,6 +50,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 10. Added logical delete, latest-removal undo, and source-lost persistence/feedback in the canvas editing flow.
 11. Upgraded runtime validation so `ci` now proves the unpacked extension can be loaded and auto-inject in a real browser.
 12. Added editable edge relations in the canvas and taught regeneration to keep user-curated draft edges authoritative on the same node pair.
+13. Added a repo-level frontend UI contract so user-facing slices now carry explicit UI acceptance and parallel delivery rules.
 
 ## Quality Gate
 
@@ -67,6 +69,7 @@ For a feature slice to move to `done`, it must satisfy every item in [docs/defin
 9. Local hook setup: run `npm run setup:hooks`
 10. Runtime validation: [docs/runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md), run `npm run runtime:validate` or `npm run runtime:validate:built`
 11. Bundle notes: [docs/bundle-reduction-notes.md](/Users/qyx/Desktop/project/thinking-ide/docs/bundle-reduction-notes.md)
+12. Frontend UI contract: [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md)
 
 ## Notes
 

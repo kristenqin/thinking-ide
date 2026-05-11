@@ -21,6 +21,7 @@ These documents must be updated in the same slice whenever their trigger conditi
 3. [docs/traceability-matrix.md](/Users/qyx/Desktop/project/thinking-ide/docs/traceability-matrix.md)
 4. The governing topic doc for the slice when one exists.
    Example: [docs/runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md) for runtime smoke work.
+5. [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) when repo-level frontend acceptance rules or UI slice semantics change.
 
 ### P1: Required Entry-Point Sync Documents
 
@@ -93,6 +94,23 @@ Must update:
 1. `PROJECT_STATUS.md`
 2. `AGENTS.md`
 
+### UI Or Interaction Contract Change
+
+Examples:
+
+1. panel information architecture changed
+2. state-view expectations changed
+3. toolbar, popover, or inspector behavior changed
+4. frontend acceptance rules changed
+
+Must update:
+
+1. `PROJECT_STATUS.md`
+2. `docs/traceability-matrix.md`
+3. `AGENTS.md`
+4. `docs/frontend-ui-contract.md` when the repo-level frontend rule changed
+5. The affected spec document under `docs/specs/` if the desired UI contract itself changed
+
 ### Risk Or Coverage Change
 
 Examples:
@@ -147,7 +165,7 @@ If a slice triggers this policy and the required documents are not updated, the 
 Before committing a slice:
 
 1. Name the governing spec or topic doc.
-2. Check whether the slice changed runtime behavior, verification, current focus, risk posture, or reference-note validity.
+2. Check whether the slice changed runtime behavior, verification, current focus, UI contract, risk posture, or reference-note validity.
 3. Update the required P0 and P1 docs from the trigger matrix.
 4. Verify that `AGENTS.md` and `PROJECT_STATUS.md` do not point to different current priorities.
 5. Verify that any topic doc describing a gate or script still matches `package.json` and the current implementation.

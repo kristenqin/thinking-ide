@@ -18,6 +18,8 @@ Use this before an agent starts implementation work in Thinking IDE.
    At minimum, name which of `npm run check`, `npm run build`, `npm run verify`, manual extension loading, or spec review applies.
 7. Acceptance is observable.
    The result can be checked in code, UI behavior, or a documented artifact.
+8. Frontend impact is classified when the slice is user-facing.
+   Name whether the slice is `logic-only`, `UI-coupled`, or `UI-alignment` using [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md).
 
 ## Do Not Start If
 
@@ -26,6 +28,7 @@ Use this before an agent starts implementation work in Thinking IDE.
 3. The task depends on unspecified ChatGPT DOM behavior or message structure.
 4. The task says "align with spec" but does not name the governing spec doc.
 5. The task can only be verified by "looks right" with no command, test case, or behavior check.
+6. The slice changes user-visible behavior but does not name the governing UI spec docs.
 
 ## Task Intake Checklist
 
@@ -36,6 +39,7 @@ Use this before an agent starts implementation work in Thinking IDE.
 - Dependencies and blockers listed.
 - Verification method chosen.
 - Escalation trigger noted if the task touches shared runtime boundaries.
+- Frontend classification recorded for user-facing slices.
 
 ## Shared Runtime Boundaries
 

@@ -42,6 +42,7 @@ Task:
 Write set:
 Out-of-scope files:
 Verification plan:
+Frontend classification:
 ```
 
 Rules:
@@ -59,6 +60,7 @@ Rules:
 4. Run the smallest meaningful verification set.
 5. Report outcome, gaps, and exact files changed.
 6. If done, ensure the slice still satisfies [docs/definition-of-done.md](/Users/qyx/Desktop/project/thinking-ide/docs/definition-of-done.md).
+7. For user-facing slices, apply [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) before calling the slice complete.
 
 ## Reporting Format
 
@@ -100,3 +102,5 @@ Needs handoff:
    Run `npm run verify`.
 4. High-risk shared-boundary change
    Run `npm run verify` and record any manual extension/UI checks performed.
+5. UI-facing slice
+   Name the governing UI spec docs and classify the slice as `logic-only`, `UI-coupled`, or `UI-alignment`.

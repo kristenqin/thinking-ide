@@ -22,6 +22,8 @@ This repository uses the following minimum definition of done for any milestone 
    If implementation intentionally diverges from the existing specs, the relevant spec document is updated in the same iteration or the drift is recorded clearly.
 9. Required sync docs are updated.
    Any slice that triggers [docs/document-sync-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-sync-policy.md) updates the required documents in the same iteration or records the gap clearly.
+10. Frontend-facing behavior is accepted as product behavior.
+   If the slice changes user-visible UI or interaction, it satisfies the acceptance checks in [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) or records the remaining UI gap explicitly.
 
 ## Not Enough On Its Own
 
@@ -31,6 +33,7 @@ The following do not qualify as done by themselves:
 2. The code compiles locally but no repository script verifies it.
 3. A workaround exists only in chat context and is not reflected in repository artifacts.
 4. A feature “mostly works” but the unresolved failure mode is undocumented.
+5. Logic behavior landed, but the required user-facing state/interaction treatment was silently deferred.
 
 ## Default Verification Command Set
 
