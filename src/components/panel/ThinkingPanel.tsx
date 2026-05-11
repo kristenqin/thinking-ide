@@ -1,4 +1,5 @@
-import { RefreshCcw } from "lucide-react";
+import { RefreshCcw, Settings2, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useThinkingStore } from "../../stores/useThinkingStore";
 import { Button } from "../ui/button";
 import { ConceptMapCanvas } from "../canvas/ConceptMapCanvas";
@@ -8,8 +9,22 @@ type ThinkingPanelProps = {
 };
 
 export function ThinkingPanel({ onGenerate }: ThinkingPanelProps) {
-  const { document, status, error, notice, recentAction, undoLastRemoval, setNotice } = useThinkingStore();
+  const {
+    document,
+    status,
+    error,
+    notice,
+    recentAction,
+    undoLastRemoval,
+    setNotice,
+    setAutoGenerate,
+    clearCurrentMap
+  } = useThinkingStore();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isConfirmingClear, setIsConfirmingClear] = useState(false);
+  const settingsCardRef = useRef<HTMLDivElement>(null);
   const conversationTitle = document?.conversation.title || "Current chat";
+  const autoGenerate = document?.settings.autoGenerate ?? true;
   const nodeCount = document?.nodes.filter((node) => node.data.status !== "removed").length ?? 0;
   const edgeCount = document?.edges.filter((edge) => edge.data?.status !== "removed").length ?? 0;
   const sourceLostCount = document?.sources.filter((source) => source.status === "lost").length ?? 0;
@@ -40,6 +55,30 @@ export function ThinkingPanel({ onGenerate }: ThinkingPanelProps) {
       ? `Map available for direct editing. ${mapSummary}.`
       : "Start a conversation on the left and Thinking IDE will draft a concept map here.";
 
+  useEffect(() => {
+    if (!isSettingsOpen) {
+      setIsConfirmingClear(false);
+      return;
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+      const target = event.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+
+      if (settingsCardRef.current?.contains(target)) {
+        return;
+      }
+
+      setIsSettingsOpen(false);
+      setIsConfirmingClear(false);
+    }
+
+    window.addEventListener("pointerdown", handlePointerDown, true);
+    return () => window.removeEventListener("pointerdown", handlePointerDown, true);
+  }, [isSettingsOpen]);
+
   return (
     <section className="ti-panel">
       <header className="ti-header">
@@ -54,6 +93,76 @@ export function ThinkingPanel({ onGenerate }: ThinkingPanelProps) {
           <p className="ti-header__summary">Shape the conversation into a concept map without leaving the chat flow.</p>
         </div>
         <div className="ti-header__actions">
+          <div className="ti-settings-anchor">
+            <Button
+              variant="ghost"
+              aria-expanded={isSettingsOpen}
+              aria-haspopup="dialog"
+              onClick={() => setIsSettingsOpen((open) => !open)}
+            >
+              <Settings2 size={14} />
+              Settings
+            </Button>
+            {isSettingsOpen ? (
+              <div className="ti-settings-card" ref={settingsCardRef} role="dialog" aria-label="Workspace settings">
+                <div className="ti-floating-card__eyebrow">Workspace settings</div>
+                <label className="ti-toggle-row" htmlFor="ti-auto-generate-toggle">
+                  <div className="ti-toggle-row__copy">
+                    <span>Auto-refresh from chat</span>
+                    <p>Keep observing new chat messages and refresh the concept map automatically.</p>
+                  </div>
+                  <input
+                    id="ti-auto-generate-toggle"
+                    type="checkbox"
+                    checked={autoGenerate}
+                    onChange={(event) => {
+                      void setAutoGenerate(event.currentTarget.checked);
+                    }}
+                  />
+                </label>
+
+                <div className="ti-settings-card__section">
+                  <div className="ti-settings-card__label">Clear current map</div>
+                  <p className="ti-settings-card__meta">
+                    Remove the saved concept map for this chat and start fresh.
+                  </p>
+                  {isConfirmingClear ? (
+                    <div className="ti-settings-card__confirm">
+                      <p>This removes the saved map for this conversation. The chat itself stays untouched.</p>
+                      <div className="ti-floating-card__actions">
+                        <Button
+                          variant="secondary"
+                          className="ti-settings-card__danger"
+                          onClick={() => {
+                            void clearCurrentMap();
+                            setIsSettingsOpen(false);
+                            setIsConfirmingClear(false);
+                          }}
+                          disabled={!document}
+                        >
+                          <Trash2 size={14} />
+                          Confirm clear
+                        </Button>
+                        <Button variant="ghost" onClick={() => setIsConfirmingClear(false)}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      className="ti-settings-card__clear"
+                      onClick={() => setIsConfirmingClear(true)}
+                      disabled={!document}
+                    >
+                      <Trash2 size={14} />
+                      Clear current map
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ) : null}
+          </div>
           <Button variant="ghost" onClick={() => void onGenerate()}>
             <RefreshCcw size={14} />
             Refresh

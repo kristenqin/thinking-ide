@@ -9,11 +9,12 @@ This folder contains the operational engineering guardrails for autonomous execu
 3. Multi-agent rules: [multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md)
 4. Document sync policy: [document-sync-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-sync-policy.md)
 5. Document system map: [document-system-map.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-system-map.md)
-6. Frontend UI contract: [frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md)
-7. Design system: [design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md)
-8. Git workflow: [git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
-9. Runtime validation: [runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md)
-10. Bundle notes: [bundle-reduction-notes.md](/Users/qyx/Desktop/project/thinking-ide/docs/bundle-reduction-notes.md)
+6. Debug triage policy: [debug-triage-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/debug-triage-policy.md)
+7. Frontend UI contract: [frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md)
+8. Design system: [design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md)
+9. Git workflow: [git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
+10. Runtime validation: [runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md)
+11. Bundle notes: [bundle-reduction-notes.md](/Users/qyx/Desktop/project/thinking-ide/docs/bundle-reduction-notes.md)
 
 ## Execution Tracking
 
@@ -48,6 +49,7 @@ This folder contains the operational engineering guardrails for autonomous execu
 5. Install local repo hooks with `npm run setup:hooks`.
 6. Use `npm run runtime:validate` for the full extension-load smoke pass, or rely on `npm run ci` to run the built-artifact runtime gate automatically.
 7. Use `document-sync-policy` whenever a slice changes runtime guarantees, repo gates, current focus, or risk posture.
-8. Use `frontend-ui-contract` whenever a slice changes user-visible UI or interaction behavior.
-9. Use `design-system/README.md` whenever a slice needs a concrete visual baseline or reusable UI pattern guidance.
-10. For non-trivial work, default to sidecar agents with non-overlapping write sets and keep the main thread focused on orchestration and integration.
+8. Use `debug-triage-policy` when investigating UI or runtime issues so rendered evidence is captured before code-first debugging.
+9. Use `frontend-ui-contract` whenever a slice changes user-visible UI or interaction behavior.
+10. Use `design-system/README.md` whenever a slice needs a concrete visual baseline or reusable UI pattern guidance.
+11. For non-trivial work, default to sidecar agents with non-overlapping write sets and keep the main thread focused on orchestration and integration.

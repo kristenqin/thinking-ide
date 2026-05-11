@@ -26,11 +26,10 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 1. Harden merge rules so more kinds of user-curated nodes and edges survive regeneration safely.
    Current baseline now preserves reordered same-source concepts by title identity and stops one removed concept from suppressing all sibling concepts.
 2. Continue moving panel, canvas, and overlay surfaces onto the shared design-system token layer while keeping the Notion-derived baseline intact.
-3. Expose the new settings groundwork through a proper settings surface with confirmation for `Clear current map`.
-4. Add richer canvas editing actions beyond the current delete, relation-edit, single-step undo, and low-frequency role-conversion baseline.
-5. Start trimming the content bundle before the runtime spine grows much further.
-6. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
-7. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
+3. Add richer canvas editing actions beyond the current delete, relation-edit, single-step undo, and low-frequency role-conversion baseline.
+4. Start trimming the content bundle before the runtime spine grows much further.
+5. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
+6. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
 
 ## Blocked
 
@@ -70,6 +69,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 24. Simplified the panel information hierarchy by removing repeated stats and always-on guidance, and downgraded the top-right regenerate CTA into a lighter `Refresh` action.
 25. Tightened repo governance so automatic delegation triggers now require the main thread to spawn sidecars proactively for naturally parallel slices.
 26. Fixed the canvas first-load viewport so persisted or freshly generated maps auto-frame reliably after async hydration, corrected the panel layout chain so the canvas no longer collapses when the status bar is absent, and added an explicit `Reset view` recovery action plus a runtime-validation guard for collapsed canvas height.
+27. Added a lightweight header settings surface for `auto-refresh from chat` and `Clear current map`, wired to the persisted settings/repository groundwork with an in-panel confirmation flow.
 
 ## Quality Gate
 
@@ -88,8 +88,9 @@ For a feature slice to move to `done`, it must satisfy every item in [docs/defin
 9. Local hook setup: run `npm run setup:hooks`
 10. Runtime validation: [docs/runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md), run `npm run runtime:validate` or `npm run runtime:validate:built`
 11. Bundle notes: [docs/bundle-reduction-notes.md](/Users/qyx/Desktop/project/thinking-ide/docs/bundle-reduction-notes.md)
-12. Frontend UI contract: [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md)
-13. Design system: [docs/design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md)
+12. Debug triage policy: [docs/debug-triage-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/debug-triage-policy.md)
+13. Frontend UI contract: [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md)
+14. Design system: [docs/design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md)
 
 ## Notes
 

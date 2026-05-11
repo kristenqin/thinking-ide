@@ -67,6 +67,7 @@ Rules:
 7. Close or recycle completed sidecar agents promptly so capacity stays available for the next slice.
 8. If done, ensure the slice still satisfies [docs/definition-of-done.md](/Users/qyx/Desktop/project/thinking-ide/docs/definition-of-done.md).
 9. For user-facing slices, apply [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) before calling the slice complete.
+10. For UI or runtime issue investigation slices, apply [docs/debug-triage-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/debug-triage-policy.md) before code-first debugging.
 
 ## Parallelism Default
 
@@ -140,6 +141,8 @@ Needs handoff:
    Run `npm run verify` and record any manual extension/UI checks performed.
 5. UI-facing slice
    Name the governing UI spec docs and classify the slice as `logic-only`, `UI-coupled`, or `UI-alignment`.
+6. UI/runtime debug slice
+   Capture screenshot or render-result evidence first and record the evidence source used.
 
 ## Capacity Hygiene
 

@@ -68,6 +68,7 @@ Do not let UI components directly own DOM scanning or persistence logic.
 8. If a task changes reusable visual language, token semantics, or shared workspace patterns, update the relevant file under `docs/design-system/` in the same slice.
 9. Default to parallel sidecar execution for non-trivial work; keep the main thread focused on orchestration, integration, and final gates whenever write sets allow.
 10. If a task matches the automatic delegation triggers in [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md), spawn sidecars proactively instead of waiting for the user to request them.
+11. If a task is primarily about a UI or runtime issue investigation, follow [docs/debug-triage-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/debug-triage-policy.md) and capture screenshot or render-result evidence before code-first debugging.
 
 Shared runtime boundaries are:
 
@@ -87,7 +88,8 @@ Use the smallest valid gate for the slice:
 3. Shipped behavior change outside runtime boundaries: `npm run verify`
 4. Runtime-boundary behavior change: `npm run runtime:validate`
 5. UI-facing behavior change: apply the acceptance checks in [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) in addition to the command gate
-6. Release or integration parity check: `npm run ci`
+6. UI/runtime debug investigation: terminology, links, governance consistency, and debug-triage-policy consistency review
+7. Release or integration parity check: `npm run ci`
 
 For design-system-only slices, use terminology, link, and cross-reference review as the minimum gate unless the slice also changes shipped frontend code.
 
@@ -122,12 +124,11 @@ The current next slices are:
 
 1. Continue aligning the panel, canvas chrome, and editing surfaces with the spec-defined workspace UX.
 2. Continue moving runtime UI surfaces onto the shared design-system token layer instead of page-local styling.
-3. Expose the new settings groundwork through a proper settings surface with confirmation for `Clear current map`.
-4. Harden regeneration merge rules beyond the current title-based concept identity and removed-sibling protections.
-5. Add richer canvas editing beyond the current delete, relation-edit, single-step undo, and low-frequency role-conversion baseline.
-6. Trim the content bundle before the runtime spine grows further.
-7. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
-8. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
+3. Harden regeneration merge rules beyond the current title-based concept identity and removed-sibling protections.
+4. Add richer canvas editing beyond the current delete, relation-edit, single-step undo, and low-frequency role-conversion baseline.
+5. Trim the content bundle before the runtime spine grows further.
+6. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
+7. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
 
 ## Completion Reporting
 
