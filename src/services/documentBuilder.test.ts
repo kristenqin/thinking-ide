@@ -224,6 +224,71 @@ test("buildThinkingDocument preserves manual node edits, settings, and manual re
   );
 });
 
+test("buildThinkingDocument preserves user-edited draft edges even when the relation changed", () => {
+  const generatedNodes = [
+    createNode("generated-question", "question", "Refresh behavior"),
+    createNode("generated-answer", "answer", "Restore from storage", "source-1")
+  ];
+  const generatedEdges = [createEdge("generated-answers", "generated-question", "generated-answer", "answers")];
+  const previous: ThinkingDocument = {
+    conversation,
+    messages,
+    sources,
+    nodes: [
+      {
+        ...createNode("manual-question", "question", "Refresh behavior"),
+        position: { x: 48, y: 80 }
+      },
+      {
+        ...createNode("manual-answer", "answer", "Restore from storage", "source-1"),
+        position: { x: 320, y: 80 }
+      }
+    ],
+    edges: [
+      {
+        ...createEdge("manual-edge", "manual-question", "manual-answer", "answers"),
+        label: "expands",
+        data: {
+          relation: "expands",
+          status: "draft"
+        }
+      }
+    ],
+    settings: defaultSettings,
+    updatedAt: "2026-05-10T00:02:00.000Z"
+  };
+
+  const document = buildThinkingDocument({
+    conversation,
+    messages,
+    sources,
+    generatedNodes,
+    generatedEdges,
+    settings: defaultSettings,
+    previous
+  });
+
+  assert.equal(
+    document.edges.some(
+      (edge) =>
+        edge.source === "manual-question" &&
+        edge.target === "manual-answer" &&
+        edge.data?.relation === "expands" &&
+        edge.data?.status === "draft"
+    ),
+    true
+  );
+  assert.equal(
+    document.edges.some(
+      (edge) =>
+        edge.source === "manual-question" &&
+        edge.target === "manual-answer" &&
+        edge.data?.relation === "answers"
+    ),
+    false
+  );
+});
+
 test("buildThinkingDocument does not revive previously removed generated nodes", () => {
   const previous: ThinkingDocument = {
     conversation,

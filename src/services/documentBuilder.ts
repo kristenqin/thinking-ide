@@ -23,6 +23,10 @@ function buildEdgeKey(edge: ConceptMapEdgeRecord): string {
   return [edge.source, edge.target, edge.label ?? "", edge.data?.relation ?? "unknown"].join("::");
 }
 
+function buildEdgePairKey(edge: ConceptMapEdgeRecord): string {
+  return [edge.source, edge.target].join("::");
+}
+
 function mergeNodes(
   previousNodes: ConceptMapNodeRecord[],
   generatedNodes: ConceptMapNodeRecord[]
@@ -93,13 +97,19 @@ function mergeEdges(
 
   const preservedManualEdges = previousEdges
     .filter((edge) => edge.data?.status !== "removed")
-    .filter((edge) => edge.data?.relation === "relates")
+    .filter((edge) => edge.data?.status === "draft")
     .filter((edge) =>
       mergedNodes.some((node) => node.id === edge.source) && mergedNodes.some((node) => node.id === edge.target)
     );
+  const preservedManualEdgePairs = new Set(
+    preservedManualEdges.map((edge) => buildEdgePairKey(edge))
+  );
+  const filteredGeneratedEdges = rewrittenGeneratedEdges.filter(
+    (edge) => !preservedManualEdgePairs.has(buildEdgePairKey(edge))
+  );
 
   const deduped = new Map<string, ConceptMapEdgeRecord>();
-  rewrittenGeneratedEdges.concat(preservedManualEdges).forEach((edge) => {
+  filteredGeneratedEdges.concat(preservedManualEdges).forEach((edge) => {
     deduped.set(buildEdgeKey(edge), edge);
   });
 

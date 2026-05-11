@@ -1,6 +1,6 @@
 import { Background, Controls, MiniMap, ReactFlow } from "@xyflow/react";
 import { useEffect, useMemo, useState } from "react";
-import type { ConceptMapEdgeRecord } from "../../models/edge";
+import type { ConceptMapEdgeRecord, EdgeRelationType } from "../../models/edge";
 import type { ConceptMapNodeRecord } from "../../models/node";
 import { useThinkingStore } from "../../stores/useThinkingStore";
 import { revealSource } from "../../services/sourceLocator";
@@ -11,6 +11,8 @@ const nodeTypes = {
   concept: ConceptNode
 };
 
+const relationOptions: EdgeRelationType[] = ["relates", "answers", "expands"];
+
 export function ConceptMapCanvas() {
   const {
     document,
@@ -18,6 +20,7 @@ export function ConceptMapCanvas() {
     onEdgesChange,
     addConnection,
     renameNode,
+    updateEdgeRelation,
     focusSource,
     markSourceLost,
     removeNode,
@@ -147,10 +150,26 @@ export function ConceptMapCanvas() {
 
       {selectedEdge ? (
         <div className="ti-floating-panel">
-          <div className="ti-label">
-            Edge
-            <div className="ti-readonly">{selectedEdge.label ?? selectedEdge.data?.relation ?? "relation"}</div>
-          </div>
+          <label className="ti-label" htmlFor="ti-edge-relation">
+            Relation
+            <select
+              id="ti-edge-relation"
+              className="ti-input"
+              value={selectedEdge.data?.relation ?? "relates"}
+              onChange={(event) => {
+                void updateEdgeRelation(
+                  selectedEdge.id,
+                  event.currentTarget.value as EdgeRelationType
+                );
+              }}
+            >
+              {relationOptions.map((relation) => (
+                <option key={relation} value={relation}>
+                  {relation}
+                </option>
+              ))}
+            </select>
+          </label>
           <Button
             variant="secondary"
             onClick={() => {

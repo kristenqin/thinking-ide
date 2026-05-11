@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { addEdge, applyEdgeChanges, applyNodeChanges, type Connection, type EdgeChange, type NodeChange } from "@xyflow/react";
 import type { ThinkingDocument } from "../models/document";
-import type { ConceptMapEdgeRecord } from "../models/edge";
+import type { ConceptMapEdgeRecord, EdgeRelationType } from "../models/edge";
 import type { ConceptMapNodeRecord } from "../models/node";
 import type { SourceRef } from "../models/source";
 import { loadDocument, saveDocument } from "../services/repository";
@@ -33,6 +33,7 @@ type ThinkingState = {
   onNodesChange: (changes: NodeChange<ConceptMapNodeRecord>[]) => Promise<void>;
   onEdgesChange: (changes: EdgeChange<ConceptMapEdgeRecord>[]) => Promise<void>;
   renameNode: (nodeId: string, title: string) => Promise<void>;
+  updateEdgeRelation: (edgeId: string, relation: EdgeRelationType) => Promise<void>;
   addConnection: (connection: Connection) => Promise<void>;
   focusSource: (sourceId: string) => SourceRef | undefined;
   markSourceLost: (sourceId: string) => Promise<void>;
@@ -104,6 +105,28 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
       node.id === nodeId ? { ...node, data: { ...node.data, title } } : node
     );
     const updated = { ...current, nodes, updatedAt: new Date().toISOString() };
+    set({ document: updated });
+    await persist(updated);
+  },
+  async updateEdgeRelation(edgeId, relation) {
+    const current = get().document;
+    if (!current) {
+      return;
+    }
+
+    const edges = current.edges.map((edge) =>
+      edge.id === edgeId
+        ? {
+            ...edge,
+            label: relation,
+            data: {
+              relation,
+              status: "draft" as const
+            }
+          }
+        : edge
+    );
+    const updated = { ...current, edges, updatedAt: new Date().toISOString() };
     set({ document: updated });
     await persist(updated);
   },

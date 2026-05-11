@@ -20,7 +20,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 ## Next
 
 1. Harden merge rules so more kinds of user-curated nodes and edges survive regeneration safely.
-2. Add richer canvas editing actions beyond delete, especially relation editing and lightweight undo ergonomics.
+2. Add richer canvas editing actions beyond the current delete, relation-edit, and single-step undo baseline.
 3. Start trimming the content bundle before the runtime spine grows further.
 4. Add clearer source-lost iconography and tooltip treatment in the node surface.
 5. Expand runtime validation coverage toward more source-jump and selector edge cases.
@@ -48,6 +48,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 9. Added local runtime black-box validation with a mock host and a real-browser smoke script via `npm run runtime:validate`.
 10. Added logical delete, latest-removal undo, and source-lost persistence/feedback in the canvas editing flow.
 11. Upgraded runtime validation so `ci` now proves the unpacked extension can be loaded and auto-inject in a real browser.
+12. Added editable edge relations in the canvas and taught regeneration to keep user-curated draft edges authoritative on the same node pair.
 
 ## Quality Gate
 

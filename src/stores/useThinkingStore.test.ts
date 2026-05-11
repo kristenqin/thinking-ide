@@ -133,3 +133,14 @@ test("markSourceLost updates the source status and preserves the node", async ()
     "Original chat location is unavailable, but the node is still editable."
   );
 });
+
+test("updateEdgeRelation changes the relation label and keeps the edge editable", async () => {
+  useThinkingStore.setState({ document: documentFixture });
+
+  await useThinkingStore.getState().updateEdgeRelation("edge-1", "answers");
+
+  const state = useThinkingStore.getState();
+  assert.equal(state.document?.edges[0]?.label, "answers");
+  assert.equal(state.document?.edges[0]?.data?.relation, "answers");
+  assert.equal(state.document?.edges[0]?.data?.status, "draft");
+});

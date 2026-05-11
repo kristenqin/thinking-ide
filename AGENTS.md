@@ -110,7 +110,7 @@ Check these before changing core behavior:
 The current next slices are:
 
 1. Harden regeneration merge rules so more user-curated nodes and edges survive refresh safely.
-2. Add richer canvas editing beyond delete, especially relation editing and lightweight undo ergonomics.
+2. Add richer canvas editing beyond the current delete, relation-edit, and single-step undo baseline.
 3. Trim the content bundle before the runtime spine grows further.
 4. Add clearer source-lost iconography and tooltip treatment in the node surface.
 5. Expand runtime validation coverage toward more source-jump and selector edge cases.
