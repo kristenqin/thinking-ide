@@ -36,8 +36,9 @@ These documents must be updated when their summaries or operating instructions b
 These documents should be updated when they are directly affected, but they are not always mandatory for every slice:
 
 1. [docs/bundle-reduction-notes.md](/Users/qyx/Desktop/project/thinking-ide/docs/bundle-reduction-notes.md)
-2. ADRs under [docs/architecture-decisions](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions)
-3. Root product/spec docs in the repository
+2. [docs/document-system-map.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-system-map.md)
+3. ADRs under [docs/architecture-decisions](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions)
+4. Root product/spec docs in the repository
 
 ## Trigger Matrix
 
@@ -118,6 +119,24 @@ Must update:
 
 1. The stale reference note itself
 2. `PROJECT_STATUS.md` only if the stale note affected the active milestone summary
+
+### Root Spec Contract Change
+
+Examples:
+
+1. product promise changed
+2. interaction contract changed
+3. data model or persistence contract changed
+4. runtime architecture changed
+5. validation strategy changed
+
+Must update:
+
+1. The affected root spec document or documents
+2. `docs/traceability-matrix.md` if implementation coverage meaning changed
+3. `PROJECT_STATUS.md` if the active milestone narrative or next slices changed
+
+Use [document-system-map.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-system-map.md) to decide which root spec family owns the change.
 
 ## Done Gate
 
