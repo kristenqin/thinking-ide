@@ -87,6 +87,19 @@ async function clickShadowButtonByText(page, expectedTexts) {
   }, expectedTexts);
 }
 
+async function readBottomLog(page) {
+  return page.evaluate(() => {
+    const root = document.getElementById("thinking-ide-root");
+    const shadowRoot = root?.shadowRoot;
+
+    return (
+      shadowRoot?.querySelector(".ti-bottomlog__message")?.textContent?.trim() ??
+      shadowRoot?.querySelector(".ti-bottomlog")?.textContent?.trim() ??
+      ""
+    );
+  });
+}
+
 async function run() {
   const server = await startMockHostServer();
   const userDataDir = mkdtempSync(join(tmpdir(), "thinking-ide-runtime-validation-"));
@@ -189,6 +202,47 @@ async function run() {
         );
       })
     );
+
+    await page.evaluate(() => {
+      const button = document.getElementById("remove-assistant-sources");
+      if (!(button instanceof HTMLButtonElement)) {
+        throw new Error("Missing remove-assistant-sources button in runtime validation host");
+      }
+
+      button.click();
+    });
+    await page.waitForFunction(
+      () => document.querySelectorAll('[data-message-author-role="assistant"]').length === 0
+    );
+
+    await clickNodeByTitle(page, "Exchange 1 should trigger");
+    await clickShadowButtonByText(page, ["Jump to source", "Source"]);
+    await page.waitForFunction(() => {
+      const root = document.getElementById("thinking-ide-root");
+      const shadowRoot = root?.shadowRoot;
+      const logText =
+        shadowRoot?.querySelector(".ti-bottomlog__message")?.textContent?.trim() ??
+        shadowRoot?.querySelector(".ti-bottomlog")?.textContent?.trim() ??
+        "";
+
+      return /original chat location is unavailable/i.test(logText);
+    });
+
+    const failureLog = await readBottomLog(page);
+
+    if (!/original chat location is unavailable/i.test(failureLog)) {
+      throw new Error(`Expected source-lost feedback after removing assistant sources, received: ${failureLog}`);
+    }
+
+    const highlightedAssistantCount = await page.evaluate(
+      () => document.querySelectorAll('[data-message-author-role="assistant"][data-thinking-ide-highlight="true"]').length
+    );
+
+    if (highlightedAssistantCount !== 0) {
+      throw new Error(
+        `Expected no assistant highlight after source-lost jump, received ${highlightedAssistantCount} highlighted assistant messages`
+      );
+    }
 
     if (refreshedState.hasError) {
       throw new Error(`Expected healthy injected panel after refresh, received error state: ${refreshedState.statusText}`);

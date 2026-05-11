@@ -1,5 +1,5 @@
 import { Background, Controls, MiniMap, NodeToolbar, Position, ReactFlow } from "@xyflow/react";
-import { Link2, PencilLine, RefreshCcw, Trash2 } from "lucide-react";
+import { AlertTriangle, Link2, PencilLine, RefreshCcw, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ConceptMapEdgeRecord, EdgeRelationType } from "../../models/edge";
 import type { ConceptMapNodeRecord } from "../../models/node";
@@ -13,6 +13,10 @@ const nodeTypes = {
 };
 
 const relationOptions: EdgeRelationType[] = ["relates", "answers", "expands"];
+
+function sourceLostTooltip(copy?: string) {
+  return copy ?? "Original source could not be located. The node is still editable.";
+}
 
 export function ConceptMapCanvas() {
   const {
@@ -33,10 +37,23 @@ export function ConceptMapCanvas() {
   const [draftTitle, setDraftTitle] = useState("");
   const [canvasHint, setCanvasHint] = useState<string>();
   const renameCardRef = useRef<HTMLDivElement>(null);
+  const sourceStatusById = useMemo(
+    () => new Map((document?.sources ?? []).map((source) => [source.id, source.status])),
+    [document?.sources]
+  );
 
   const nodes = useMemo<ConceptMapNodeRecord[]>(
-    () => (document?.nodes ?? []).filter((node) => node.data.status !== "removed"),
-    [document?.nodes]
+    () =>
+      (document?.nodes ?? [])
+        .filter((node) => node.data.status !== "removed")
+        .map((node) => ({
+          ...node,
+          data: {
+            ...node.data,
+            sourceLost: node.data.sourceId ? sourceStatusById.get(node.data.sourceId) === "lost" : false
+          }
+        })),
+    [document?.nodes, sourceStatusById]
   );
   const edges = useMemo<ConceptMapEdgeRecord[]>(
     () =>
@@ -51,6 +68,9 @@ export function ConceptMapCanvas() {
   const selectedNode = document?.nodes.find(
     (node) => node.id === selectedNodeId && node.data.status !== "removed"
   );
+  const selectedNodeSourceLost = selectedNode?.data.sourceId
+    ? sourceStatusById.get(selectedNode.data.sourceId) === "lost"
+    : false;
   const selectedEdge = document?.edges.find(
     (edge) => edge.id === selectedEdgeId && edge.data?.status !== "removed"
   );
@@ -216,44 +236,57 @@ export function ConceptMapCanvas() {
             position={selectedNode.position.y < 120 ? Position.Bottom : Position.Top}
           >
             <div className="ti-node-toolbar">
-              <Button variant="ghost" className="ti-node-toolbar__button" onClick={() => setRenamingNodeId(selectedNode.id)}>
-                <PencilLine size={14} />
-                Rename
-              </Button>
-              <Button
-                variant="ghost"
-                className="ti-node-toolbar__button"
-                onClick={() => {
-                  const sourceId = selectedNode.data.sourceId;
-                  const source = focusSource(sourceId ?? "");
-                  const result = revealSource(source);
-                  if (result === "lost" && sourceId) {
-                    void markSourceLost(sourceId);
-                  }
-                }}
-              >
-                <RefreshCcw size={14} />
-                Source
-              </Button>
-              <Button
-                variant="ghost"
-                className="ti-node-toolbar__button"
-                onClick={() => setCanvasHint("Drag from a node handle to create a new connection.")}
-              >
-                <Link2 size={14} />
-                Connect
-              </Button>
-              <Button
-                variant="ghost"
-                className="ti-node-toolbar__button ti-node-toolbar__button--danger"
-                onClick={() => {
-                  void removeNode(selectedNode.id);
-                  setSelectedNodeId(undefined);
-                }}
-              >
-                <Trash2 size={14} />
-                Delete
-              </Button>
+              <div className="ti-node-toolbar__actions">
+                <Button
+                  variant="ghost"
+                  className="ti-node-toolbar__button"
+                  onClick={() => setRenamingNodeId(selectedNode.id)}
+                >
+                  <PencilLine size={14} />
+                  Rename
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={`ti-node-toolbar__button ${selectedNodeSourceLost ? "ti-node-toolbar__button--warning" : ""}`}
+                  title={selectedNodeSourceLost ? sourceLostTooltip() : undefined}
+                  onClick={() => {
+                    const sourceId = selectedNode.data.sourceId;
+                    const source = focusSource(sourceId ?? "");
+                    const result = revealSource(source);
+                    if (result === "lost" && sourceId) {
+                      void markSourceLost(sourceId);
+                    }
+                  }}
+                >
+                  {selectedNodeSourceLost ? <AlertTriangle size={14} /> : <RefreshCcw size={14} />}
+                  Source
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="ti-node-toolbar__button"
+                  onClick={() => setCanvasHint("Drag from a node handle to create a new connection.")}
+                >
+                  <Link2 size={14} />
+                  Connect
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="ti-node-toolbar__button ti-node-toolbar__button--danger"
+                  onClick={() => {
+                    void removeNode(selectedNode.id);
+                    setSelectedNodeId(undefined);
+                  }}
+                >
+                  <Trash2 size={14} />
+                  Delete
+                </Button>
+              </div>
+              {selectedNodeSourceLost ? (
+                <div className="ti-node-toolbar__hint" role="note">
+                  <AlertTriangle size={12} />
+                  <span>{sourceLostTooltip()}</span>
+                </div>
+              ) : null}
             </div>
           </NodeToolbar>
         ) : null}

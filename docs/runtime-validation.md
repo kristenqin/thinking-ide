@@ -46,6 +46,7 @@ What the harness does:
 4. Opens the mock host and waits for the real content script to inject automatically.
 5. Appends new mock chat content and checks that the panel remains healthy.
 6. Selects the latest answer node and proves `Jump to source` highlights the correct assistant message even when dynamic mock messages do not expose stable DOM ids.
+7. Removes assistant source messages from the host after the map is already rendered and proves `Jump to source` degrades into source-lost feedback instead of failing silently or highlighting the wrong node.
 
 ## What The Smoke Test Must Prove
 
@@ -59,6 +60,7 @@ For the current milestone, runtime smoke validation must prove all of the follow
 5. Appending new chat content changes the rendered concept map in a way that proves the observer/regeneration path ran, not just that the panel stayed mounted.
 6. The injected panel reaches a `ready` state after boot and refresh.
 7. `Jump to source` can reveal and highlight the expected message in the mock host after refresh, including fallback source matching when DOM ids are unavailable.
+8. When a previously indexed assistant source disappears from the host DOM, the panel surfaces a source-lost feedback state instead of silently doing nothing.
 
 This is intentionally narrower than full product validation. It is the minimum black-box proof that the M1 runtime spine still works as an integrated extension.
 
@@ -89,7 +91,7 @@ Current limits:
 
 1. The mock DOM only imitates the minimum structure the current adapter understands. It does not cover real ChatGPT layout churn, streaming states, virtualization, or alternate message wrappers.
 2. It now proves the full unpacked-extension loading path in automation, but still only against the mock host.
-3. It covers a successful source-jump fallback path, but it does not yet verify source-jump correctness against long, repeated, or edited real conversations.
+3. It covers one successful source-jump fallback path plus one degraded source-lost path, but it does not yet verify source-jump correctness against long, repeated, or edited real conversations.
 4. It does not exercise every persistence edge case, only the runtime path up to a healthy injected panel.
 5. It does not replace the broader scenarios listed in [thinking_ide_测试用例文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_测试用例文档.md).
 

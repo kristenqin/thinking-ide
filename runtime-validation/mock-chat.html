@@ -115,6 +115,7 @@
           <div class="controls">
             <button id="append-exchange" type="button">Append Exchange</button>
             <button id="append-assistant" type="button">Append Assistant Follow-up</button>
+            <button id="remove-assistant-sources" type="button">Remove Assistant Sources</button>
           </div>
         </section>
 
@@ -175,6 +176,12 @@
           "",
           `Assistant follow-up ${assistantCount} adds more detail about source anchoring and runtime validation.`
         );
+      });
+
+      document.getElementById("remove-assistant-sources").addEventListener("click", () => {
+        Array.from(chatRoot.querySelectorAll('[data-message-author-role="assistant"]')).forEach((message) => {
+          message.remove();
+        });
       });
     </script>
   </body>

@@ -320,3 +320,95 @@ test("buildThinkingDocument does not revive previously removed generated nodes",
 
   assert.deepEqual(document.nodes, []);
 });
+
+test("buildThinkingDocument does not suppress sibling concepts when only one matching concept was removed", () => {
+  const previous: ThinkingDocument = {
+    conversation,
+    messages,
+    sources,
+    nodes: [
+      {
+        ...createNode("removed-concept", "concept", "Discarded concept", "source-1"),
+        data: {
+          ...createNode("removed-concept", "concept", "Discarded concept", "source-1").data,
+          status: "removed"
+        }
+      }
+    ],
+    edges: [],
+    settings: defaultSettings,
+    updatedAt: "2026-05-10T00:02:00.000Z"
+  };
+
+  const document = buildThinkingDocument({
+    conversation,
+    messages,
+    sources,
+    generatedNodes: [
+      createNode("generated-removed", "concept", "Discarded concept", "source-1"),
+      createNode("generated-keep", "concept", "Preserved concept", "source-1")
+    ],
+    generatedEdges: [],
+    settings: defaultSettings,
+    previous
+  });
+
+  assert.deepEqual(
+    document.nodes.map((node) => node.data.title),
+    ["Preserved concept"]
+  );
+});
+
+test("buildThinkingDocument preserves concept identity by title when same-source concepts reorder", () => {
+  const previous: ThinkingDocument = {
+    conversation,
+    messages,
+    sources,
+    nodes: [
+      {
+        ...createNode("concept-alpha", "concept", "Alpha concept", "source-1"),
+        position: { x: 640, y: 120 }
+      },
+      {
+        ...createNode("concept-beta", "concept", "Beta concept", "source-1"),
+        position: { x: 640, y: 260 }
+      }
+    ],
+    edges: [],
+    settings: defaultSettings,
+    updatedAt: "2026-05-10T00:02:00.000Z"
+  };
+
+  const document = buildThinkingDocument({
+    conversation,
+    messages,
+    sources,
+    generatedNodes: [
+      createNode("generated-beta", "concept", "Beta concept", "source-1"),
+      createNode("generated-alpha", "concept", "Alpha concept", "source-1")
+    ],
+    generatedEdges: [],
+    settings: defaultSettings,
+    previous
+  });
+
+  assert.deepEqual(
+    document.nodes.map((node) => ({
+      id: node.id,
+      title: node.data.title,
+      position: node.position
+    })),
+    [
+      {
+        id: "concept-beta",
+        title: "Beta concept",
+        position: { x: 640, y: 260 }
+      },
+      {
+        id: "concept-alpha",
+        title: "Alpha concept",
+        position: { x: 640, y: 120 }
+      }
+    ]
+  );
+});

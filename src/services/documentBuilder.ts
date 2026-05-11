@@ -5,6 +5,7 @@ import type { MessageRef } from "../models/messageRef";
 import type { ConceptMapNodeRecord } from "../models/node";
 import type { SourceRef } from "../models/source";
 import type { UserSettings } from "../models/settings";
+import { normalizeText } from "../utils/text";
 type BuildDocumentParams = {
   conversation: ConversationRef;
   messages: MessageRef[];
@@ -17,6 +18,10 @@ type BuildDocumentParams = {
 
 function buildNodeGroupKey(node: ConceptMapNodeRecord): string {
   return [node.data.role, node.data.sourceId ?? "none"].join("::");
+}
+
+function buildNodeIdentityKey(node: ConceptMapNodeRecord): string {
+  return [buildNodeGroupKey(node), normalizeText(node.data.summary ?? node.data.title)].join("::");
 }
 
 function buildEdgeKey(edge: ConceptMapEdgeRecord): string {
@@ -32,31 +37,49 @@ function mergeNodes(
   generatedNodes: ConceptMapNodeRecord[]
 ): ConceptMapNodeRecord[] {
   const previousGroups = new Map<string, ConceptMapNodeRecord[]>();
-  const removedKeys = new Set<string>();
+  const previousByIdentity = new Map<string, ConceptMapNodeRecord[]>();
+  const removedIdentityKeys = new Set<string>();
 
   previousNodes.forEach((node) => {
     const key = buildNodeGroupKey(node);
     if (node.data.status === "removed") {
-      removedKeys.add(key);
+      removedIdentityKeys.add(buildNodeIdentityKey(node));
       return;
     }
     const group = previousGroups.get(key) ?? [];
     group.push(node);
     previousGroups.set(key, group);
+    const identity = buildNodeIdentityKey(node);
+    const matches = previousByIdentity.get(identity) ?? [];
+    matches.push(node);
+    previousByIdentity.set(identity, matches);
   });
 
-  const groupIndexes = new Map<string, number>();
-
   return generatedNodes.flatMap((node) => {
-    const key = buildNodeGroupKey(node);
-    if (removedKeys.has(key)) {
+    const groupKey = buildNodeGroupKey(node);
+    const identityKey = buildNodeIdentityKey(node);
+    if (removedIdentityKeys.has(identityKey)) {
       return [];
     }
 
-    const group = previousGroups.get(key) ?? [];
-    const index = groupIndexes.get(key) ?? 0;
-    const previous = group[index];
-    groupIndexes.set(key, index + 1);
+    const exactMatches = previousByIdentity.get(identityKey) ?? [];
+    const matchedPrevious = exactMatches.shift();
+    if (exactMatches.length === 0) {
+      previousByIdentity.delete(identityKey);
+    } else {
+      previousByIdentity.set(identityKey, exactMatches);
+    }
+    const group = previousGroups.get(groupKey) ?? [];
+    const previous =
+      matchedPrevious ??
+      group.shift();
+
+    if (matchedPrevious) {
+      const groupIndex = group.findIndex((entry) => entry.id === matchedPrevious.id);
+      if (groupIndex >= 0) {
+        group.splice(groupIndex, 1);
+      }
+    }
 
     if (!previous) {
       return [node];

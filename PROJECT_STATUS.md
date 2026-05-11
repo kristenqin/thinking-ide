@@ -22,9 +22,10 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 ## Next
 
 1. Harden merge rules so more kinds of user-curated nodes and edges survive regeneration safely.
+   Current baseline now preserves reordered same-source concepts by title identity and stops one removed concept from suppressing all sibling concepts.
 2. Add richer canvas editing actions beyond the current delete, relation-edit, and single-step undo baseline.
 3. Start trimming the content bundle before the runtime spine grows further.
-4. Add clearer source-lost iconography and tooltip treatment in the node surface.
+4. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
 5. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
 
 ## Blocked
@@ -54,6 +55,9 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 13. Added a repo-level frontend UI contract so user-facing slices now carry explicit UI acceptance and parallel delivery rules.
 14. Expanded runtime validation so the smoke harness now proves `Jump to source` works against dynamically added messages without relying on DOM ids.
 15. Reworked the panel and canvas presentation toward the product specs with a workspace-style header, node toolbar actions, stronger empty state, and calmer canvas chrome.
+16. Added node-level `source_lost` iconography and a light tooltip/hint treatment without introducing heavy status chrome.
+17. Expanded runtime validation again so the smoke harness now proves a degraded source-lost feedback path after indexed assistant messages disappear from the host DOM.
+18. Hardened regeneration merging so removed concepts no longer suppress sibling concepts and reordered same-source concepts keep their prior ids and positions by title identity.
 
 ## Quality Gate
 

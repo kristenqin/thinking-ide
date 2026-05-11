@@ -262,6 +262,13 @@
   gap: 12px;
 }
 
+.ti-node__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .ti-node__title {
   overflow: hidden;
   display: -webkit-box;
@@ -273,17 +280,33 @@
   color: #2c1f14;
 }
 
+.ti-node__source-lost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(180, 97, 54, 0.12);
+  color: #a14f29;
+  box-shadow: inset 0 0 0 1px rgba(161, 79, 41, 0.16);
+}
+
 .ti-node__draft-dot {
   width: 9px;
   height: 9px;
   flex-shrink: 0;
-  margin-top: 6px;
   border-radius: 999px;
   background: #cc8755;
   box-shadow: 0 0 0 4px rgba(204, 135, 85, 0.12);
 }
 
 .ti-node-toolbar {
+  display: grid;
+  gap: 8px;
+}
+
+.ti-node-toolbar__actions {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -302,6 +325,25 @@
 
 .ti-node-toolbar__button--danger {
   color: #f1c5b8;
+}
+
+.ti-node-toolbar__button--warning {
+  color: #f3d09d;
+}
+
+.ti-node-toolbar__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 320px;
+  padding: 8px 12px;
+  border: 1px solid rgba(217, 175, 123, 0.18);
+  border-radius: 14px;
+  background: rgba(34, 40, 35, 0.94);
+  color: rgba(243, 208, 157, 0.92);
+  font-size: 12px;
+  line-height: 1.45;
+  box-shadow: 0 10px 26px rgba(7, 9, 8, 0.14);
 }
 
 .ti-floating-card {
