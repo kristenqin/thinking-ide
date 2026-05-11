@@ -19,6 +19,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 4. Treat UI/UX acceptance as a first-class delivery constraint alongside logic, runtime, and persistence.
 5. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
 6. Treat the new design-system layer as the required bridge between UI specs and frontend implementation.
+7. Treat automatic delegation as a trigger-based default so the user does not need to manually request sidecars for naturally parallel work.
 
 ## Next
 
@@ -66,6 +67,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 21. Added a node `More` menu with low-frequency role conversion and property inspection, and preserved manual role edits through regeneration.
 22. Added persisted settings defaults plus store/repository groundwork for `autoGenerate`, language metadata, and `clearCurrentMap`, and wired runtime observation to respect `autoGenerate`.
 23. Added the first code-level design-system token pass in `content.css` and moved the shared shell toward the documented Notion-derived baseline.
+24. Tightened repo governance so automatic delegation triggers now require the main thread to spawn sidecars proactively for naturally parallel slices.
 
 ## Quality Gate
 

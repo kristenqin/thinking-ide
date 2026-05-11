@@ -67,6 +67,7 @@ Do not let UI components directly own DOM scanning or persistence logic.
 7. If a task changes user-visible UI or interaction behavior, classify it using `frontend-ui-contract` before implementation.
 8. If a task changes reusable visual language, token semantics, or shared workspace patterns, update the relevant file under `docs/design-system/` in the same slice.
 9. Default to parallel sidecar execution for non-trivial work; keep the main thread focused on orchestration, integration, and final gates whenever write sets allow.
+10. If a task matches the automatic delegation triggers in [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md), spawn sidecars proactively instead of waiting for the user to request them.
 
 Shared runtime boundaries are:
 

@@ -16,6 +16,8 @@ This repo allows concurrent execution, but each agent must stay inside a declare
    Update docs/status to record gaps instead of overwriting another agent's partial solution.
 6. Keep the main thread thin.
    The primary thread should prefer orchestration, integration, and final verification over holding every implementation detail locally.
+7. Treat delegation as a trigger-based default, not a user-requested extra.
+   When a task matches the automatic delegation triggers below, the main thread should spawn sidecars without waiting for the user to ask.
 
 ## Ownership Model
 
@@ -78,6 +80,23 @@ Default execution posture for non-trivial work:
 6. Summarize sidecar results into repo artifacts or commit messages so the main thread does not become the only place where context lives.
 
 This default exists to reduce delivery time and keep main-thread context pressure low enough that compaction is less likely.
+
+## Automatic Delegation Triggers
+
+Spawn sidecars by default when any of these are true and the write sets can stay non-overlapping:
+
+1. The task includes both `UI / visual alignment` and `runtime / logic` work.
+2. The task includes both `implementation` and `docs / governance` work.
+3. The task naturally decomposes into two or more bounded write sets across lanes.
+4. A sidecar can explore, verify, or compare while the main thread continues the immediate blocker.
+5. The main thread is starting to hold multiple independent subproblems at once.
+
+When these triggers fire:
+
+1. The main thread should keep only the critical blocker and final integration.
+2. Sidecars should take bounded lane-owned slices.
+3. The user should not need to remind the assistant to parallelize.
+4. If a task is kept local despite matching a trigger, the reason should be explicit in the work log or completion summary.
 
 ## Reporting Format
 
