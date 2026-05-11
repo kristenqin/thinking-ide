@@ -7,6 +7,8 @@ import { createDefaultSettings } from "../models/settings";
 const documentFixture: ThinkingDocument = {
   conversation: {
     id: "conversation-1",
+    conversationKey: "conversation-1",
+    identitySource: "url-path",
     sourceUrl: "https://chatgpt.com/c/conversation-1",
     updatedAt: "2026-05-10T00:00:00.000Z"
   },

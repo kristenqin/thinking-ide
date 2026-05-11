@@ -15,16 +15,18 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 1. Wave 1 now has a landed page-level layout slice: default split-pane, overlay fallback, and collapse/expand rail with runtime coverage.
 2. Treat [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active execution order.
-3. Shift the main implementation focus to Wave 2 while keeping remaining Wave 1 polish tracked as a tail item, not as an unbounded design rewrite.
-4. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
-5. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
+3. Wave 2 now has a first partial adapter-identity slice landed in working tree: stable `conversationKey`, derivation metadata, visible-history `orderIndex`, and privacy-safer `MessageRef` locator fields.
+4. Keep the next main implementation focus on Wave 2 completion gating and recovery semantics while remaining Wave 1 polish stays tracked as a tail item, not as an unbounded design rewrite.
+5. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
+6. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
 
 ## Next
 
 1. Execute Wave 2 from the alignment plan: ChatAdapter acceptance for conversation identity, full available history scan, completion detection, and restoration.
-2. Continue Wave 3 preparation in parallel: provider-backed AI structuring baseline with `DeepSeek` in the first candidate batch.
-3. Finish the remaining Wave 1 parity tail: align the collapse affordance more directly with header-owned controls if the product spec still requires it after the page-level split-pane lands.
-4. Realign acceptance testing around layout, history, completion detection, semantic fixtures, and privacy-boundary checks.
+2. Finish Wave 2A by adding completion gating, duplicate auto-trigger suppression, and stronger historical restoration semantics on top of the new message-identity shape.
+3. Continue Wave 3 preparation in parallel: provider-backed AI structuring baseline with `DeepSeek` in the first candidate batch.
+4. Finish the remaining Wave 1 parity tail: align the collapse affordance more directly with header-owned controls if the product spec still requires it after the page-level split-pane lands.
+5. Realign acceptance testing around layout, history, completion detection, semantic fixtures, and privacy-boundary checks.
 
 ## Blocked
 
@@ -68,6 +70,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 27. Added a lightweight header settings surface for `auto-refresh from chat` and `Clear current map`, wired to the persisted settings/repository groundwork with an in-panel confirmation flow.
 28. Added a complete spec-gap assessment and turned the alignment phase into repo-backed contracts for layout fidelity, ChatAdapter acceptance, AI structuring baseline, and test-alignment baseline.
 29. Landed the first Wave 1 layout-fidelity slice: the extension now prefers a real page-level split-pane workspace, falls back to overlay only when no safe page shell can be established, exposes a collapse/expand rail, and proves the behavior through strengthened runtime validation.
+30. Landed the first partial Wave 2 adapter-identity slice: `ConversationRef` now exposes stable `conversationKey` derivation metadata, visible-history message scans now emit monotonic `orderIndex`, and `MessageRef` now carries privacy-safer locator metadata such as `textHash`, `textPreview`, and schema/version fields.
 
 ## Quality Gate
 

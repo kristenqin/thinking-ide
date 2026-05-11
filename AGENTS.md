@@ -124,9 +124,10 @@ The current next slices are:
 
 1. Follow [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active ordering baseline.
 2. Treat the first Wave 1 layout slice as landed: split-pane default, overlay fallback, collapse rail, and runtime validation are now in place.
-3. Implement Wave 2 next: `ChatAdapter` acceptance for conversation identity, historical scan, completion detection, and restoration.
-4. Prepare Wave 3 in parallel: provider-backed AI structuring with `DeepSeek` in the first candidate batch.
-5. Finish the remaining Wave 1 parity tail only where it still closes a documented spec gap; do not reopen broad workspace polish until Waves 2 and 3 advance.
+3. Treat the first Wave 2 adapter-identity slice as landed: stable `conversationKey`, derivation metadata, visible-history `orderIndex`, and privacy-safer `MessageRef` locator fields.
+4. Implement the next Wave 2 slice: completion gating, duplicate auto-trigger suppression, and restoration semantics.
+5. Prepare Wave 3 in parallel: provider-backed AI structuring with `DeepSeek` in the first candidate batch.
+6. Finish the remaining Wave 1 parity tail only where it still closes a documented spec gap; do not reopen broad workspace polish until Waves 2 and 3 advance.
 
 ## Completion Reporting
 

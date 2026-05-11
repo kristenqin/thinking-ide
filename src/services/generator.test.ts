@@ -7,8 +7,15 @@ import type { SourceRef } from "../models/source";
 function createMessage(id: string, role: MessageRef["role"], text: string): MessageRef {
   return {
     id,
+    conversationKey: "conversation-1",
     role,
+    orderIndex: Number(id.replace(/\D+/g, "")) || 0,
     text,
+    textHash: `${id}-hash`,
+    textPreview: text.slice(0, 40),
+    domSelector: `[data-message-author-role="${role}"]`,
+    domId: id,
+    schemaVersion: 1,
     createdAt: "2026-05-11T00:00:00.000Z"
   };
 }

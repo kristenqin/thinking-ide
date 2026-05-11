@@ -10,6 +10,8 @@ import { createDefaultSettings, type UserSettings } from "../models/settings";
 
 const conversation = {
   id: "conversation-1",
+  conversationKey: "conversation-1",
+  identitySource: "url-path" as const,
   title: "Runtime spine",
   sourceUrl: "https://chatgpt.com/c/conversation-1",
   updatedAt: "2026-05-10T00:00:00.000Z"
@@ -18,14 +20,28 @@ const conversation = {
 const messages: MessageRef[] = [
   {
     id: "user-1",
+    conversationKey: "conversation-1",
     role: "user",
+    orderIndex: 0,
     text: "How should the panel recover after refresh?",
+    textHash: "user-1-hash",
+    textPreview: "How should the panel recover after refresh?",
+    domSelector: '[data-message-author-role="user"]',
+    domId: "user-1",
+    schemaVersion: 1,
     createdAt: "2026-05-10T00:00:00.000Z"
   },
   {
     id: "assistant-1",
+    conversationKey: "conversation-1",
     role: "assistant",
+    orderIndex: 1,
     text: "It should reload the saved document and keep manual edits.",
+    textHash: "assistant-1-hash",
+    textPreview: "It should reload the saved document and keep manual edits.",
+    domSelector: '[data-message-author-role="assistant"]',
+    domId: "assistant-1",
+    schemaVersion: 1,
     createdAt: "2026-05-10T00:01:00.000Z"
   }
 ];
