@@ -23,10 +23,11 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 1. Harden merge rules so more kinds of user-curated nodes and edges survive regeneration safely.
    Current baseline now preserves reordered same-source concepts by title identity and stops one removed concept from suppressing all sibling concepts.
-2. Add richer canvas editing actions beyond the current delete, relation-edit, and single-step undo baseline.
-3. Start trimming the content bundle before the runtime spine grows further.
-4. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
-5. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
+2. Continue aligning the panel, canvas chrome, and editing surfaces with the spec-defined workspace UX.
+3. Add richer canvas editing actions beyond the current delete, relation-edit, and single-step undo baseline.
+4. Start trimming the content bundle before the runtime spine grows further.
+5. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
+6. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
 
 ## Blocked
 
@@ -35,7 +36,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 ## Risks
 
-1. The current `content.js` production bundle is above Vite's default chunk warning threshold, so bundle-splitting or dependency trimming should be scheduled before the extension grows much further.
+1. The current `content.js` production bundle is above Vite's default chunk warning threshold at roughly `533 kB` minified, so bundle-splitting or dependency trimming should be scheduled before the extension grows much further.
 2. ChatGPT DOM selectors and source anchors are better than the first cut, but they are still heuristic and need stronger identity handling before the runtime spine can be treated as robust.
 
 ## Done
@@ -56,8 +57,9 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 14. Expanded runtime validation so the smoke harness now proves `Jump to source` works against dynamically added messages without relying on DOM ids.
 15. Reworked the panel and canvas presentation toward the product specs with a workspace-style header, node toolbar actions, stronger empty state, and calmer canvas chrome.
 16. Added node-level `source_lost` iconography and a light tooltip/hint treatment without introducing heavy status chrome.
-17. Expanded runtime validation again so the smoke harness now proves a degraded source-lost feedback path after indexed assistant messages disappear from the host DOM.
+17. Expanded runtime validation again so the smoke harness now proves a degraded source-lost feedback path after the indexed assistant message disappears from the host DOM even while other assistant messages remain.
 18. Hardened regeneration merging so removed concepts no longer suppress sibling concepts and reordered same-source concepts keep their prior ids and positions by title identity.
+19. Tightened source reveal fallback and observer noise handling so missing assistant sources now degrade to `source_lost` instead of highlighting the wrong remaining message, and non-message text churn no longer triggers runtime refresh.
 
 ## Quality Gate
 

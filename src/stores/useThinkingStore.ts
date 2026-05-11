@@ -7,7 +7,7 @@ import type { SourceRef } from "../models/source";
 import { loadDocument, saveDocument } from "../services/repository";
 import { createId } from "../utils/id";
 
-type Status = "idle" | "scanning" | "ready" | "error";
+type Status = "ready" | "waiting" | "generating" | "synced" | "failed";
 type RecentAction =
   | {
       type: "remove_node";
@@ -53,18 +53,18 @@ async function persist(document: ThinkingDocument | undefined): Promise<void> {
 }
 
 export const useThinkingStore = create<ThinkingState>((set, get) => ({
-  status: "idle",
+  status: "ready",
   async hydrate(conversationId) {
     const existing = await loadDocument(conversationId);
     if (existing) {
-      set({ document: existing, status: "ready", error: undefined });
+      set({ document: existing, status: "synced", error: undefined });
     }
   },
   getDocument() {
     return get().document;
   },
   async replaceDocument(document) {
-    set({ document, status: "ready", error: undefined });
+    set({ document, status: "synced", error: undefined });
     await persist(document);
   },
   setStatus(status, error) {

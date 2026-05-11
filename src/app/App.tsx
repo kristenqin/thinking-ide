@@ -21,7 +21,7 @@ export function App() {
 
   async function regenerate() {
     try {
-      setStatus("scanning");
+      setStatus("generating");
       const { messages, sources } = scanMessages();
       const generated = generateDraftMap(messages, sources);
       const document = buildThinkingDocument({
@@ -36,7 +36,7 @@ export function App() {
 
       await replaceDocument(document);
     } catch (error) {
-      setStatus("error", error instanceof Error ? error.message : "Failed to generate concept map");
+      setStatus("failed", error instanceof Error ? error.message : "Failed to generate concept map");
     }
   }
 

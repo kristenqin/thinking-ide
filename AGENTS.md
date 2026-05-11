@@ -115,11 +115,12 @@ Check these before changing core behavior:
 
 The current next slices are:
 
-1. Harden regeneration merge rules beyond the current title-based concept identity and removed-sibling protections.
-2. Add richer canvas editing beyond the current delete, relation-edit, and single-step undo baseline.
-3. Trim the content bundle before the runtime spine grows further.
-4. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
-5. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
+1. Continue aligning the panel, canvas chrome, and editing surfaces with the spec-defined workspace UX.
+2. Harden regeneration merge rules beyond the current title-based concept identity and removed-sibling protections.
+3. Add richer canvas editing beyond the current delete, relation-edit, and single-step undo baseline.
+4. Trim the content bundle before the runtime spine grows further.
+5. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
+6. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
 
 ## Completion Reporting
 

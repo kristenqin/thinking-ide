@@ -204,15 +204,15 @@ async function run() {
     );
 
     await page.evaluate(() => {
-      const button = document.getElementById("remove-assistant-sources");
+      const button = document.getElementById("remove-latest-assistant");
       if (!(button instanceof HTMLButtonElement)) {
-        throw new Error("Missing remove-assistant-sources button in runtime validation host");
+        throw new Error("Missing remove-latest-assistant button in runtime validation host");
       }
 
       button.click();
     });
     await page.waitForFunction(
-      () => document.querySelectorAll('[data-message-author-role="assistant"]').length === 0
+      () => document.querySelectorAll('[data-message-author-role="assistant"]').length === 1
     );
 
     await clickNodeByTitle(page, "Exchange 1 should trigger");
@@ -231,7 +231,7 @@ async function run() {
     const failureLog = await readBottomLog(page);
 
     if (!/original chat location is unavailable/i.test(failureLog)) {
-      throw new Error(`Expected source-lost feedback after removing assistant sources, received: ${failureLog}`);
+      throw new Error(`Expected source-lost feedback after removing the indexed assistant source, received: ${failureLog}`);
     }
 
     const highlightedAssistantCount = await page.evaluate(

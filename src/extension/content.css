@@ -33,12 +33,19 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 18px;
-  padding: 22px 22px 14px;
+  padding: 20px 22px 12px;
   border-bottom: 1px solid rgba(226, 211, 186, 0.12);
 }
 
 .ti-header__identity {
   min-width: 0;
+}
+
+.ti-header__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
 }
 
 .ti-header__eyebrow-row {
@@ -48,10 +55,18 @@
   flex-wrap: wrap;
 }
 
+.ti-header__kicker {
+  margin: 0;
+  color: rgba(242, 239, 231, 0.52);
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: right;
+}
+
 .ti-header h1 {
-  margin: 8px 0 0;
+  margin: 10px 0 0;
   font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
-  font-size: 29px;
+  font-size: 27px;
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: -0.02em;
@@ -79,25 +94,30 @@
   text-transform: uppercase;
 }
 
-.ti-status-pill--ready {
+.ti-status-pill--synced {
   background: rgba(112, 157, 116, 0.12);
   color: #b9dbbc;
 }
 
-.ti-status-pill--scanning {
+.ti-status-pill--generating {
   background: rgba(242, 176, 109, 0.16);
   color: #f3d09d;
 }
 
-.ti-status-pill--error {
+.ti-status-pill--failed {
   background: rgba(154, 63, 58, 0.24);
   color: #ffcabf;
 }
 
+.ti-status-pill--waiting {
+  background: rgba(247, 238, 221, 0.08);
+  color: #f3ddbd;
+}
+
 .ti-header__summary {
   max-width: 520px;
-  margin: 10px 0 0;
-  color: rgba(245, 238, 228, 0.72);
+  margin: 8px 0 0;
+  color: rgba(245, 238, 228, 0.68);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -113,7 +133,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 12px 22px 16px;
+  padding: 12px 22px 14px;
   border-bottom: 1px solid rgba(226, 211, 186, 0.08);
   color: #ddd3c3;
 }
@@ -137,13 +157,33 @@
   text-transform: uppercase;
 }
 
+.ti-statusbar__rail {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ti-status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid rgba(226, 211, 186, 0.1);
+  border-radius: 999px;
+  background: rgba(247, 238, 221, 0.03);
+  color: rgba(242, 239, 231, 0.68);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
 .ti-statusbar__action {
   flex-shrink: 0;
 }
 
 .ti-panel__main {
   min-height: 0;
-  padding: 14px 16px 0;
+  padding: 12px 16px 0;
 }
 
 .ti-button {
@@ -202,6 +242,77 @@
   background:
     linear-gradient(180deg, rgba(241, 233, 220, 0.03), rgba(241, 233, 220, 0.01)),
     linear-gradient(180deg, rgba(26, 31, 27, 0.98), rgba(20, 24, 21, 0.98));
+}
+
+.ti-canvas-chrome {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  z-index: 8;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  pointer-events: none;
+}
+
+.ti-canvas-chrome__copy {
+  max-width: min(480px, calc(100% - 180px));
+  padding: 12px 14px;
+  border: 1px solid rgba(226, 211, 186, 0.1);
+  border-radius: 18px;
+  background: rgba(20, 24, 21, 0.72);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(7, 9, 8, 0.12);
+}
+
+.ti-canvas-chrome__eyebrow {
+  color: #d9af7b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.ti-canvas-chrome__copy h3 {
+  margin: 6px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #fff8ef;
+}
+
+.ti-canvas-chrome__copy p {
+  margin: 6px 0 0;
+  color: rgba(242, 239, 231, 0.72);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.ti-canvas-chrome__meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ti-canvas-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid rgba(226, 211, 186, 0.1);
+  border-radius: 999px;
+  background: rgba(20, 24, 21, 0.72);
+  color: rgba(245, 231, 207, 0.84);
+  font-size: 11px;
+  backdrop-filter: blur(12px);
+}
+
+.ti-canvas-chip--warning {
+  border-color: rgba(217, 175, 123, 0.22);
+  color: #f3d09d;
 }
 
 .react-flow {
@@ -535,8 +646,25 @@
     flex-direction: column;
   }
 
+  .ti-header__meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ti-header__kicker {
+    text-align: left;
+  }
+
   .ti-header__actions {
     width: 100%;
+  }
+
+  .ti-canvas-chrome {
+    flex-direction: column;
+  }
+
+  .ti-canvas-chrome__copy {
+    max-width: 100%;
   }
 
   .ti-statusbar,

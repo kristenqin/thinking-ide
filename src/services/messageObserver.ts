@@ -6,6 +6,21 @@ type ObserverOptions = {
   debounceMs?: number;
 };
 
+function isMessageMutationTarget(node: Node | null): boolean {
+  if (!node) {
+    return false;
+  }
+
+  const element =
+    node instanceof HTMLElement
+      ? node
+      : node instanceof Text
+        ? node.parentElement
+        : null;
+
+  return Boolean(element?.closest('[data-message-author-role]'));
+}
+
 export function observeChatMutations(
   onMeaningfulChange: () => void,
   options: ObserverOptions = {}
@@ -16,12 +31,12 @@ export function observeChatMutations(
   const observer = new MutationObserver((mutations) => {
     const shouldRefresh = mutations.some((mutation) => {
       if (mutation.type === "characterData") {
-        return true;
+        return isMessageMutationTarget(mutation.target);
       }
 
       return Array.from(mutation.addedNodes).some((node) => {
         if (!(node instanceof HTMLElement)) {
-          return false;
+          return isMessageMutationTarget(node);
         }
 
         return Boolean(

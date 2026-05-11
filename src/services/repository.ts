@@ -1,5 +1,5 @@
-import { db } from "../db/database";
 import type { ThinkingDocument } from "../models/document";
+import { db } from "../db/database";
 
 export async function loadDocument(conversationId: string): Promise<ThinkingDocument | undefined> {
   return db.documents.get(conversationId);

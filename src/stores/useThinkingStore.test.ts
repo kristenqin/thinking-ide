@@ -58,7 +58,7 @@ const documentFixture: ThinkingDocument = {
 
 beforeEach(() => {
   useThinkingStore.setState({
-    status: "idle",
+    status: "ready",
     error: undefined,
     notice: undefined,
     recentAction: undefined,
@@ -67,10 +67,10 @@ beforeEach(() => {
 });
 
 test("setStatus updates the store status and error", () => {
-  useThinkingStore.getState().setStatus("error", "load failed");
+  useThinkingStore.getState().setStatus("failed", "load failed");
 
   const state = useThinkingStore.getState();
-  assert.equal(state.status, "error");
+  assert.equal(state.status, "failed");
   assert.equal(state.error, "load failed");
 });
 

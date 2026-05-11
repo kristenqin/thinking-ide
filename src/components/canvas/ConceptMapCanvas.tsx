@@ -65,6 +65,8 @@ export function ConceptMapCanvas() {
         })),
     [document?.edges]
   );
+  const activeNodeCount = nodes.length;
+  const activeEdgeCount = edges.length;
   const selectedNode = document?.nodes.find(
     (node) => node.id === selectedNodeId && node.data.status !== "removed"
   );
@@ -196,8 +198,33 @@ export function ConceptMapCanvas() {
     );
   }
 
+  const workspaceHeadline = selectedNode
+    ? selectedNode.data.title
+    : selectedEdge
+      ? selectedEdge.data?.relation ?? "Relation"
+      : "Concept map draft";
+  const workspaceDetail = selectedNode
+    ? selectedNodeSourceLost
+      ? "This node still edits normally, but its original source needs review."
+      : "Selected node. Use the floating toolbar for rename, source jump, connect, or delete."
+    : selectedEdge
+      ? "Selected relation. Adjust its meaning here without leaving the canvas."
+      : "Directly arrange concepts on the canvas, then jump back to source only when you need context.";
+
   return (
     <div className="ti-canvas-shell">
+      <div className="ti-canvas-chrome">
+        <div className="ti-canvas-chrome__copy">
+          <div className="ti-canvas-chrome__eyebrow">Concept map canvas</div>
+          <h3>{workspaceHeadline}</h3>
+          <p>{workspaceDetail}</p>
+        </div>
+        <div className="ti-canvas-chrome__meta">
+          <div className="ti-canvas-chip">{activeNodeCount} concepts</div>
+          <div className="ti-canvas-chip">{activeEdgeCount} links</div>
+          {selectedNodeSourceLost ? <div className="ti-canvas-chip ti-canvas-chip--warning">Source needs review</div> : null}
+        </div>
+      </div>
       <ReactFlow
         fitView
         nodes={nodes}
