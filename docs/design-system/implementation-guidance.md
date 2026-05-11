@@ -57,12 +57,12 @@ Before shipping a user-facing slice, confirm:
 
 ## Current Open Implementation Gap
 
-The repo now has the documentation contract for a design system, but not yet the full token implementation in code.
+The repo now has a first shared token layer in `src/extension/content.css`, and the main workspace shell has begun consuming it.
 
 The next implementation steps should be:
 
-1. add a shared token source in the extension styles
-2. refactor panel, canvas, and overlay surfaces to consume those tokens
-3. normalize repeated workspace surfaces into reusable component patterns
+1. keep moving remaining panel, canvas, and overlay surfaces onto the semantic token set
+2. extract the token layer into a more dedicated shared frontend location if the style surface grows
+3. normalize repeated workspace surfaces into reusable component patterns instead of page-local class clusters
 
-Until that lands, treat this folder as the implementation target and update code incrementally toward it.
+The design-system layer is now both a documentation contract and a live implementation target.

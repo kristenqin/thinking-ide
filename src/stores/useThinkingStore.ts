@@ -3,8 +3,9 @@ import { addEdge, applyEdgeChanges, applyNodeChanges, type Connection, type Edge
 import type { ThinkingDocument } from "../models/document";
 import type { ConceptMapEdgeRecord, EdgeRelationType } from "../models/edge";
 import type { ConceptMapNodeRecord, NodeRole } from "../models/node";
+import type { LanguageSetting, UserSettings } from "../models/settings";
 import type { SourceRef } from "../models/source";
-import { loadDocument, saveDocument } from "../services/repository";
+import { deleteDocument, loadDocument, saveDocument } from "../services/repository";
 import { createId } from "../utils/id";
 
 type Status = "ready" | "waiting" | "generating" | "synced" | "failed";
@@ -30,6 +31,9 @@ type ThinkingState = {
   replaceDocument: (document: ThinkingDocument) => Promise<void>;
   setStatus: (status: Status, error?: string) => void;
   setNotice: (notice?: string) => void;
+  updateSettings: (updates: Partial<UserSettings>) => Promise<void>;
+  setLanguage: (language: LanguageSetting) => Promise<void>;
+  setAutoGenerate: (enabled: boolean) => Promise<void>;
   onNodesChange: (changes: NodeChange<ConceptMapNodeRecord>[]) => Promise<void>;
   onEdgesChange: (changes: EdgeChange<ConceptMapEdgeRecord>[]) => Promise<void>;
   renameNode: (nodeId: string, title: string) => Promise<void>;
@@ -41,6 +45,7 @@ type ThinkingState = {
   removeNode: (nodeId: string) => Promise<void>;
   removeEdge: (edgeId: string) => Promise<void>;
   undoLastRemoval: () => Promise<void>;
+  clearCurrentMap: () => Promise<void>;
 };
 
 async function persist(document: ThinkingDocument | undefined): Promise<void> {
@@ -73,6 +78,27 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
   },
   setNotice(notice) {
     set({ notice });
+  },
+  async updateSettings(updates) {
+    const current = get().document;
+    if (!current) {
+      return;
+    }
+
+    const settings = {
+      ...current.settings,
+      ...updates,
+      updatedAt: new Date().toISOString()
+    };
+    const updated = { ...current, settings, updatedAt: new Date().toISOString() };
+    set({ document: updated });
+    await persist(updated);
+  },
+  async setLanguage(language) {
+    await get().updateSettings({ language });
+  },
+  async setAutoGenerate(enabled) {
+    await get().updateSettings({ autoGenerate: enabled });
   },
   async onNodesChange(changes) {
     const current = get().document;
@@ -292,5 +318,22 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
       recentAction: undefined
     });
     await persist(updated);
+  },
+  async clearCurrentMap() {
+    const current = get().document;
+    if (!current) {
+      return;
+    }
+
+    if (typeof indexedDB !== "undefined") {
+      await deleteDocument(current.conversation.id);
+    }
+    set({
+      document: undefined,
+      notice: "Current map cleared.",
+      recentAction: undefined,
+      status: "ready",
+      error: undefined
+    });
   }
 }));

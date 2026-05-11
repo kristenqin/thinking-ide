@@ -6,7 +6,7 @@ import type { ConceptMapEdgeRecord, EdgeRelationType } from "../models/edge";
 import type { MessageRef } from "../models/messageRef";
 import type { ConceptMapNodeRecord } from "../models/node";
 import type { SourceRef } from "../models/source";
-import type { UserSettings } from "../models/settings";
+import { createDefaultSettings, type UserSettings } from "../models/settings";
 
 const conversation = {
   id: "conversation-1",
@@ -45,10 +45,10 @@ const sources: SourceRef[] = [
   }
 ];
 
-const defaultSettings: UserSettings = {
-  panelMode: "layout",
-  panelWidth: 480
-};
+const defaultSettings: UserSettings = createDefaultSettings({
+  panelWidth: 480,
+  updatedAt: "2026-05-10T00:00:00.000Z"
+});
 
 function createNode(
   id: string,
@@ -150,8 +150,11 @@ test("buildThinkingDocument preserves manual node edits, settings, and manual re
       createEdge("manual-relates", "manual-question", "manual-concept", "relates")
     ],
     settings: {
-      panelMode: "overlay",
-      panelWidth: 420
+      ...createDefaultSettings({
+        panelMode: "overlay",
+        panelWidth: 420,
+        updatedAt: "2026-05-10T00:00:00.000Z"
+      })
     },
     updatedAt: "2026-05-10T00:02:00.000Z"
   };

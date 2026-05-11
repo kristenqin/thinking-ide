@@ -5,15 +5,14 @@ import { generateDraftMap } from "../services/generator";
 import { getConversationRef, scanMessages } from "../services/chatAdapter";
 import { observeChatMutations } from "../services/messageObserver";
 import { useThinkingStore } from "../stores/useThinkingStore";
+import { createDefaultSettings } from "../models/settings";
 
-const DEFAULT_SETTINGS = {
-  panelMode: "layout" as const,
-  panelWidth: 720
-};
+const DEFAULT_SETTINGS = createDefaultSettings();
 
 export function App() {
-  const { hydrate, getDocument, replaceDocument, setStatus } = useThinkingStore();
+  const { document, hydrate, getDocument, replaceDocument, setStatus } = useThinkingStore();
   const conversation = getConversationRef();
+  const autoGenerate = document?.settings.autoGenerate ?? DEFAULT_SETTINGS.autoGenerate;
 
   useEffect(() => {
     void hydrate(conversation.id);
@@ -45,6 +44,11 @@ export function App() {
   }, []);
 
   useEffect(() => {
+    if (!autoGenerate) {
+      setStatus("waiting");
+      return;
+    }
+
     const handle = observeChatMutations(() => {
       void regenerate();
     });
@@ -52,7 +56,7 @@ export function App() {
     return () => {
       handle.disconnect();
     };
-  }, []);
+  }, [autoGenerate, setStatus]);
 
   return <ThinkingPanel onGenerate={regenerate} />;
 }

@@ -120,12 +120,13 @@ Check these before changing core behavior:
 The current next slices are:
 
 1. Continue aligning the panel, canvas chrome, and editing surfaces with the spec-defined workspace UX.
-2. Apply the new Notion-derived design-system baseline as panel, canvas, and overlay surfaces continue to evolve.
-3. Harden regeneration merge rules beyond the current title-based concept identity and removed-sibling protections.
-4. Add richer canvas editing beyond the current delete, relation-edit, single-step undo, and low-frequency role-conversion baseline.
-5. Trim the content bundle before the runtime spine grows further.
-6. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
-7. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
+2. Continue moving runtime UI surfaces onto the shared design-system token layer instead of page-local styling.
+3. Expose the new settings groundwork through a proper settings surface with confirmation for `Clear current map`.
+4. Harden regeneration merge rules beyond the current title-based concept identity and removed-sibling protections.
+5. Add richer canvas editing beyond the current delete, relation-edit, single-step undo, and low-frequency role-conversion baseline.
+6. Trim the content bundle before the runtime spine grows further.
+7. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
+8. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
 
 ## Completion Reporting
 

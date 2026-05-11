@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test, { beforeEach } from "node:test";
 import { useThinkingStore } from "./useThinkingStore";
 import type { ThinkingDocument } from "../models/document";
+import { createDefaultSettings } from "../models/settings";
 
 const documentFixture: ThinkingDocument = {
   conversation: {
@@ -49,10 +50,10 @@ const documentFixture: ThinkingDocument = {
       }
     }
   ],
-  settings: {
-    panelMode: "layout",
-    panelWidth: 480
-  },
+  settings: createDefaultSettings({
+    panelWidth: 480,
+    updatedAt: "2026-05-10T00:00:00.000Z"
+  }),
   updatedAt: "2026-05-10T00:01:00.000Z"
 };
 
@@ -152,4 +153,24 @@ test("updateNodeRole changes the node role", async () => {
 
   const state = useThinkingStore.getState();
   assert.equal(state.document?.nodes[0]?.data.role, "claim");
+});
+
+test("setAutoGenerate updates the stored setting", async () => {
+  useThinkingStore.setState({ document: documentFixture });
+
+  await useThinkingStore.getState().setAutoGenerate(false);
+
+  const state = useThinkingStore.getState();
+  assert.equal(state.document?.settings.autoGenerate, false);
+});
+
+test("clearCurrentMap clears the current conversation document", async () => {
+  useThinkingStore.setState({ document: documentFixture, status: "synced" });
+
+  await useThinkingStore.getState().clearCurrentMap();
+
+  const state = useThinkingStore.getState();
+  assert.equal(state.document, undefined);
+  assert.equal(state.notice, "Current map cleared.");
+  assert.equal(state.status, "ready");
 });

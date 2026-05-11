@@ -24,11 +24,12 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 1. Harden merge rules so more kinds of user-curated nodes and edges survive regeneration safely.
    Current baseline now preserves reordered same-source concepts by title identity and stops one removed concept from suppressing all sibling concepts.
-2. Continue aligning the panel, canvas chrome, and editing surfaces with the spec-defined workspace UX using the new Notion-derived design-system baseline.
-3. Add richer canvas editing actions beyond the current delete, relation-edit, single-step undo, and low-frequency role-conversion baseline.
-4. Start trimming the content bundle before the runtime spine grows further.
-5. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
-6. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
+2. Continue moving panel, canvas, and overlay surfaces onto the shared design-system token layer while keeping the Notion-derived baseline intact.
+3. Expose the new settings groundwork through a proper settings surface with confirmation for `Clear current map`.
+4. Add richer canvas editing actions beyond the current delete, relation-edit, single-step undo, and low-frequency role-conversion baseline.
+5. Start trimming the content bundle before the runtime spine grows much further.
+6. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
+7. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
 
 ## Blocked
 
@@ -37,7 +38,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 ## Risks
 
-1. The current `content.js` production bundle is above Vite's default chunk warning threshold at roughly `537 kB` minified, so bundle-splitting or dependency trimming should be scheduled before the extension grows much further.
+1. The current `content.js` production bundle is above Vite's default chunk warning threshold at roughly `540 kB` minified, so bundle-splitting or dependency trimming should be scheduled before the extension grows much further.
 2. ChatGPT DOM selectors and source anchors are better than the first cut, but they are still heuristic and need stronger identity handling before the runtime spine can be treated as robust.
 
 ## Done
@@ -63,6 +64,8 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 19. Tightened source reveal fallback and observer noise handling so missing assistant sources now degrade to `source_lost` instead of highlighting the wrong remaining message, and non-message text churn no longer triggers runtime refresh.
 20. Added a repo-level design-system documentation layer that makes Notion the visual baseline, keeps `shadcn/ui` and `Radix UI` as implementation primitives, and defines foundations, component patterns, and implementation guidance for future frontend slices.
 21. Added a node `More` menu with low-frequency role conversion and property inspection, and preserved manual role edits through regeneration.
+22. Added persisted settings defaults plus store/repository groundwork for `autoGenerate`, language metadata, and `clearCurrentMap`, and wired runtime observation to respect `autoGenerate`.
+23. Added the first code-level design-system token pass in `content.css` and moved the shared shell toward the documented Notion-derived baseline.
 
 ## Quality Gate
 
