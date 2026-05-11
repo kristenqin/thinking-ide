@@ -4,8 +4,8 @@ This doc defines the repo-specific black-box runtime validation for `M1 - MVP ru
 
 Primary governing sources for this slice:
 
-1. `thinking_ide_mvp_项目文档.md`
-2. `thinking_ide_测试用例文档.md`
+1. [thinking_ide_mvp_项目文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_mvp_项目文档.md)
+2. [thinking_ide_测试用例文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_测试用例文档.md)
 3. [PROJECT_STATUS.md](/Users/qyx/Desktop/project/thinking-ide/PROJECT_STATUS.md)
 4. [docs/architecture-decisions/ADR-0001-runtime-spine.md](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions/ADR-0001-runtime-spine.md)
 5. [docs/architecture-decisions/ADR-0002-shadow-dom-and-local-persistence.md](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions/ADR-0002-shadow-dom-and-local-persistence.md)
@@ -89,6 +89,6 @@ Current limits:
 2. It now proves the full unpacked-extension loading path in automation, but still only against the mock host.
 3. It checks render/refresh health, but it does not verify source-jump correctness against long, repeated, or edited real conversations.
 4. It does not exercise every persistence edge case, only the runtime path up to a healthy injected panel.
-5. It does not replace the broader scenarios listed in `thinking_ide_测试用例文档.md`.
+5. It does not replace the broader scenarios listed in [thinking_ide_测试用例文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_测试用例文档.md).
 
 Because of active risks `R-01`, `R-02`, and `R-06`, real ChatGPT validation is still needed before claiming robust runtime behavior across production conversations. Treat this smoke test as the fast black-box guardrail for M1, not as final parity proof.

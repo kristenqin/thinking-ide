@@ -24,6 +24,10 @@ This folder contains the operational engineering guardrails for autonomous execu
 1. [ADR-0001-runtime-spine.md](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions/ADR-0001-runtime-spine.md)
 2. [ADR-0002-shadow-dom-and-local-persistence.md](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions/ADR-0002-shadow-dom-and-local-persistence.md)
 
+## Specs Layer
+
+1. Specs index: [specs/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/README.md)
+
 ## How To Use
 
 1. Check `definition-of-ready` before starting a feature slice.

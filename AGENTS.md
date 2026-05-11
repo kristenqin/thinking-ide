@@ -21,17 +21,17 @@ Use [docs/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/README.md) as 
 
 ## Product And Spec Sources Of Truth
 
-The product and system specs live in the repo root Chinese documents. Use the relevant one explicitly when taking a task:
+The product and system specs live in [docs/specs/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/README.md). Use the relevant one explicitly when taking a task:
 
-1. `thinking_ide_prd_产品需求文档.md`
-2. `thinking_ide_mvp_项目文档.md`
-3. `thinking_ide_技术方案文档.md`
-4. `thinking_ide_组件设计文档.md`
-5. `thinking_ide_数据模型详细设计文档.md`
-6. `thinking_ide_交互设计规范文档.md`
-7. `thinking_ide_开发任务拆解文档.md`
-8. `thinking_ide_测试用例文档.md`
-9. `thinking_ide_低保真原型文档.md`
+1. [thinking_ide_prd_产品需求文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_prd_产品需求文档.md)
+2. [thinking_ide_mvp_项目文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_mvp_项目文档.md)
+3. [thinking_ide_技术方案文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_技术方案文档.md)
+4. [thinking_ide_组件设计文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_组件设计文档.md)
+5. [thinking_ide_数据模型详细设计文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_数据模型详细设计文档.md)
+6. [thinking_ide_交互设计规范文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_交互设计规范文档.md)
+7. [thinking_ide_开发任务拆解文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_开发任务拆解文档.md)
+8. [thinking_ide_测试用例文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_测试用例文档.md)
+9. [thinking_ide_低保真原型文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_低保真原型文档.md)
 
 Do not say “aligned with spec” without naming which spec governs the slice.
 
