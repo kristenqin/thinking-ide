@@ -29,3 +29,4 @@ This folder contains the operational engineering guardrails for autonomous execu
 3. Use `PROJECT_STATUS.md` as the short operational source of truth.
 4. Do not mark work done unless it satisfies `definition-of-done`.
 5. Install local repo hooks with `npm run setup:hooks`.
+6. Use `npm run runtime:validate` for the full extension-load smoke pass, or rely on `npm run ci` to run the built-artifact runtime gate automatically.

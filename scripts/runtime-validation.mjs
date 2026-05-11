@@ -1,12 +1,12 @@
 import { createServer } from "node:http";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import { chromium } from "playwright";
 
 const repoRoot = resolve(new URL("..", import.meta.url).pathname);
 const mockHostFile = resolve(repoRoot, "runtime-validation/mock-chat.html");
-const contentBundle = resolve(repoRoot, "dist/content.js");
-const port = 4173;
+const extensionBundle = resolve(repoRoot, "dist");
 
 function startMockHostServer() {
   const html = readFileSync(mockHostFile);
@@ -24,7 +24,7 @@ function startMockHostServer() {
 
   return new Promise((resolveServer, rejectServer) => {
     server.once("error", rejectServer);
-    server.listen(port, "127.0.0.1", () => resolveServer(server));
+    server.listen(0, "127.0.0.1", () => resolveServer(server));
   });
 }
 
@@ -34,24 +34,32 @@ function wait(ms) {
 
 async function run() {
   const server = await startMockHostServer();
+  const userDataDir = mkdtempSync(join(tmpdir(), "thinking-ide-runtime-validation-"));
+  const address = server.address();
+  if (!address || typeof address === "string") {
+    throw new Error("Runtime validation server did not expose a numeric localhost port");
+  }
 
-  let browser;
+  let context;
 
   try {
-    browser = await chromium.launch({
-      headless: true
+    context = await chromium.launchPersistentContext(userDataDir, {
+      channel: "chromium",
+      headless: true,
+      args: [
+        "--headless=new",
+        `--disable-extensions-except=${extensionBundle}`,
+        `--load-extension=${extensionBundle}`
+      ]
     });
-    const page = await browser.newPage({
+    const page = await context.newPage({
       viewport: {
         width: 1680,
         height: 1080
       }
     });
-    await page.goto(`http://127.0.0.1:${port}/mock-chat.html`, {
+    await page.goto(`http://127.0.0.1:${address.port}/mock-chat.html`, {
       waitUntil: "domcontentloaded"
-    });
-    await page.addScriptTag({
-      path: contentBundle
     });
 
     await page.waitForFunction(() => {
@@ -75,7 +83,7 @@ async function run() {
       throw new Error(`Expected at least 3 nodes after initial injection, received ${initialNodeCount}`);
     }
 
-    await page.click("#append-exchange");
+    await page.locator("#append-exchange").click({ force: true });
     await wait(1200);
 
     const refreshedNodeCount = await page.evaluate(() => {
@@ -98,8 +106,9 @@ async function run() {
 
     console.log("runtime validation passed");
   } finally {
-    await browser?.close();
+    await context?.close();
     server.close();
+    rmSync(userDataDir, { recursive: true, force: true });
   }
 }
 

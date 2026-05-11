@@ -22,8 +22,8 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 1. Harden merge rules so more kinds of user-curated nodes and edges survive regeneration safely.
 2. Add richer canvas editing actions beyond delete, especially relation editing and lightweight undo ergonomics.
 3. Start trimming the content bundle before the runtime spine grows further.
-4. Revisit full unpacked-extension automation after the local runtime smoke path is stable.
-5. Add clearer source-lost iconography and tooltip treatment in the node surface.
+4. Add clearer source-lost iconography and tooltip treatment in the node surface.
+5. Expand runtime validation coverage toward more source-jump and selector edge cases.
 
 ## Blocked
 
@@ -47,6 +47,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 8. Added a first automated test layer for stable services and store behavior, and wired it into `verify` / `ci`.
 9. Added local runtime black-box validation with a mock host and a real-browser smoke script via `npm run runtime:validate`.
 10. Added logical delete, latest-removal undo, and source-lost persistence/feedback in the canvas editing flow.
+11. Upgraded runtime validation so `ci` now proves the unpacked extension can be loaded and auto-inject in a real browser.
 
 ## Quality Gate
 
@@ -62,7 +63,7 @@ For a feature slice to move to `done`, it must satisfy every item in [docs/defin
 6. Architecture decisions: [docs/architecture-decisions/ADR-0001-runtime-spine.md](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions/ADR-0001-runtime-spine.md), [docs/architecture-decisions/ADR-0002-shadow-dom-and-local-persistence.md](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions/ADR-0002-shadow-dom-and-local-persistence.md)
 7. Git workflow: [docs/git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
 8. Local hook setup: run `npm run setup:hooks`
-9. Runtime validation: [docs/runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md), run `npm run runtime:validate`
+9. Runtime validation: [docs/runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md), run `npm run runtime:validate` or `npm run runtime:validate:built`
 10. Bundle notes: [docs/bundle-reduction-notes.md](/Users/qyx/Desktop/project/thinking-ide/docs/bundle-reduction-notes.md)
 
 ## Notes

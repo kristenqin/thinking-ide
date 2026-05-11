@@ -19,7 +19,7 @@ Runtime validation exists to cover that black-box gap for the current MVP spine:
 
 `content script -> chat scan -> draft generation -> store/render -> local persistence-ready UI`
 
-Use it as a smoke test for the shipped extension artifact, not as a replacement for unit tests or repo gates.
+Use it as a smoke test for the shipped extension artifact, not as a replacement for unit tests.
 
 ## Local Mock-Host Strategy
 
@@ -30,19 +30,20 @@ Artifacts:
 1. `runtime-validation/mock-chat.html`
 2. `scripts/runtime-validation.mjs`
 3. `npm run runtime:validate`
+4. `npm run runtime:validate:built`
 
 Why the mock host exists:
 
 1. It gives a stable, repeatable DOM for black-box validation.
 2. It keeps the test focused on the extension runtime spine, not live ChatGPT variability.
-3. It lets the repo validate the shipped content runtime deterministically, even when full extension-package automation is not yet reliable in the local browser harness.
+3. It lets the repo validate the shipped unpacked extension deterministically without depending on live ChatGPT.
 
 What the harness does:
 
 1. Builds the extension.
-2. Serves `runtime-validation/mock-chat.html` on `http://127.0.0.1:4173`.
-3. Launches a real Chromium browser.
-4. Opens the mock host and injects the built `dist/content.js` bundle into that page.
+2. Serves `runtime-validation/mock-chat.html` on a temporary localhost port.
+3. Launches a persistent Chromium context with the unpacked `dist/` extension loaded.
+4. Opens the mock host and waits for the real content script to inject automatically.
 5. Appends new mock chat content and checks that the panel remains healthy.
 
 ## What The Smoke Test Must Prove
@@ -50,7 +51,7 @@ What the harness does:
 For the current milestone, runtime smoke validation must prove all of the following:
 
 1. The built extension injects on an allowed host.
-   In the current local harness this means the shipped content runtime injects successfully into the mock host page.
+   In the current local harness this means the unpacked `dist/` extension injects successfully into the mock host page.
 2. The content script creates `#thinking-ide-root` and mounts the app inside Shadow DOM.
 3. The runtime can scan the mock chat DOM and produce an initial concept-map render.
 4. The rendered map contains real nodes after boot, not just an empty shell.
@@ -72,6 +73,10 @@ Run `npm run runtime:validate` when a slice changes shipped runtime behavior in 
 
 Also run it before calling a high-risk runtime slice `done` when `npm run verify` passes but the change still depends on extension-in-page behavior.
 
+`npm run ci` now includes the built-artifact runtime validation step automatically after `verify`, so the repo-level integration gate covers both packaging and in-page extension injection.
+
+Use `npm run runtime:validate:built` when `dist/` is already fresh and you only want to rerun the browser-backed extension load check without rebuilding first.
+
 For docs-only slices, follow the lightweight docs check from [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md) instead.
 
 ## Current Limits Vs Real ChatGPT Validation
@@ -81,7 +86,7 @@ The mock-host smoke test increases confidence, but it is not equivalent to valid
 Current limits:
 
 1. The mock DOM only imitates the minimum structure the current adapter understands. It does not cover real ChatGPT layout churn, streaming states, virtualization, or alternate message wrappers.
-2. The current harness validates the shipped content runtime in a real browser, but it does not yet prove the full unpacked-extension loading path in automation.
+2. It now proves the full unpacked-extension loading path in automation, but still only against the mock host.
 3. It checks render/refresh health, but it does not verify source-jump correctness against long, repeated, or edited real conversations.
 4. It does not exercise every persistence edge case, only the runtime path up to a healthy injected panel.
 5. It does not replace the broader scenarios listed in `thinking_ide_测试用例文档.md`.

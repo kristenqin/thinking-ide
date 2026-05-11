@@ -10,8 +10,9 @@
     "build": "tsc --noEmit && vite build",
     "check": "tsc --noEmit",
     "verify": "npm run check && npm run test:run && npm run build",
-    "ci": "npm run verify",
-    "runtime:validate": "npm run build && node scripts/runtime-validation.mjs",
+    "ci": "npm run verify && npm run runtime:validate:built",
+    "runtime:validate": "npm run build && npm run runtime:validate:built",
+    "runtime:validate:built": "node scripts/runtime-validation.mjs",
     "setup:hooks": "node scripts/setup-git-hooks.mjs"
   },
   "dependencies": {
