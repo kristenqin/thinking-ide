@@ -18,13 +18,14 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 3. Keep the implementation aligned with the existing PRD, technical design, component spec, and task breakdown documents.
 4. Treat UI/UX acceptance as a first-class delivery constraint alongside logic, runtime, and persistence.
 5. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
+6. Treat the new design-system layer as the required bridge between UI specs and frontend implementation.
 
 ## Next
 
 1. Harden merge rules so more kinds of user-curated nodes and edges survive regeneration safely.
    Current baseline now preserves reordered same-source concepts by title identity and stops one removed concept from suppressing all sibling concepts.
-2. Continue aligning the panel, canvas chrome, and editing surfaces with the spec-defined workspace UX.
-3. Add richer canvas editing actions beyond the current delete, relation-edit, and single-step undo baseline.
+2. Continue aligning the panel, canvas chrome, and editing surfaces with the spec-defined workspace UX using the new Notion-derived design-system baseline.
+3. Add richer canvas editing actions beyond the current delete, relation-edit, single-step undo, and low-frequency role-conversion baseline.
 4. Start trimming the content bundle before the runtime spine grows further.
 5. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
 6. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
@@ -36,7 +37,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 ## Risks
 
-1. The current `content.js` production bundle is above Vite's default chunk warning threshold at roughly `533 kB` minified, so bundle-splitting or dependency trimming should be scheduled before the extension grows much further.
+1. The current `content.js` production bundle is above Vite's default chunk warning threshold at roughly `537 kB` minified, so bundle-splitting or dependency trimming should be scheduled before the extension grows much further.
 2. ChatGPT DOM selectors and source anchors are better than the first cut, but they are still heuristic and need stronger identity handling before the runtime spine can be treated as robust.
 
 ## Done
@@ -60,6 +61,8 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 17. Expanded runtime validation again so the smoke harness now proves a degraded source-lost feedback path after the indexed assistant message disappears from the host DOM even while other assistant messages remain.
 18. Hardened regeneration merging so removed concepts no longer suppress sibling concepts and reordered same-source concepts keep their prior ids and positions by title identity.
 19. Tightened source reveal fallback and observer noise handling so missing assistant sources now degrade to `source_lost` instead of highlighting the wrong remaining message, and non-message text churn no longer triggers runtime refresh.
+20. Added a repo-level design-system documentation layer that makes Notion the visual baseline, keeps `shadcn/ui` and `Radix UI` as implementation primitives, and defines foundations, component patterns, and implementation guidance for future frontend slices.
+21. Added a node `More` menu with low-frequency role conversion and property inspection, and preserved manual role edits through regeneration.
 
 ## Quality Gate
 
@@ -79,6 +82,7 @@ For a feature slice to move to `done`, it must satisfy every item in [docs/defin
 10. Runtime validation: [docs/runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md), run `npm run runtime:validate` or `npm run runtime:validate:built`
 11. Bundle notes: [docs/bundle-reduction-notes.md](/Users/qyx/Desktop/project/thinking-ide/docs/bundle-reduction-notes.md)
 12. Frontend UI contract: [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md)
+13. Design system: [docs/design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md)
 
 ## Notes
 

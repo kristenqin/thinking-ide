@@ -12,6 +12,7 @@ This contract defines:
 2. Which parts of a feature slice must ship with UI treatment in the same iteration.
 3. Which frontend concerns can move in parallel with logic work.
 4. What evidence is required before a frontend-facing slice can be called `done`.
+5. How the design-system layer should mediate between product specs and implementation.
 
 ## Governing Spec Sources
 
@@ -22,8 +23,18 @@ Use these documents explicitly when a slice affects UI or interaction behavior:
 3. [thinking_ide_组件设计文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_组件设计文档.md)
 4. [thinking_ide_mvp_项目文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_mvp_项目文档.md)
 5. [thinking_ide_测试用例文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_测试用例文档.md)
+6. [design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md)
+7. [design-system/notion-baseline.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/notion-baseline.md)
+8. [design-system/foundations.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/foundations.md)
+9. [design-system/component-patterns.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/component-patterns.md)
 
 Do not say "UI aligned with spec" unless the slice names which of these governs the change.
+
+Also be explicit about the split of authority:
+
+1. product specs own behavior and structure
+2. the design-system folder owns the reusable visual baseline
+3. `shadcn/ui` and `Radix UI` are implementation primitives, not the default product aesthetic
 
 ## Core Rule
 
@@ -57,6 +68,19 @@ These must be aligned with store/service behavior before finalizing the UI:
 
 If a slice touches the second group, treat it as a shared frontend-state contract change.
 
+## Visual Authority Rule
+
+Thinking IDE uses a Notion-derived workspace baseline for visual language.
+
+That means:
+
+1. calm page-like hierarchy
+2. neutral surfaces
+3. weak chrome and weak interruptions
+4. tool-like overlays instead of dashboard framing
+
+Do not treat `shadcn/ui` default styling as the target visual language unless the design-system docs explicitly say so.
+
 ## Required UI Contract Areas
 
 These areas define the expected product shape for M1 and must stay visible during implementation review:
@@ -66,6 +90,7 @@ These areas define the expected product shape for M1 and must stay visible durin
 3. Canvas editing should use explicit overlay patterns described in the component and interaction specs.
 4. Left-right linkage between map and original chat should have clear selection and feedback treatment.
 5. Empty, generating, synced, failed, and source-lost states must be treated as product states, not only console-style text output.
+6. Visual hierarchy should come from the design-system foundations and patterns before page-local styling choices.
 
 ## Slice Classification
 
@@ -77,6 +102,8 @@ Every frontend-facing slice should be classified before implementation:
    Store/service behavior and UI behavior both changed and should land together.
 3. `UI-alignment`
    Primary goal is to move the implementation closer to the governing interaction or structural specs.
+4. `Design-system`
+   Primary goal is to define or adjust reusable visual rules that other frontend slices should build on.
 
 Record the classification in the task write-up or progress notes when the slice is non-trivial.
 
@@ -85,14 +112,15 @@ Record the classification in the task write-up or progress notes when the slice 
 Before marking a frontend-facing slice `done`, verify all of the following:
 
 1. The governing UI spec documents are named explicitly.
-2. The user-visible behavior matches the intended interaction contract, or the gap is recorded clearly.
-3. The implementation does not leave obviously temporary "engineering console" UI in a workflow that is meant to be product-facing.
-4. The relevant state views are handled, not only the success path.
-5. The result is validated by the right level of evidence:
+2. The relevant design-system docs are named explicitly when the slice affects reusable visual language.
+3. The user-visible behavior matches the intended interaction contract, or the gap is recorded clearly.
+4. The implementation does not leave obviously temporary "engineering console" UI in a workflow that is meant to be product-facing.
+5. The relevant state views are handled, not only the success path.
+6. The result is validated by the right level of evidence:
    - code inspection for purely structural refactors
    - `npm run verify` for ordinary behavior slices
    - `npm run runtime:validate` or `npm run ci` for runtime-boundary UI slices
-6. `PROJECT_STATUS.md`, `AGENTS.md`, and `docs/traceability-matrix.md` are updated when the slice changes current UI coverage or next UI priorities.
+7. `PROJECT_STATUS.md`, `AGENTS.md`, and `docs/traceability-matrix.md` are updated when the slice changes current UI coverage or next UI priorities.
 
 ## Escalation Triggers
 
@@ -102,6 +130,7 @@ Escalate before implementation if any of these are true:
 2. A slice needs a new panel status or new cross-layer interaction mode.
 3. A UI change would force a store-shape or persistence-shape change.
 4. The intended user flow is still ambiguous after naming the governing spec docs.
+5. The slice needs a new reusable visual pattern or token that is not yet documented in `docs/design-system/`.
 
 ## Default Working Rule
 

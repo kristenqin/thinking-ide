@@ -412,3 +412,35 @@ test("buildThinkingDocument preserves concept identity by title when same-source
     ]
   );
 });
+
+test("buildThinkingDocument preserves manual role edits during regeneration", () => {
+  const previous: ThinkingDocument = {
+    conversation,
+    messages,
+    sources,
+    nodes: [
+      {
+        ...createNode("concept-alpha", "concept", "Alpha concept", "source-1"),
+        data: {
+          ...createNode("concept-alpha", "concept", "Alpha concept", "source-1").data,
+          role: "claim"
+        }
+      }
+    ],
+    edges: [],
+    settings: defaultSettings,
+    updatedAt: "2026-05-10T00:02:00.000Z"
+  };
+
+  const document = buildThinkingDocument({
+    conversation,
+    messages,
+    sources,
+    generatedNodes: [createNode("generated-alpha", "concept", "Alpha concept", "source-1")],
+    generatedEdges: [],
+    settings: defaultSettings,
+    previous
+  });
+
+  assert.equal(document.nodes[0]?.data.role, "claim");
+});

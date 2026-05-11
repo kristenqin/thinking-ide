@@ -22,6 +22,7 @@ These documents must be updated in the same slice whenever their trigger conditi
 4. The governing topic doc for the slice when one exists.
    Example: [docs/runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md) for runtime smoke work.
 5. [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) when repo-level frontend acceptance rules or UI slice semantics change.
+6. The affected file under [docs/design-system](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md) when a slice changes reusable visual baseline, foundations, or component patterns.
 
 ### P1: Required Entry-Point Sync Documents
 
@@ -40,6 +41,7 @@ These documents should be updated when they are directly affected, but they are 
 2. [docs/document-system-map.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-system-map.md)
 3. ADRs under [docs/architecture-decisions](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions)
 4. Spec documents under [docs/specs](/Users/qyx/Desktop/project/thinking-ide/docs/specs/README.md)
+5. Design-system index or overview docs when only navigation-level summaries changed
 
 ## Trigger Matrix
 
@@ -110,6 +112,24 @@ Must update:
 3. `AGENTS.md`
 4. `docs/frontend-ui-contract.md` when the repo-level frontend rule changed
 5. The affected spec document under `docs/specs/` if the desired UI contract itself changed
+6. The affected design-system document under `docs/design-system/` if the reusable visual pattern or token guidance changed
+
+### Visual Baseline Or Design-System Change
+
+Examples:
+
+1. the repo adopts a new visual baseline
+2. token semantics change
+3. reusable panel, canvas, or overlay patterns change
+4. implementation primitives and visual authority are clarified
+
+Must update:
+
+1. `PROJECT_STATUS.md`
+2. `docs/frontend-ui-contract.md`
+3. the affected docs under `docs/design-system/`
+4. `docs/document-system-map.md` if the documentation architecture changed
+5. `AGENTS.md` if the default repo working guidance changed
 
 ### Risk Or Coverage Change
 

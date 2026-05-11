@@ -1,8 +1,8 @@
 import { Background, Controls, MiniMap, NodeToolbar, Position, ReactFlow } from "@xyflow/react";
-import { AlertTriangle, Link2, PencilLine, RefreshCcw, Trash2 } from "lucide-react";
+import { AlertTriangle, Ellipsis, FileText, Link2, PencilLine, RefreshCcw, Shapes, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ConceptMapEdgeRecord, EdgeRelationType } from "../../models/edge";
-import type { ConceptMapNodeRecord } from "../../models/node";
+import type { ConceptMapNodeRecord, NodeRole } from "../../models/node";
 import { useThinkingStore } from "../../stores/useThinkingStore";
 import { revealSource } from "../../services/sourceLocator";
 import { Button } from "../ui/button";
@@ -25,6 +25,7 @@ export function ConceptMapCanvas() {
     onEdgesChange,
     addConnection,
     renameNode,
+    updateNodeRole,
     updateEdgeRelation,
     focusSource,
     markSourceLost,
@@ -36,6 +37,8 @@ export function ConceptMapCanvas() {
   const [selectedEdgeId, setSelectedEdgeId] = useState<string>();
   const [draftTitle, setDraftTitle] = useState("");
   const [canvasHint, setCanvasHint] = useState<string>();
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const [showPropertiesForNodeId, setShowPropertiesForNodeId] = useState<string>();
   const renameCardRef = useRef<HTMLDivElement>(null);
   const sourceStatusById = useMemo(
     () => new Map((document?.sources ?? []).map((source) => [source.id, source.status])),
@@ -77,6 +80,9 @@ export function ConceptMapCanvas() {
     (edge) => edge.id === selectedEdgeId && edge.data?.status !== "removed"
   );
   const isRenaming = Boolean(renamingNodeId && selectedNode?.id === renamingNodeId);
+  const propertiesNode = document?.nodes.find(
+    (node) => node.id === showPropertiesForNodeId && node.data.status !== "removed"
+  );
 
   useEffect(() => {
     if (selectedNode) {
@@ -138,6 +144,8 @@ export function ConceptMapCanvas() {
         void removeNode(selectedNodeId);
         setSelectedNodeId(undefined);
         setRenamingNodeId(undefined);
+        setIsMoreMenuOpen(false);
+        setShowPropertiesForNodeId(undefined);
         return;
       }
 
@@ -237,20 +245,26 @@ export function ConceptMapCanvas() {
           setSelectedNodeId(node.id);
           setSelectedEdgeId(undefined);
           setRenamingNodeId(node.id);
+          setIsMoreMenuOpen(false);
         }}
         onNodeClick={(_, node) => {
           setSelectedNodeId(node.id);
           setSelectedEdgeId(undefined);
+          setIsMoreMenuOpen(false);
         }}
         onPaneClick={() => {
           setSelectedNodeId(undefined);
           setRenamingNodeId(undefined);
           setSelectedEdgeId(undefined);
+          setIsMoreMenuOpen(false);
+          setShowPropertiesForNodeId(undefined);
         }}
         onEdgeClick={(_, edge) => {
           setSelectedEdgeId(edge.id);
           setSelectedNodeId(undefined);
           setRenamingNodeId(undefined);
+          setIsMoreMenuOpen(false);
+          setShowPropertiesForNodeId(undefined);
         }}
         minZoom={0.5}
         maxZoom={1.6}
@@ -302,12 +316,75 @@ export function ConceptMapCanvas() {
                   onClick={() => {
                     void removeNode(selectedNode.id);
                     setSelectedNodeId(undefined);
+                    setIsMoreMenuOpen(false);
                   }}
                 >
                   <Trash2 size={14} />
                   Delete
                 </Button>
+                <Button
+                  variant="ghost"
+                  className="ti-node-toolbar__button"
+                  onClick={() => setIsMoreMenuOpen((open) => !open)}
+                >
+                  <Ellipsis size={14} />
+                  More
+                </Button>
               </div>
+              {isMoreMenuOpen ? (
+                <div className="ti-node-toolbar__menu" role="menu" aria-label="Node actions">
+                  {selectedNode.data.role !== "concept" ? (
+                    <Button
+                      variant="ghost"
+                      className="ti-node-toolbar__menu-item"
+                      onClick={() => {
+                        void updateNodeRole(selectedNode.id, "concept");
+                        setIsMoreMenuOpen(false);
+                      }}
+                    >
+                      <Shapes size={14} />
+                      Convert to Concept
+                    </Button>
+                  ) : null}
+                  {selectedNode.data.role !== "claim" ? (
+                    <Button
+                      variant="ghost"
+                      className="ti-node-toolbar__menu-item"
+                      onClick={() => {
+                        void updateNodeRole(selectedNode.id, "claim");
+                        setIsMoreMenuOpen(false);
+                      }}
+                    >
+                      <Shapes size={14} />
+                      Convert to Claim
+                    </Button>
+                  ) : null}
+                  <Button
+                    variant="ghost"
+                    className="ti-node-toolbar__menu-item"
+                    onClick={() => {
+                      setShowPropertiesForNodeId(selectedNode.id);
+                      setIsMoreMenuOpen(false);
+                    }}
+                  >
+                    <FileText size={14} />
+                    View properties
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="ti-node-toolbar__menu-item ti-node-toolbar__menu-item--danger"
+                    onClick={() => {
+                      void removeNode(selectedNode.id);
+                      setSelectedNodeId(undefined);
+                      setShowPropertiesForNodeId(undefined);
+                      setIsMoreMenuOpen(false);
+                    }}
+                  >
+                    <Trash2 size={14} />
+                    Delete node
+                  </Button>
+                </div>
+              ) : null}
               {selectedNodeSourceLost ? (
                 <div className="ti-node-toolbar__hint" role="note">
                   <AlertTriangle size={12} />
@@ -389,6 +466,52 @@ export function ConceptMapCanvas() {
           </div>
         </div>
       ) : null}
+
+      {propertiesNode ? (
+        <div className="ti-floating-card ti-floating-card--properties">
+          <div className="ti-floating-card__eyebrow">Node properties</div>
+          <div className="ti-property-list">
+            <div className="ti-property-list__row">
+              <span>Title</span>
+              <strong>{propertiesNode.data.title}</strong>
+            </div>
+            <div className="ti-property-list__row">
+              <span>Role</span>
+              <strong>{formatNodeRole(propertiesNode.data.role)}</strong>
+            </div>
+            <div className="ti-property-list__row">
+              <span>Status</span>
+              <strong>{propertiesNode.data.status}</strong>
+            </div>
+            <div className="ti-property-list__row">
+              <span>Source</span>
+              <strong>{propertiesNode.data.sourceId ? (sourceStatusById.get(propertiesNode.data.sourceId) === "lost" ? "Needs review" : "Linked") : "None"}</strong>
+            </div>
+          </div>
+          <div className="ti-floating-card__meta">Low-frequency node details stay out of the primary canvas view.</div>
+          <div className="ti-floating-card__actions">
+            <Button variant="ghost" onClick={() => setShowPropertiesForNodeId(undefined)}>
+              Close
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
+}
+
+function formatNodeRole(role: NodeRole): string {
+  if (role === "claim") {
+    return "Claim";
+  }
+
+  if (role === "question") {
+    return "Question";
+  }
+
+  if (role === "answer") {
+    return "Answer";
+  }
+
+  return "Concept";
 }

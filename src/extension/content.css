@@ -442,6 +442,25 @@
   color: #f3d09d;
 }
 
+.ti-node-toolbar__menu {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid rgba(226, 211, 186, 0.16);
+  border-radius: 18px;
+  background: rgba(20, 24, 21, 0.94);
+  box-shadow: 0 14px 36px rgba(7, 9, 8, 0.18);
+}
+
+.ti-node-toolbar__menu-item {
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.ti-node-toolbar__menu-item--danger {
+  color: #f1c5b8;
+}
+
 .ti-node-toolbar__hint {
   display: inline-flex;
   align-items: center;
@@ -498,6 +517,30 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.ti-property-list {
+  display: grid;
+  gap: 10px;
+}
+
+.ti-property-list__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: rgba(245, 238, 228, 0.74);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.ti-property-list__row span {
+  color: rgba(245, 238, 228, 0.56);
+}
+
+.ti-property-list__row strong {
+  color: #fff8ef;
+  font-weight: 600;
+  text-align: right;
 }
 
 .ti-label {

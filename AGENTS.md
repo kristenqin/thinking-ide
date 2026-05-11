@@ -15,8 +15,9 @@ Before starting any task, read these in order:
 3. [docs/definition-of-done.md](/Users/qyx/Desktop/project/thinking-ide/docs/definition-of-done.md)
 4. [docs/document-sync-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-sync-policy.md)
 5. [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) for any user-facing slice
-6. [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md)
-7. [docs/git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
+6. [docs/design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md) for any slice that changes reusable visual language or workspace presentation
+7. [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md)
+8. [docs/git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
 
 Use [docs/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/README.md) as the navigation page for all governance artifacts.
 
@@ -64,7 +65,8 @@ Do not let UI components directly own DOM scanning or persistence logic.
 5. Do not revert unrelated work.
 6. If a task crosses a shared runtime boundary, escalate before changing it.
 7. If a task changes user-visible UI or interaction behavior, classify it using `frontend-ui-contract` before implementation.
-8. Default to parallel sidecar execution for non-trivial work; keep the main thread focused on orchestration, integration, and final gates whenever write sets allow.
+8. If a task changes reusable visual language, token semantics, or shared workspace patterns, update the relevant file under `docs/design-system/` in the same slice.
+9. Default to parallel sidecar execution for non-trivial work; keep the main thread focused on orchestration, integration, and final gates whenever write sets allow.
 
 Shared runtime boundaries are:
 
@@ -85,6 +87,8 @@ Use the smallest valid gate for the slice:
 4. Runtime-boundary behavior change: `npm run runtime:validate`
 5. UI-facing behavior change: apply the acceptance checks in [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) in addition to the command gate
 6. Release or integration parity check: `npm run ci`
+
+For design-system-only slices, use terminology, link, and cross-reference review as the minimum gate unless the slice also changes shipped frontend code.
 
 Also follow the parallelism default and capacity-hygiene rules in [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md) so the main thread does not become the only place holding implementation context.
 
@@ -116,11 +120,12 @@ Check these before changing core behavior:
 The current next slices are:
 
 1. Continue aligning the panel, canvas chrome, and editing surfaces with the spec-defined workspace UX.
-2. Harden regeneration merge rules beyond the current title-based concept identity and removed-sibling protections.
-3. Add richer canvas editing beyond the current delete, relation-edit, and single-step undo baseline.
-4. Trim the content bundle before the runtime spine grows further.
-5. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
-6. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
+2. Apply the new Notion-derived design-system baseline as panel, canvas, and overlay surfaces continue to evolve.
+3. Harden regeneration merge rules beyond the current title-based concept identity and removed-sibling protections.
+4. Add richer canvas editing beyond the current delete, relation-edit, single-step undo, and low-frequency role-conversion baseline.
+5. Trim the content bundle before the runtime spine grows further.
+6. Expand source-lost and failure-state coverage beyond the current node-level hint treatment.
+7. Expand runtime validation coverage toward more selector edge cases and failure-state scenarios.
 
 ## Completion Reporting
 

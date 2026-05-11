@@ -10,9 +10,10 @@ This folder contains the operational engineering guardrails for autonomous execu
 4. Document sync policy: [document-sync-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-sync-policy.md)
 5. Document system map: [document-system-map.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-system-map.md)
 6. Frontend UI contract: [frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md)
-7. Git workflow: [git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
-8. Runtime validation: [runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md)
-9. Bundle notes: [bundle-reduction-notes.md](/Users/qyx/Desktop/project/thinking-ide/docs/bundle-reduction-notes.md)
+7. Design system: [design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md)
+8. Git workflow: [git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
+9. Runtime validation: [runtime-validation.md](/Users/qyx/Desktop/project/thinking-ide/docs/runtime-validation.md)
+10. Bundle notes: [bundle-reduction-notes.md](/Users/qyx/Desktop/project/thinking-ide/docs/bundle-reduction-notes.md)
 
 ## Execution Tracking
 
@@ -24,6 +25,15 @@ This folder contains the operational engineering guardrails for autonomous execu
 
 1. [ADR-0001-runtime-spine.md](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions/ADR-0001-runtime-spine.md)
 2. [ADR-0002-shadow-dom-and-local-persistence.md](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions/ADR-0002-shadow-dom-and-local-persistence.md)
+
+## Design System
+
+1. Index: [design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md)
+2. Overview: [design-system/overview.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/overview.md)
+3. Notion baseline: [design-system/notion-baseline.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/notion-baseline.md)
+4. Foundations: [design-system/foundations.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/foundations.md)
+5. Component patterns: [design-system/component-patterns.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/component-patterns.md)
+6. Implementation guidance: [design-system/implementation-guidance.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/implementation-guidance.md)
 
 ## Specs Layer
 
@@ -39,4 +49,5 @@ This folder contains the operational engineering guardrails for autonomous execu
 6. Use `npm run runtime:validate` for the full extension-load smoke pass, or rely on `npm run ci` to run the built-artifact runtime gate automatically.
 7. Use `document-sync-policy` whenever a slice changes runtime guarantees, repo gates, current focus, or risk posture.
 8. Use `frontend-ui-contract` whenever a slice changes user-visible UI or interaction behavior.
-9. For non-trivial work, default to sidecar agents with non-overlapping write sets and keep the main thread focused on orchestration and integration.
+9. Use `design-system/README.md` whenever a slice needs a concrete visual baseline or reusable UI pattern guidance.
+10. For non-trivial work, default to sidecar agents with non-overlapping write sets and keep the main thread focused on orchestration and integration.

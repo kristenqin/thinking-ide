@@ -11,6 +11,7 @@ flowchart TD
     B --> D["Execution Control"]
     B --> E["Quality And Risk Control"]
     B --> F["Decision And Topic Docs"]
+    C --> J["Design System Translation Layer"]
     C --> G["Product Intent"]
     C --> H["Interaction And Structure"]
     C --> I["Delivery Planning And Testing"]
@@ -30,6 +31,7 @@ flowchart TD
     B9["runtime-validation.md"] --> F
     B10["bundle-reduction-notes.md"] --> F
     B11["ADR-0001 / ADR-0002"] --> F
+    B12["design-system/*.md"] --> F
 
     C0["docs/specs/README.md"] --> C
     C1["specs/thinking_ide_prd_产品需求文档.md"] --> G
@@ -41,6 +43,12 @@ flowchart TD
     C7["specs/thinking_ide_技术方案文档.md"] --> H
     C8["specs/thinking_ide_开发任务拆解文档.md"] --> I
     C9["specs/thinking_ide_测试用例文档.md"] --> I
+    J1["design-system/overview.md"] --> J
+    J2["design-system/notion-baseline.md"] --> J
+    J3["design-system/foundations.md"] --> J
+    J4["design-system/component-patterns.md"] --> J
+    J5["design-system/implementation-guidance.md"] --> J
+    H --> J
 ```
 
 ## Maintenance Model
@@ -52,6 +60,7 @@ The repo should treat documents in four maintenance bands:
 | Entry | Tell a human or agent where the project stands right now | `AGENTS.md`, `PROJECT_STATUS.md`, `docs/README.md` | Update whenever current focus, gates, or navigation changes |
 | Governance | Define how work is executed, verified, and synchronized | `definition-of-ready`, `definition-of-done`, `document-sync-policy`, `frontend-ui-contract`, `git-workflow`, `multi-agent-governance` | Update when process or gate semantics change |
 | Control | Track whether implementation and risk still line up with reality | `risk-register`, `traceability-matrix`, `runtime-validation`, bundle notes | Update when runtime guarantees, coverage, or known risks change |
+| Design system | Translate product and interaction specs into a reusable visual and component baseline | `docs/design-system/*.md` | Update when visual baseline, tokens, or reusable UI patterns intentionally change |
 | Spec | Define product/design/technical intent for the MVP | `docs/specs/*.md` | Update when implementation intentionally changes spec intent or when the spec becomes misleading |
 
 ## Spec Files Mapped Into The System
@@ -70,6 +79,18 @@ The spec documents under `docs/specs/` fit naturally into the system like this:
 | `specs/thinking_ide_开发任务拆解文档.md` | Planned delivery decomposition | Planning spec | Execution | When the active task map becomes misleading or obsolete |
 | `specs/thinking_ide_测试用例文档.md` | Intended verification surface | Quality spec | QA + engineering | When quality gates or required scenarios materially change |
 
+## Design-System Files Mapped Into The System
+
+The design-system documents sit between raw specs and implementation:
+
+| File | Recommended role | Source-of-truth level | Primary maintainer lane | Trigger to update |
+|---|---|---|---|---|
+| `design-system/overview.md` | Repo-level visual authority and scope | Translation spec | UI + frontend architecture | When visual authority or repo rule changes |
+| `design-system/notion-baseline.md` | Visual baseline and review language | Translation spec | UI | When the visual baseline or its interpretation changes |
+| `design-system/foundations.md` | Tokens, semantic roles, and foundational styling guidance | Implementation contract | Design system + frontend | When colors, spacing, typography, or semantic token usage changes |
+| `design-system/component-patterns.md` | Reusable workspace component patterns | Implementation contract | Design system + frontend | When shared panel/canvas/tooling patterns change |
+| `design-system/implementation-guidance.md` | Frontend application rules | Delivery contract | Frontend architecture | When implementation expectations or primitive usage rules change |
+
 ## How To Maintain Specs Without Creating Churn
 
 Do not update every spec file on every slice. Instead:
@@ -79,6 +100,7 @@ Do not update every spec file on every slice. Instead:
 3. If implementation temporarily diverges but the spec is still the desired target, record the gap in `traceability-matrix` or `PROJECT_STATUS.md` instead of rewriting the spec to match an incomplete implementation.
 4. If a spec is no longer a desired target and has become misleading, update it in the same slice that establishes the new direction.
 5. For user-facing slices, review [frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) before deciding whether UI deferral is acceptable.
+6. When a visual decision is stable enough to be reused, update the design-system layer instead of leaving it only in page-local implementation.
 
 ## Trigger Matrix For Specs
 
@@ -86,6 +108,7 @@ Do not update every spec file on every slice. Instead:
 |---|---|
 | Runtime architecture change | `技术方案文档`, `组件设计文档`, `数据模型详细设计文档` |
 | Interaction behavior change | `交互设计规范文档`, `低保真原型文档`, `PRD` |
+| Visual baseline or reusable pattern change | `交互设计规范文档`, `低保真原型文档`, `design-system/*.md` |
 | Persistence or schema change | `数据模型详细设计文档`, `技术方案文档`, `测试用例文档` |
 | Quality gate or validation strategy change | `测试用例文档`, `开发任务拆解文档`, `技术方案文档` |
 | Scope/MVP promise change | `PRD`, `MVP 项目文档`, `开发任务拆解文档` |

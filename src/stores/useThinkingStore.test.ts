@@ -144,3 +144,12 @@ test("updateEdgeRelation changes the relation label and keeps the edge editable"
   assert.equal(state.document?.edges[0]?.data?.relation, "answers");
   assert.equal(state.document?.edges[0]?.data?.status, "draft");
 });
+
+test("updateNodeRole changes the node role", async () => {
+  useThinkingStore.setState({ document: documentFixture });
+
+  await useThinkingStore.getState().updateNodeRole("node-1", "claim");
+
+  const state = useThinkingStore.getState();
+  assert.equal(state.document?.nodes[0]?.data.role, "claim");
+});

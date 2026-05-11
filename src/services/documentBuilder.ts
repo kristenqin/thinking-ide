@@ -21,7 +21,7 @@ function buildNodeGroupKey(node: ConceptMapNodeRecord): string {
 }
 
 function buildNodeIdentityKey(node: ConceptMapNodeRecord): string {
-  return [buildNodeGroupKey(node), normalizeText(node.data.summary ?? node.data.title)].join("::");
+  return [node.data.sourceId ?? "none", normalizeText(node.data.summary ?? node.data.title)].join("::");
 }
 
 function buildEdgeKey(edge: ConceptMapEdgeRecord): string {
@@ -93,6 +93,7 @@ function mergeNodes(
         data: {
           ...node.data,
           title: previous.data.title,
+          role: previous.data.role,
           status: previous.data.status
         }
       }
