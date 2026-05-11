@@ -22,6 +22,10 @@ This folder contains the operational engineering guardrails for autonomous execu
 2. Risks: [risk-register.md](/Users/qyx/Desktop/project/thinking-ide/docs/risk-register.md)
 3. Requirement coverage: [traceability-matrix.md](/Users/qyx/Desktop/project/thinking-ide/docs/traceability-matrix.md)
 
+## Current Assessments
+
+1. Spec gap assessment: [spec-gap-assessment-2026-05-12.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-gap-assessment-2026-05-12.md)
+
 ## Architecture History
 
 1. [ADR-0001-runtime-spine.md](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions/ADR-0001-runtime-spine.md)
