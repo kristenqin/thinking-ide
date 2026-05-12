@@ -6,6 +6,7 @@ import { createDefaultSettings } from "../models/settings";
 import type { MessageRef } from "../models/messageRef";
 import type { ScanMessagesResult } from "./chatAdapter";
 import { createSidepanelSessionController } from "./sidepanelSessionController";
+import type { SidepanelSessionState } from "./sidepanelSessionState";
 
 function flushMicrotasks() {
   return new Promise((resolve) => setTimeout(resolve, 0));
@@ -75,6 +76,7 @@ test("controller surfaces a restored idle notice after hydrating a saved convers
   const restored = createDocument(conversation);
   const notices: Array<string | undefined> = [];
   const statuses: string[] = [];
+  const sessionStates: SidepanelSessionState[] = [];
   let currentDocument: ThinkingDocument | undefined;
 
   const controller = createSidepanelSessionController({
@@ -95,6 +97,9 @@ test("controller surfaces a restored idle notice after hydrating a saved convers
       setStatus(status) {
         statuses.push(status);
       }
+    },
+    onSessionStateChange(state) {
+      sessionStates.push(state);
     },
     runtime: {
       async closeSidePanel() {},
@@ -126,6 +131,11 @@ test("controller surfaces a restored idle notice after hydrating a saved convers
 
   assert.equal(notices.at(-1), "Restored saved map for this conversation. Refresh after more history loads if source links still need recovery.");
   assert.equal(statuses.at(-1), "synced");
+  assert.deepEqual(sessionStates.at(-1), {
+    kind: "restored",
+    conversationId: conversation.id,
+    historyCoverage: "unknown"
+  });
 });
 
 test("controller preserves a restored document and reports partial-history recovery honestly", async () => {
@@ -134,6 +144,7 @@ test("controller preserves a restored document and reports partial-history recov
   const restored = createDocument(conversation);
   const notices: Array<string | undefined> = [];
   const statuses: string[] = [];
+  const sessionStates: SidepanelSessionState[] = [];
   let currentDocument: ThinkingDocument | undefined = restored;
   let replaceCalls = 0;
 
@@ -154,6 +165,9 @@ test("controller preserves a restored document and reports partial-history recov
       setStatus(status) {
         statuses.push(status);
       }
+    },
+    onSessionStateChange(state) {
+      sessionStates.push(state);
     },
     runtime: {
       async closeSidePanel() {},
@@ -197,6 +211,12 @@ test("controller preserves a restored document and reports partial-history recov
     notices.at(-1),
     "Refresh skipped because only part of this conversation is visible right now. The saved map remains unchanged."
   );
+  assert.deepEqual(sessionStates.at(-1), {
+    kind: "partial-history",
+    conversationId: conversation.id,
+    historyCoverage: "partial",
+    mode: "manual"
+  });
 });
 
 test("controller distinguishes a successful rebound from a partial-history restore hold", async () => {
@@ -204,6 +224,7 @@ test("controller distinguishes a successful rebound from a partial-history resto
   const conversation = createConversation("/c/rebound");
   const restored = createDocument(conversation);
   const notices: Array<string | undefined> = [];
+  const sessionStates: SidepanelSessionState[] = [];
   let currentDocument: ThinkingDocument | undefined = restored;
 
   const controller = createSidepanelSessionController({
@@ -220,6 +241,9 @@ test("controller distinguishes a successful rebound from a partial-history resto
         notices.push(notice);
       },
       setStatus() {}
+    },
+    onSessionStateChange(state) {
+      sessionStates.push(state);
     },
     runtime: {
       async closeSidePanel() {},
@@ -259,4 +283,10 @@ test("controller distinguishes a successful rebound from a partial-history resto
   assert.ok(currentDocument);
   assert.notEqual(currentDocument, restored);
   assert.equal(notices.at(-1), "Restored map rebound against the currently visible conversation window.");
+  assert.deepEqual(sessionStates.at(-1), {
+    kind: "rebound",
+    conversationId: conversation.id,
+    historyCoverage: "available",
+    mode: "manual"
+  });
 });

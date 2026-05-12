@@ -19,7 +19,8 @@ import {
   updateDocumentNodeRole,
   updateDocumentSettings
 } from "../services/documentMutations";
-import { clearPersistedDocument, loadDocument, persistDocument } from "../services/repository";
+import { loadDocument } from "../services/repository";
+import { clearDocumentStoreState, commitDocumentState, runDocumentStoreAction } from "./documentActionRunner";
 
 type Status = "ready" | "waiting" | "generating" | "synced" | "failed";
 
@@ -51,170 +52,159 @@ type ThinkingState = {
   clearCurrentMap: () => Promise<void>;
 };
 
-async function commitDocument(
-  set: (partial: Partial<ThinkingState>) => void,
-  document: ThinkingDocument,
-  patch: Partial<ThinkingState> = {}
-): Promise<void> {
-  set({ document, ...patch });
-  await persistDocument(document);
+export const useThinkingStore = create<ThinkingState>((set, get) => {
+  const documentGet = getScopedGet(get);
+  const documentSet = getScopedSet(set);
+
+  return {
+    status: "ready",
+    async hydrate(conversationId) {
+      const existing = await loadDocument(conversationId);
+      if (existing) {
+        set({ document: existing, status: "synced", error: undefined });
+        return;
+      }
+
+      set({ document: undefined, status: "ready", error: undefined, notice: undefined, recentAction: undefined });
+    },
+    getDocument() {
+      return get().document;
+    },
+    async replaceDocument(document) {
+      await commitDocumentState(documentSet, document, { status: "synced", error: undefined });
+    },
+    setStatus(status, error) {
+      set({ status, error });
+    },
+    setNotice(notice) {
+      set({ notice });
+    },
+    async updateSettings(updates) {
+      await runDocumentStoreAction(documentGet, documentSet, (_state, current) => ({
+        document: updateDocumentSettings(current, updates)
+      }));
+    },
+    async setLanguage(language) {
+      await get().updateSettings({ language });
+    },
+    async setAutoGenerate(enabled) {
+      await get().updateSettings({ autoGenerate: enabled });
+    },
+    async onNodesChange(changes) {
+      await runDocumentStoreAction(documentGet, documentSet, (_state, current) => ({
+        document: applyDocumentNodeChanges(current, changes)
+      }));
+    },
+    async onEdgesChange(changes) {
+      await runDocumentStoreAction(documentGet, documentSet, (_state, current) => ({
+        document: applyDocumentEdgeChanges(current, changes)
+      }));
+    },
+    async renameNode(nodeId, title) {
+      await runDocumentStoreAction(documentGet, documentSet, (_state, current) => ({
+        document: renameDocumentNode(current, nodeId, title)
+      }));
+    },
+    async updateNodeRole(nodeId, role) {
+      await runDocumentStoreAction(documentGet, documentSet, (_state, current) => ({
+        document: updateDocumentNodeRole(current, nodeId, role)
+      }));
+    },
+    async updateEdgeRelation(edgeId, relation) {
+      await runDocumentStoreAction(documentGet, documentSet, (_state, current) => ({
+        document: updateDocumentEdgeRelation(current, edgeId, relation)
+      }));
+    },
+    async addConnection(connection) {
+      if (!connection.source || !connection.target) {
+        return;
+      }
+
+      await runDocumentStoreAction(documentGet, documentSet, (_state, current) => ({
+        document: addDocumentConnection(current, connection)
+      }));
+    },
+    focusSource(sourceId) {
+      return get().document?.sources.find((source) => source.id === sourceId);
+    },
+    async markSourceLost(sourceId) {
+      await runDocumentStoreAction(documentGet, documentSet, (_state, current) => ({
+        document: markDocumentSourceLost(current, sourceId),
+        patch: {
+          notice: "Original chat location is unavailable, but the node is still editable."
+        }
+      }));
+    },
+    async removeNode(nodeId) {
+      await runDocumentStoreAction(documentGet, documentSet, (_state, current) => {
+        const removal = softRemoveDocumentNode(current, nodeId);
+        if (!removal) {
+          return undefined;
+        }
+
+        return {
+          document: removal.updated,
+          patch: {
+            notice: "Node deleted.",
+            recentAction: removal.recentAction
+          }
+        };
+      });
+    },
+    async removeEdge(edgeId) {
+      await runDocumentStoreAction(documentGet, documentSet, (_state, current) => {
+        const removal = softRemoveDocumentEdge(current, edgeId);
+        if (!removal) {
+          return undefined;
+        }
+
+        return {
+          document: removal.updated,
+          patch: {
+            notice: "Edge deleted.",
+            recentAction: removal.recentAction
+          }
+        };
+      });
+    },
+    async undoLastRemoval() {
+      await runDocumentStoreAction(documentGet, documentSet, (state, current) => {
+        const recentAction = state.recentAction;
+        if (!recentAction) {
+          return undefined;
+        }
+
+        return {
+          document: restoreDocumentRemoval(current, recentAction),
+          patch: {
+            notice: "Deletion undone.",
+            recentAction: undefined
+          }
+        };
+      });
+    },
+    async clearCurrentMap() {
+      await clearDocumentStoreState(documentGet, documentSet, {
+        notice: "Current map cleared.",
+        recentAction: undefined,
+        status: "ready",
+        error: undefined
+      });
+    }
+  };
+});
+
+type ThinkingStoreSlice = Pick<
+  ThinkingState,
+  "document" | "notice" | "recentAction" | "status" | "error"
+>;
+
+function getScopedGet(get: () => ThinkingState): () => ThinkingStoreSlice {
+  return get;
 }
 
-export const useThinkingStore = create<ThinkingState>((set, get) => ({
-  status: "ready",
-  async hydrate(conversationId) {
-    const existing = await loadDocument(conversationId);
-    if (existing) {
-      set({ document: existing, status: "synced", error: undefined });
-      return;
-    }
-
-    set({ document: undefined, status: "ready", error: undefined, notice: undefined, recentAction: undefined });
-  },
-  getDocument() {
-    return get().document;
-  },
-  async replaceDocument(document) {
-    await commitDocument(set, document, { status: "synced", error: undefined });
-  },
-  setStatus(status, error) {
-    set({ status, error });
-  },
-  setNotice(notice) {
-    set({ notice });
-  },
-  async updateSettings(updates) {
-    const current = get().document;
-    if (!current) {
-      return;
-    }
-
-    await commitDocument(set, updateDocumentSettings(current, updates));
-  },
-  async setLanguage(language) {
-    await get().updateSettings({ language });
-  },
-  async setAutoGenerate(enabled) {
-    await get().updateSettings({ autoGenerate: enabled });
-  },
-  async onNodesChange(changes) {
-    const current = get().document;
-    if (!current) {
-      return;
-    }
-
-    await commitDocument(set, applyDocumentNodeChanges(current, changes));
-  },
-  async onEdgesChange(changes) {
-    const current = get().document;
-    if (!current) {
-      return;
-    }
-
-    await commitDocument(set, applyDocumentEdgeChanges(current, changes));
-  },
-  async renameNode(nodeId, title) {
-    const current = get().document;
-    if (!current) {
-      return;
-    }
-
-    await commitDocument(set, renameDocumentNode(current, nodeId, title));
-  },
-  async updateNodeRole(nodeId, role) {
-    const current = get().document;
-    if (!current) {
-      return;
-    }
-
-    await commitDocument(set, updateDocumentNodeRole(current, nodeId, role));
-  },
-  async updateEdgeRelation(edgeId, relation) {
-    const current = get().document;
-    if (!current) {
-      return;
-    }
-
-    await commitDocument(set, updateDocumentEdgeRelation(current, edgeId, relation));
-  },
-  async addConnection(connection) {
-    const current = get().document;
-    if (!current || !connection.source || !connection.target) {
-      return;
-    }
-
-    await commitDocument(set, addDocumentConnection(current, connection));
-  },
-  focusSource(sourceId) {
-    return get().document?.sources.find((source) => source.id === sourceId);
-  },
-  async markSourceLost(sourceId) {
-    const current = get().document;
-    if (!current) {
-      return;
-    }
-
-    await commitDocument(set, markDocumentSourceLost(current, sourceId), {
-      notice: "Original chat location is unavailable, but the node is still editable."
-    });
-  },
-  async removeNode(nodeId) {
-    const current = get().document;
-    if (!current) {
-      return;
-    }
-
-    const removal = softRemoveDocumentNode(current, nodeId);
-    if (!removal) {
-      return;
-    }
-
-    await commitDocument(set, removal.updated, {
-      notice: "Node deleted.",
-      recentAction: removal.recentAction
-    });
-  },
-  async removeEdge(edgeId) {
-    const current = get().document;
-    if (!current) {
-      return;
-    }
-
-    const removal = softRemoveDocumentEdge(current, edgeId);
-    if (!removal) {
-      return;
-    }
-
-    await commitDocument(set, removal.updated, {
-      notice: "Edge deleted.",
-      recentAction: removal.recentAction
-    });
-  },
-  async undoLastRemoval() {
-    const current = get().document;
-    const recentAction = get().recentAction;
-    if (!current || !recentAction) {
-      return;
-    }
-
-    await commitDocument(set, restoreDocumentRemoval(current, recentAction), {
-      notice: "Deletion undone.",
-      recentAction: undefined
-    });
-  },
-  async clearCurrentMap() {
-    const current = get().document;
-    if (!current) {
-      return;
-    }
-
-    await clearPersistedDocument(current.conversation.id);
-    set({
-      document: undefined,
-      notice: "Current map cleared.",
-      recentAction: undefined,
-      status: "ready",
-      error: undefined
-    });
-  }
-}));
+function getScopedSet(
+  set: (partial: Partial<ThinkingState>) => void
+): (partial: Partial<ThinkingStoreSlice>) => void {
+  return set;
+}

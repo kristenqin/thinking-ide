@@ -11,12 +11,17 @@ import {
 } from "./activeChatRuntime";
 import { buildThinkingDocument } from "./documentBuilder";
 import { generateDraftMap } from "./generator";
+import {
+  createIdleSidepanelSessionState,
+  type SidepanelSessionRefreshMode,
+  type SidepanelSessionState
+} from "./sidepanelSessionState";
 
 const DEFAULT_SETTINGS = createDefaultSettings();
 const RETRY_DELAY_MS = 350;
 
 type SyncSource = "initial" | "host-change";
-type RegenerateMode = "auto" | "manual";
+type RegenerateMode = SidepanelSessionRefreshMode;
 type Status = "ready" | "waiting" | "generating" | "synced" | "failed";
 
 type SidepanelSessionStorePort = {
@@ -31,6 +36,7 @@ type SidepanelSessionControllerOptions = {
   autoGenerate: boolean;
   store: SidepanelSessionStorePort;
   runtime?: SidepanelRuntimePort;
+  onSessionStateChange?: (state: SidepanelSessionState) => void;
 };
 
 export type SidepanelSessionController = {
@@ -78,7 +84,8 @@ function getManualRefreshNotice() {
 export function createSidepanelSessionController({
   autoGenerate: initialAutoGenerate,
   store,
-  runtime = defaultRuntimePort
+  runtime = defaultRuntimePort,
+  onSessionStateChange
 }: SidepanelSessionControllerOptions): SidepanelSessionController {
   let autoGenerate = initialAutoGenerate;
   let activeConversation: ConversationRef | null = null;
@@ -87,11 +94,17 @@ export function createSidepanelSessionController({
   let contextSyncToken = 0;
   let retryTimeoutId: number | undefined;
   let disposed = false;
+  let sessionState = createIdleSidepanelSessionState();
   let unsubscribeSettled: () => void = () => undefined;
   let unsubscribeHostChanges: () => void = () => undefined;
 
   function setIdleStatus() {
     store.setStatus(store.getDocument() ? "synced" : "waiting");
+  }
+
+  function setSessionState(next: SidepanelSessionState) {
+    sessionState = next;
+    onSessionStateChange?.(next);
   }
 
   async function syncContext(source: SyncSource = "initial") {
@@ -117,9 +130,17 @@ export function createSidepanelSessionController({
 
       const restored = store.getDocument();
       if (restored?.conversation.id === context.conversation.id) {
+        setSessionState({
+          kind: "restored",
+          conversationId: context.conversation.id,
+          historyCoverage: "unknown"
+        });
         store.setNotice(getRestoredIdleNotice());
-      } else if (source === "initial") {
-        store.setNotice(undefined);
+      } else {
+        setSessionState(createIdleSidepanelSessionState());
+        if (source === "initial") {
+          store.setNotice(undefined);
+        }
       }
 
       if (shouldAutoRegenerate(context)) {
@@ -176,6 +197,12 @@ export function createSidepanelSessionController({
         previous?.conversation.conversationKey === conversation.conversationKey &&
         history.coverage === "partial"
       ) {
+        setSessionState({
+          kind: "partial-history",
+          conversationId: conversation.id,
+          historyCoverage: "partial",
+          mode
+        });
         setIdleStatus();
         store.setNotice(getPartialHistoryNotice(mode));
         return;
@@ -194,9 +221,28 @@ export function createSidepanelSessionController({
 
       await store.replaceDocument(nextDocument);
       if (previous?.conversation.conversationKey === conversation.conversationKey) {
+        setSessionState({
+          kind: "rebound",
+          conversationId: conversation.id,
+          historyCoverage: "available",
+          mode
+        });
         store.setNotice(getReboundNotice());
       } else if (mode === "manual") {
+        setSessionState({
+          kind: "refreshed",
+          conversationId: conversation.id,
+          historyCoverage: "available",
+          mode
+        });
         store.setNotice(getManualRefreshNotice());
+      } else {
+        setSessionState({
+          kind: "refreshed",
+          conversationId: conversation.id,
+          historyCoverage: "available",
+          mode
+        });
       }
 
       const { completion } = await runtime.fetchActiveChatContext();

@@ -17,8 +17,8 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 2. Treat [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active execution order.
 3. Wave 2 now has three landed partial adapter slices: stable `conversationKey` / locator identity, bounded completion gating, and a first restoration-safety guard that preserves restored maps when the host only exposes a partial visible history window.
 4. Treat the first `sidePanel-first` runtime checkpoint as landed: browser-owned sidePanel entry, background lifecycle ownership, a lightweight content runtime bridge, a panel session controller, and a latest-exchange-aligned runtime harness are now working together.
-5. Treat the second Wave 1 shell-productization checkpoint and the first code-governance checkpoint as in integration: sidePanel-native empty/restored/failed presentation is now cleaner, restoration messaging is more honest, and store persistence/mutation logic is now being pulled out of Zustand, but none of this counts as shell `acceptance` yet.
-6. Keep the next main implementation focus on explicit restored/partial-history runtime state, remaining Wave 2 restoration semantics, and deeper store/runtime boundary cleanup while privacy-boundary work stays queued behind those blockers.
+5. Treat the third Wave 2 restoration/runtime checkpoint and the second code-governance checkpoint as in integration: the sidePanel runtime now exposes explicit `restored` / `partial-history` / `rebound` / `refreshed` session states to the app shell, and store-side document sequencing has been narrowed into a dedicated runner, but none of this counts as shell or restoration `acceptance` yet.
+6. Keep the next main implementation focus on consuming explicit restored/partial-history runtime state in the sidePanel UI, remaining Wave 2 restoration semantics, and deeper store/runtime boundary cleanup while privacy-boundary work stays queued behind those blockers.
 7. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
 8. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
 9. During the spec-alignment phase, distinguish `checkpoint` commits from `acceptance` commits for user-visible work; do not report alignment closure unless the rendered mismatch for that slice is actually gone.
@@ -32,8 +32,8 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 1. Execute Wave 2 from the alignment plan: ChatAdapter acceptance for conversation identity, full available history scan, completion detection, and restoration.
 2. Continue Wave 2A by finishing restoration semantics on top of the new partial-history guard, especially reopen/rebind behavior beyond the first visible-history checkpoint.
 3. Start the first bounded Wave 3 runtime slice: background-worker request plumbing, provider adapter interface, and schema validation around the landed fixture set and provider-draft contract.
-4. Continue the Wave 1 shell migration: turn the current sidePanel-native copy and callout checkpoint into explicit restored/partial/failed runtime state instead of notice-text inference.
-5. Continue the code-governance sequence after the first store checkpoint: keep peeling runtime sequencing and persistence boundary work away from the Zustand store.
+4. Continue the Wave 1 shell migration: consume the new explicit restored/partial/failed runtime state in panel UI instead of relying on notice-text inference.
+5. Continue the code-governance sequence after the second store checkpoint: keep peeling runtime sequencing and persistence boundary work away from the Zustand store.
 6. Realign acceptance testing around layout, history, completion detection, semantic fixtures, and privacy-boundary checks.
 7. Apply the new code-authoring governance layer while the sidePanel migration proceeds so runtime slices do not harden layout-era or mixed-layer structure by accident.
 8. Apply the new worktree-hygiene layer before starting additional slices on top of the current sidePanel migration tree, so unfinished runtime work and governance slices stay classifiable.
@@ -93,6 +93,8 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 40. Landed a second Wave 1 shell-productization checkpoint: the sidePanel now reads more like a native docked product, with cleaner empty/restored/warning callouts, sidePanel-native action copy, and removal of layout/overlay/collapse shell residue from the active styling path.
 41. Landed a second Wave 2 restoration checkpoint: sidePanel restoration messaging now distinguishes restored idle state, partial-history hold, and visible-window rebound more honestly, and the session controller is now unit-tested as a runtime boundary.
 42. Landed the first store/persistence code-governance checkpoint: durable document mutations and IndexedDB persistence guards now live outside Zustand in dedicated helpers, reducing store overload without changing user-visible behavior.
+43. Landed a third Wave 2 restoration/runtime checkpoint: the sidePanel runtime now emits explicit `idle`, `restored`, `partial-history`, `rebound`, and `refreshed` session states through a stable contract instead of relying only on notice strings, and the app shell now exposes that state for later UI consumption.
+44. Landed a second store/runtime code-governance checkpoint: repeated document-action sequencing now flows through a dedicated store runner, further shrinking orchestration inside `useThinkingStore` without changing user-visible behavior.
 
 ## Quality Gate
 
