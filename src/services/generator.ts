@@ -3,7 +3,7 @@ import type { MessageRef } from "../models/messageRef";
 import type { ConceptMapNodeRecord } from "../models/node";
 import type { SourceRef } from "../models/source";
 import { createId } from "../utils/id";
-import { clampText, splitIntoConcepts } from "../utils/text";
+import { clampText, splitIntoConcepts, splitIntoOutlineItems } from "../utils/text";
 
 function resolveSourceId(messageId: string, sources: SourceRef[]): string | undefined {
   return sources.find((source) => source.messageId === messageId)?.id;
@@ -92,17 +92,18 @@ export function generateDraftMap(
       return;
     }
 
+    const answer = exchange.answer;
     const answerNodeId = createId("node");
     nodes.push({
       id: answerNodeId,
       type: "concept",
       position: { x: 340, y: baseY },
       data: {
-        title: clampText(exchange.answer.text, 42),
-        summary: clampText(exchange.answer.text, 120),
+        title: clampText(answer.text, 42),
+        summary: clampText(answer.text, 120),
         role: "answer",
         status: "confirmed",
-        sourceId: resolveSourceId(exchange.answer.id, sources)
+        sourceId: resolveSourceId(answer.id, sources)
       }
     });
 
@@ -115,6 +116,36 @@ export function generateDraftMap(
         status: "confirmed"
       },
       label: "answers"
+    });
+
+    splitIntoOutlineItems(answer.text).forEach((outline, index) => {
+      const outlineNodeId = createId("node");
+      nodes.push({
+        id: outlineNodeId,
+        type: "concept",
+        position: {
+          x: 340,
+          y: baseY + 96 + index * 96
+        },
+        data: {
+          title: clampText(outline, 34),
+          summary: clampText(outline, 120),
+          role: "answer_outline",
+          status: "draft",
+          sourceId: resolveSourceId(answer.id, sources)
+        }
+      });
+
+      edges.push({
+        id: createId("edge"),
+        source: answerNodeId,
+        target: outlineNodeId,
+        data: {
+          relation: "contains",
+          status: "draft"
+        },
+        label: "contains"
+      });
     });
   });
 

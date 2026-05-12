@@ -140,21 +140,21 @@ test("markSourceLost updates the source status and preserves the node", async ()
 test("updateEdgeRelation changes the relation label and keeps the edge editable", async () => {
   useThinkingStore.setState({ document: documentFixture });
 
-  await useThinkingStore.getState().updateEdgeRelation("edge-1", "answers");
+  await useThinkingStore.getState().updateEdgeRelation("edge-1", "contains");
 
   const state = useThinkingStore.getState();
-  assert.equal(state.document?.edges[0]?.label, "answers");
-  assert.equal(state.document?.edges[0]?.data?.relation, "answers");
+  assert.equal(state.document?.edges[0]?.label, "contains");
+  assert.equal(state.document?.edges[0]?.data?.relation, "contains");
   assert.equal(state.document?.edges[0]?.data?.status, "draft");
 });
 
 test("updateNodeRole changes the node role", async () => {
   useThinkingStore.setState({ document: documentFixture });
 
-  await useThinkingStore.getState().updateNodeRole("node-1", "claim");
+  await useThinkingStore.getState().updateNodeRole("node-1", "answer_outline");
 
   const state = useThinkingStore.getState();
-  assert.equal(state.document?.nodes[0]?.data.role, "claim");
+  assert.equal(state.document?.nodes[0]?.data.role, "answer_outline");
 });
 
 test("setAutoGenerate updates the stored setting", async () => {

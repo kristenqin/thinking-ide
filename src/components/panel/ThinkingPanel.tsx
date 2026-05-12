@@ -78,8 +78,8 @@ function getShellCallout(options: {
     return {
       eyebrow: "Awaiting first draft",
       message: documentPresent
-        ? "Thinking IDE is connected, but the currently visible chat has not yielded draftable concepts yet."
-        : "Open a supported chat and wait for a completed assistant reply. Thinking IDE will draft the first concept map here.",
+        ? "Thinking IDE is connected, but the currently visible chat has not yielded draftable nodes yet."
+        : "Open a supported chat and wait for a completed assistant reply. Thinking IDE will draft the first node set here.",
       tone: "info"
     };
   }
@@ -111,7 +111,7 @@ export function ThinkingPanel({ onGenerate, onCollapse: onClosePanel }: Thinking
   const sourceLostCount = document?.sources.filter((source) => source.status === "lost").length ?? 0;
   const isWorkspaceEmpty = !document || nodeCount === 0;
   const mapSummary = document
-    ? `${nodeCount} concepts · ${edgeCount} relations${sourceLostCount ? ` · ${sourceLostCount} source issue${sourceLostCount > 1 ? "s" : ""}` : ""}`
+    ? `${nodeCount} nodes · ${edgeCount} relations${sourceLostCount ? ` · ${sourceLostCount} source issue${sourceLostCount > 1 ? "s" : ""}` : ""}`
     : "Concept map workspace";
   const shellNoticeTone = getShellNoticeTone({ status, error, notice });
   const shellCallout = getShellCallout({
@@ -154,9 +154,9 @@ export function ThinkingPanel({ onGenerate, onCollapse: onClosePanel }: Thinking
   const bottomLog = notice
     ? notice
     : !document
-      ? "Waiting for the active chat to yield the first concept draft."
+      ? "Waiting for the active chat to yield the first draft."
       : isWorkspaceEmpty
-        ? "No concepts are available yet from the currently visible chat."
+        ? "No draftable nodes are available yet from the currently visible chat."
         : error
           ? error
           : `Map ready for direct editing. ${mapSummary}.`;

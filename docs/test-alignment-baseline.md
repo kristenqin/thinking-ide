@@ -111,7 +111,7 @@ Must prove:
 Current status:
 
 1. Basic `question` and `answer` exist
-2. `answer_outline` is missing
+2. Heuristic `answer_outline` generation now exists, but it is not yet backed by precise paragraph anchors
 3. Concepts are currently sentence fragments, not short concepts
 
 ### Suite F: Canvas Editing And Persistence
@@ -142,7 +142,7 @@ Must prove:
 Current status:
 
 1. Message-level single-source jump exists
-2. `answer_outline` paragraph jump is missing
+2. `answer_outline` currently falls back to the parent assistant reply rather than a paragraph/block anchor
 3. Multi-source popover is missing
 
 ### Suite H: Privacy Boundary

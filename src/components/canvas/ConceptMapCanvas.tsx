@@ -20,7 +20,7 @@ const nodeTypes = {
   concept: ConceptNode
 };
 
-const relationOptions: EdgeRelationType[] = ["relates", "answers", "expands"];
+const relationOptions: EdgeRelationType[] = ["relates", "answers", "contains", "expands", "mentions"];
 
 function sourceLostTooltip(copy?: string) {
   return copy ?? "Original source could not be located. The node is still editable.";
@@ -571,6 +571,10 @@ function formatNodeRole(role: NodeRole): string {
 
   if (role === "answer") {
     return "Answer";
+  }
+
+  if (role === "answer_outline") {
+    return "Answer outline";
   }
 
   return "Concept";

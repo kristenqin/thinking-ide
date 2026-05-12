@@ -18,7 +18,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 3. Wave 2 now has four landed partial adapter slices: stable `conversationKey` / locator identity, full-session conversation-payload history capture, bounded completion gating, and a first restoration-safety guard that preserves restored maps when the host only exposes a partial visible history window.
 4. Treat the first `sidePanel-first` runtime checkpoint as landed: browser-owned sidePanel entry, background lifecycle ownership, a lightweight content runtime bridge, a panel session controller, and a latest-exchange-aligned runtime harness are now working together.
 5. Treat the third Wave 2 restoration/runtime checkpoint and the second code-governance checkpoint as in integration: the sidePanel runtime now exposes explicit `restored` / `partial-history` / `rebound` / `refreshed` session states to the app shell, and store-side document sequencing has been narrowed into a dedicated runner, but none of this counts as shell or restoration `acceptance` yet.
-6. Keep the next main implementation focus on `answer_outline` generation, shorter concept extraction quality, consuming explicit restored/partial-history runtime state in the sidePanel UI, and deeper store/runtime boundary cleanup while privacy-boundary work stays queued behind those blockers.
+6. Keep the next main implementation focus on improving `answer_outline` source semantics beyond message-level fallback, shorter concept extraction quality, consuming explicit restored/partial-history runtime state in the sidePanel UI, and deeper store/runtime boundary cleanup while privacy-boundary work stays queued behind those blockers.
 7. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
 8. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
 9. During the spec-alignment phase, distinguish `checkpoint` commits from `acceptance` commits for user-visible work; do not report alignment closure unless the rendered mismatch for that slice is actually gone.
@@ -29,7 +29,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 ## Next
 
-1. Execute the next Wave 2 slice from the alignment plan: generate `answer_outline` and improve concept abstraction quality on top of the landed multi-question / multi-answer normalization path.
+1. Execute the next Wave 2 slice from the alignment plan: deepen `answer_outline` source semantics and improve concept abstraction quality on top of the landed multi-question / multi-answer normalization path.
 2. Continue Wave 2A by finishing restoration semantics on top of the new partial-history guard, especially reopen/rebind behavior beyond the first visible-history checkpoint.
 3. Start the first bounded Wave 3 runtime slice: background-worker request plumbing, provider adapter interface, and schema validation around the landed fixture set and provider-draft contract.
 4. Continue the Wave 1 shell migration: consume the new explicit restored/partial/failed runtime state in panel UI instead of relying on notice-text inference.
@@ -96,7 +96,8 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 43. Landed a third Wave 2 restoration/runtime checkpoint: the sidePanel runtime now emits explicit `idle`, `restored`, `partial-history`, `rebound`, and `refreshed` session states through a stable contract instead of relying only on notice strings, and the app shell now exposes that state for later UI consumption.
 44. Landed a second store/runtime code-governance checkpoint: repeated document-action sequencing now flows through a dedicated store runner, further shrinking orchestration inside `useThinkingStore` without changing user-visible behavior.
 45. Landed the first Wave 2 full-session history-input checkpoint: `chatAdapter` now prefers the ChatGPT conversation payload from `/backend-api/conversation/:id` and normalizes the active branch from `mapping/current_node` into ordered `MessageRef[]`, instead of relying only on the visible DOM window. The generator still consumes the latest exchange, so this closes input capture, not multi-turn concept generation.
-46. Landed the second Wave 2 generation checkpoint: `generateDraftMap()` now turns the full-session history path into multi-turn `question` / `answer` node chains and a `next` question relation using the existing edge schema, so product behavior no longer collapses the visible graph to only the latest exchange. `answer_outline` and richer concept quality are still open.
+46. Landed the second Wave 2 generation checkpoint: `generateDraftMap()` now turns the full-session history path into multi-turn `question` / `answer` node chains and a `next` question relation using the existing edge schema, so product behavior no longer collapses the visible graph to only the latest exchange.
+47. Landed the third Wave 2 generation checkpoint: `generateDraftMap()` now emits heuristic `answer_outline` nodes from assistant structure plus `contains` edges, but current source behavior still only guarantees a jump back to the parent assistant reply rather than a paragraph-level anchor. Shorter concept quality and richer relation semantics remain open.
 
 ## Quality Gate
 

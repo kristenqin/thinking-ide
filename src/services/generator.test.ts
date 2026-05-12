@@ -44,15 +44,19 @@ test("generateDraftMap returns an empty graph for an empty message list", () => 
   });
 });
 
-test("generateDraftMap builds multi-turn question and answer nodes while keeping concept extraction on the latest exchange", () => {
+test("generateDraftMap builds multi-turn question, answer, and answer-outline nodes while keeping concept extraction on the latest exchange", () => {
   const messages = [
     createMessage("u1", "user", "Old question that should now be preserved"),
-    createMessage("a1", "assistant", "Old answer that should now be preserved"),
+    createMessage(
+      "a1",
+      "assistant",
+      "# Earlier answer heading\nOld answer that should now be preserved.\n\n1. First earlier outline item"
+    ),
     createMessage("u2", "user", "How does the runtime spine work in practice?"),
     createMessage(
       "a2",
       "assistant",
-      "First concept explains the scan loop clearly. Second concept covers local persistence safely."
+      "# Runtime spine\nFirst concept explains the scan loop clearly.\n\n2. Second concept covers local persistence safely."
     )
   ];
   const sources = [createSource("source-question", "u2"), createSource("source-answer", "a2")];
@@ -60,17 +64,58 @@ test("generateDraftMap builds multi-turn question and answer nodes while keeping
   const draft = generateDraftMap(messages, sources);
   const questionNodes = draft.nodes.filter((node) => node.data.role === "question");
   const answerNodes = draft.nodes.filter((node) => node.data.role === "answer");
+  const outlineNodes = draft.nodes.filter((node) => node.data.role === "answer_outline");
   const conceptNodes = draft.nodes.filter((node) => node.data.role === "concept");
 
-  assert.equal(draft.nodes.length, 6);
-  assert.equal(draft.edges.length, 5);
+  assert.equal(draft.nodes.length, 13);
+  assert.equal(draft.edges.length, 12);
   assert.equal(questionNodes.length, 2);
   assert.equal(answerNodes.length, 2);
-  assert.equal(conceptNodes.length, 2);
+  assert.equal(outlineNodes.length, 6);
+  assert.equal(conceptNodes.length, 3);
   assert.equal(questionNodes[0].data.title, "Old question that should now be preserved");
   assert.ok(questionNodes[1].data.title.startsWith("How does the runtime spine work in pract"));
   assert.equal(questionNodes[1].data.sourceId, "source-question");
   assert.equal(answerNodes[1].data.sourceId, "source-answer");
+  assert.deepEqual(
+    outlineNodes.map((node) => ({
+      title: node.data.title,
+      sourceId: node.data.sourceId,
+      status: node.data.status
+    })),
+    [
+      {
+        title: "Earlier answer heading",
+        sourceId: undefined,
+        status: "draft"
+      },
+      {
+        title: "Old answer that should now be pre…",
+        sourceId: undefined,
+        status: "draft"
+      },
+      {
+        title: "First earlier outline item",
+        sourceId: undefined,
+        status: "draft"
+      },
+      {
+        title: "Runtime spine",
+        sourceId: "source-answer",
+        status: "draft"
+      },
+      {
+        title: "First concept explains the scan l…",
+        sourceId: "source-answer",
+        status: "draft"
+      },
+      {
+        title: "Second concept covers local persi…",
+        sourceId: "source-answer",
+        status: "draft"
+      }
+    ]
+  );
   assert.deepEqual(
     conceptNodes.map((node) => ({
       title: node.data.title,
@@ -78,6 +123,11 @@ test("generateDraftMap builds multi-turn question and answer nodes while keeping
       status: node.data.status
     })),
     [
+      {
+        title: "Runtime spine",
+        sourceId: "source-answer",
+        status: "draft"
+      },
       {
         title: "First concept explains the scan…",
         sourceId: "source-answer",
@@ -95,8 +145,12 @@ test("generateDraftMap builds multi-turn question and answer nodes while keeping
     2
   );
   assert.equal(
+    draft.edges.filter((edge) => edge.data?.relation === "contains").length,
+    6
+  );
+  assert.equal(
     draft.edges.filter((edge) => edge.data?.relation === "expands").length,
-    2
+    3
   );
   assert.equal(
     draft.edges.filter((edge) => edge.data?.relation === "relates" && edge.label === "next").length,

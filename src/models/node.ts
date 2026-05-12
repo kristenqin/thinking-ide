@@ -1,6 +1,6 @@
 import type { Node } from "@xyflow/react";
 
-export type NodeRole = "question" | "answer" | "concept" | "claim";
+export type NodeRole = "question" | "answer" | "answer_outline" | "concept" | "claim";
 export type NodeStatus = "draft" | "confirmed" | "removed";
 
 export type ConceptMapNodeData = {
