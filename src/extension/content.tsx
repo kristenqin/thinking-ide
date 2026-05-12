@@ -7,13 +7,15 @@ import reactFlowStyles from "@xyflow/react/dist/style.css?inline";
 const ROOT_ID = "thinking-ide-root";
 const APP_ID = "thinking-ide-app";
 const LIGHT_STYLE_ID = "thinking-ide-layout-style";
-const TOGGLE_ID = "thinking-ide-layout-toggle";
 const RAIL_ID = "thinking-ide-collapse-rail";
 const LAYOUT_MODE_ATTR = "data-thinking-ide-layout-mode";
 const PAGE_SHELL_ATTR = "data-thinking-ide-page-shell";
 const COLLAPSED_ATTR = "data-thinking-ide-collapsed";
+const CHAT_MAIN_ATTR = "data-thinking-ide-chat-main";
+const CHAT_WORKSPACE_ATTR = "data-thinking-ide-chat-workspace";
 const PANEL_WIDTH = "clamp(560px, 60vw, 960px)";
 const RAIL_WIDTH = "72px";
+const CHAT_COLUMN_WIDTH = "min(100%, 760px)";
 
 const LIGHT_DOM_LAYOUT_STYLES = `
 html[${LAYOUT_MODE_ATTR}="layout"] {
@@ -25,17 +27,54 @@ body[${LAYOUT_MODE_ATTR}="layout"] {
   align-items: stretch;
   min-height: 100vh;
   overflow-x: hidden;
+  --thinking-ide-chat-column-width: ${CHAT_COLUMN_WIDTH};
 }
 
 body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] {
+  position: relative;
+  display: flex;
   flex: 1 1 auto;
   min-width: 0;
   width: auto !important;
   max-width: none !important;
 }
 
-body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] main {
+body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] > * {
   min-width: 0;
+}
+
+body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] main {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+}
+
+body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] main[${CHAT_MAIN_ATTR}="true"] {
+  display: flex;
+  justify-content: flex-start;
+}
+
+body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] main[${CHAT_MAIN_ATTR}="true"] > [${CHAT_WORKSPACE_ATTR}="true"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  max-width: none !important;
+  box-sizing: border-box;
+}
+
+body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] main[${CHAT_MAIN_ATTR}="true"] :is(form, [data-message-author-role]) {
+  width: var(--thinking-ide-chat-column-width);
+  max-width: var(--thinking-ide-chat-column-width) !important;
+  margin-inline: 0 !important;
+}
+
+body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] main[${CHAT_MAIN_ATTR}="true"] form {
+  align-self: flex-start;
+}
+
+body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] main[${CHAT_MAIN_ATTR}="true"] [${CHAT_WORKSPACE_ATTR}="true"] > * {
+  min-width: 0;
+  max-width: none !important;
 }
 `;
 
@@ -119,6 +158,14 @@ function clearPageShellMarker() {
   document.querySelectorAll(`[${PAGE_SHELL_ATTR}="true"]`).forEach((element) => {
     element.removeAttribute(PAGE_SHELL_ATTR);
   });
+
+  document.querySelectorAll(`[${CHAT_MAIN_ATTR}="true"]`).forEach((element) => {
+    element.removeAttribute(CHAT_MAIN_ATTR);
+  });
+
+  document.querySelectorAll(`[${CHAT_WORKSPACE_ATTR}="true"]`).forEach((element) => {
+    element.removeAttribute(CHAT_WORKSPACE_ATTR);
+  });
 }
 
 function resolvePrimaryPageRoot(host: HTMLElement): HTMLElement | null {
@@ -183,8 +230,56 @@ function applyLayoutMode(host: HTMLElement): boolean {
     host.setAttribute(LAYOUT_MODE_ATTR, "layout");
   }
 
+  markChatWorkspace(pageRoot);
   document.body.style.paddingRight = "";
   return true;
+}
+
+function findWorkspaceContainer(main: HTMLElement): HTMLElement | null {
+  const anchors = [
+    main.querySelector("form"),
+    main.querySelector("[data-message-author-role]"),
+    main.querySelector("[role='presentation'] form"),
+    main.querySelector("article")
+  ];
+
+  for (const anchor of anchors) {
+    if (!(anchor instanceof HTMLElement)) {
+      continue;
+    }
+
+    let current: HTMLElement | null = anchor;
+    let candidate: HTMLElement | null = null;
+
+    while (current && current.parentElement && current.parentElement !== main) {
+      candidate = current;
+      current = current.parentElement;
+    }
+
+    if (current?.parentElement === main && current instanceof HTMLElement) {
+      return current;
+    }
+
+    if (candidate instanceof HTMLElement && main.contains(candidate)) {
+      return candidate;
+    }
+  }
+
+  const directChildren = Array.from(main.children).filter((child): child is HTMLElement => child instanceof HTMLElement);
+  return directChildren.find((child) => child.getBoundingClientRect().height > 0) ?? null;
+}
+
+function markChatWorkspace(pageRoot: HTMLElement) {
+  const main = pageRoot.querySelector("main");
+  if (!(main instanceof HTMLElement)) {
+    return;
+  }
+
+  main.setAttribute(CHAT_MAIN_ATTR, "true");
+  const workspace = findWorkspaceContainer(main);
+  if (workspace instanceof HTMLElement) {
+    workspace.setAttribute(CHAT_WORKSPACE_ATTR, "true");
+  }
 }
 
 function ensureExpandRail(host: HTMLElement, shadowRoot: ShadowRoot) {
@@ -216,45 +311,15 @@ function ensureExpandRail(host: HTMLElement, shadowRoot: ShadowRoot) {
   shadowRoot.appendChild(rail);
 }
 
-function ensureCollapseToggle(host: HTMLElement, shadowRoot: ShadowRoot) {
-  let button = shadowRoot.getElementById(TOGGLE_ID) as HTMLButtonElement | null;
-
-  if (!(button instanceof HTMLButtonElement)) {
-    button = document.createElement("button");
-    button.id = TOGGLE_ID;
-    button.type = "button";
-    button.className = "ti-layout-toggle";
-    button.addEventListener("click", () => {
-      setCollapsed(host, shadowRoot, true);
-    });
-    shadowRoot.appendChild(button);
-  }
-
-  button.setAttribute("aria-label", "Collapse Thinking IDE panel");
-  button.setAttribute("aria-expanded", "true");
-
-  const glyph = document.createElement("span");
-  glyph.className = "ti-layout-toggle__glyph";
-  glyph.textContent = "⟩";
-
-  const label = document.createElement("span");
-  label.className = "ti-layout-toggle__label";
-  label.textContent = "Collapse";
-
-  button.replaceChildren(glyph, label);
-}
-
 function syncWorkspaceControls(host: HTMLElement, shadowRoot: ShadowRoot) {
   const collapsed = host.getAttribute(COLLAPSED_ATTR) === "true";
 
   if (collapsed) {
-    shadowRoot.getElementById(TOGGLE_ID)?.remove();
     ensureExpandRail(host, shadowRoot);
     return;
   }
 
   shadowRoot.getElementById(RAIL_ID)?.remove();
-  ensureCollapseToggle(host, shadowRoot);
 }
 
 function setCollapsed(host: HTMLElement, shadowRoot: ShadowRoot, collapsed: boolean) {
@@ -305,7 +370,7 @@ function boot() {
   const root = createRoot(mount.app);
   root.render(
     <StrictMode>
-      <App />
+      <App onCollapse={() => setCollapsed(mount.host, mount.shadowRoot, true)} />
     </StrictMode>
   );
 }

@@ -126,10 +126,11 @@ The current next slices are:
 
 1. Follow [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active ordering baseline.
 2. Treat the first Wave 1 layout slice as landed: split-pane default, overlay fallback, collapse rail, and runtime validation are now in place.
-3. Treat the first Wave 2 adapter-identity slice as landed: stable `conversationKey`, derivation metadata, visible-history `orderIndex`, and privacy-safer `MessageRef` locator fields.
-4. Implement the next Wave 2 slice: completion gating, duplicate auto-trigger suppression, and restoration semantics.
-5. Prepare Wave 3 in parallel: provider-backed AI structuring with `DeepSeek` in the first candidate batch.
-6. Finish the remaining Wave 1 parity tail only where it still closes a documented spec gap; do not reopen broad workspace polish until Waves 2 and 3 advance.
+3. Treat the second Wave 1 layout checkpoint as landed once integrated: header-owned collapse chrome, stronger left-column readability, and explicit empty-workspace guidance still stop short of layout `acceptance`.
+4. Treat the first Wave 2 adapter-identity slice as landed: stable `conversationKey`, derivation metadata, visible-history `orderIndex`, and privacy-safer `MessageRef` locator fields.
+5. Treat the first Wave 2 completion slice as landed: settled-assistant gating and duplicate auto-trigger suppression are now in place, while restoration semantics remain open.
+6. Prepare Wave 3 in parallel: provider-backed AI structuring with `DeepSeek` in the first candidate batch.
+7. Continue the remaining Wave 1 parity tail only where it closes the real-host workspace gap, especially left-column dilution from host sidebar/layout variance.
 
 ## Completion Reporting
 

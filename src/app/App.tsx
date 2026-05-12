@@ -9,7 +9,11 @@ import { createDefaultSettings } from "../models/settings";
 
 const DEFAULT_SETTINGS = createDefaultSettings();
 
-export function App() {
+type AppProps = {
+  onCollapse: () => void;
+};
+
+export function App({ onCollapse }: AppProps) {
   const { document, hydrate, getDocument, replaceDocument, setStatus } = useThinkingStore();
   const conversation = getConversationRef();
   const autoGenerate = document?.settings.autoGenerate ?? DEFAULT_SETTINGS.autoGenerate;
@@ -84,5 +88,5 @@ export function App() {
     };
   }, [autoGenerate, conversation.id, setStatus]);
 
-  return <ThinkingPanel onGenerate={() => regenerate("manual")} />;
+  return <ThinkingPanel onGenerate={() => regenerate("manual")} onCollapse={onCollapse} />;
 }
