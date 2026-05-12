@@ -137,12 +137,13 @@ The current next slices are:
 3. Treat the first `sidePanel-first` runtime checkpoint as landed: browser-owned sidePanel entry, background lifecycle ownership, a lightweight host runtime bridge, and a dedicated panel session controller now form the default Wave 1 runtime path.
 4. Treat the next Wave 1 checkpoint as landed in code once this slice is integrated: sidePanel-native copy/callouts and shell cleanup now remove most of the active layout/overlay residue, but shell `acceptance` is still open.
 5. Keep split-pane-era chrome and host-layout surgery out of new Wave 1 work unless a compatibility patch is clearly bounded and justified as a fallback.
-6. Treat the first Wave 2 adapter-identity slice as landed: stable `conversationKey`, derivation metadata, visible-history `orderIndex`, and privacy-safer `MessageRef` locator fields.
+6. Treat the first Wave 2 adapter-identity slice and the first full-session history-input checkpoint as landed: stable `conversationKey`, derivation metadata, privacy-safer `MessageRef` locator fields, and a conversation-payload-backed active-branch history path are now in place.
 7. Treat the first Wave 2 completion slice, the first restoration-safety slice, the restoration-messaging checkpoint, and the explicit runtime-session-state checkpoint as landed: settled-assistant gating, duplicate auto-trigger suppression, partial-history protection, more honest restored/rebound copy, and explicit `idle/restored/partial-history/rebound/refreshed` session states are now in place, while fuller restoration semantics remain open.
 8. Treat Wave 3 prep as implementation-ready: provider-backed AI structuring with `DeepSeek` in the first candidate batch now has fixtures and a normalized provider-draft contract, but no runtime wiring yet.
 9. Continue the remaining Wave 1 parity tail only where it closes the sidePanel-product gap, especially consuming explicit restored/partial-history runtime states in the panel UI, deeper shell productization, and removal of transplanted in-page workspace assumptions.
-10. Treat code authoring governance as active repo policy: the second store/runtime checkpoint is now landed, but broader runtime/store boundary cleanup is still open and should follow `code-authoring-policy`, `refactor-trigger-rules`, and `engineering-review-checklist`.
-11. Treat worktree hygiene as active repo policy: before opening another long-running slice on top of in-flight sidePanel migration diffs, classify the tree and run a sweep instead of letting mixed local residue keep growing.
+10. Treat “full available history scan” as an active Wave 2 blocker that is only partially closed: the conversation payload is now available, but multi-question / multi-answer normalization and generation still need to stop collapsing behavior to the latest exchange.
+11. Treat code authoring governance as active repo policy: the second store/runtime checkpoint is now landed, but broader runtime/store boundary cleanup is still open and should follow `code-authoring-policy`, `refactor-trigger-rules`, and `engineering-review-checklist`.
+12. Treat worktree hygiene as active repo policy: before opening another long-running slice on top of in-flight sidePanel migration diffs, classify the tree and run a sweep instead of letting mixed local residue keep growing.
 
 ## Completion Reporting
 

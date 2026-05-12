@@ -28,19 +28,22 @@ function installEnvironment({
   href,
   title,
   elements,
-  streamingSelectors = []
+  streamingSelectors = [],
+  fetchImpl
 }: {
   pathname: string;
   href: string;
   title: string;
   elements: FakeMessageElement[];
   streamingSelectors?: string[];
+  fetchImpl?: typeof fetch;
 }) {
   Object.defineProperty(globalThis, "location", {
     configurable: true,
     value: {
       pathname,
-      href
+      href,
+      origin: new URL(href).origin
     }
   });
 
@@ -60,6 +63,15 @@ function installEnvironment({
       }
     }
   });
+
+  Object.defineProperty(globalThis, "fetch", {
+    configurable: true,
+    value:
+      fetchImpl ??
+      (async () => ({
+        ok: false
+      }))
+  });
 }
 
 test("getConversationRef derives a stable conversationKey from a canonical chat path", () => {
@@ -78,7 +90,7 @@ test("getConversationRef derives a stable conversationKey from a canonical chat 
   assert.equal(conversation.title, "Runtime spine");
 });
 
-test("scanMessages returns all visible messages with stable orderIndex and locator metadata", () => {
+test("scanMessages returns all visible messages with stable orderIndex and locator metadata", async () => {
   installEnvironment({
     pathname: "/c/history-1",
     href: "https://chatgpt.com/c/history-1",
@@ -91,7 +103,7 @@ test("scanMessages returns all visible messages with stable orderIndex and locat
     ]
   });
 
-  const { messages, sources, history } = scanMessages();
+  const { messages, sources, history } = await scanMessages();
 
   assert.equal(messages.length, 4);
   assert.deepEqual(
@@ -201,7 +213,7 @@ test("assessHistoryAvailability marks restoration as partial when persisted mess
   });
 });
 
-test("scanMessages reports available restoration coverage when all persisted messages are still visible", () => {
+test("scanMessages reports available restoration coverage when all persisted messages are still visible", async () => {
   installEnvironment({
     pathname: "/c/history-full",
     href: "https://chatgpt.com/c/history-full",
@@ -212,9 +224,9 @@ test("scanMessages reports available restoration coverage when all persisted mes
     ]
   });
 
-  const previousMessages = scanMessages().messages;
+  const previousMessages = (await scanMessages()).messages;
 
-  const { history } = scanMessages(previousMessages);
+  const { history } = await scanMessages(previousMessages);
 
   assert.deepEqual(history, {
     coverage: "available",
@@ -223,4 +235,96 @@ test("scanMessages reports available restoration coverage when all persisted mes
     matchedPersistedMessageCount: 2,
     missingPersistedMessageCount: 0
   });
+});
+
+test("scanMessages prefers the conversation payload and returns the full active branch history", async () => {
+  installEnvironment({
+    pathname: "/c/full-history",
+    href: "https://chatgpt.com/c/full-history",
+    title: "Full history - ChatGPT",
+    elements: [new FakeMessageElement("assistant-visible", "assistant", "Visible tail only")],
+    fetchImpl: async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith("/api/auth/session")) {
+        return {
+          ok: true,
+          json: async () => ({ accessToken: "token-123" })
+        } as Response;
+      }
+
+      if (url.endsWith("/backend-api/conversation/full-history")) {
+        return {
+          ok: true,
+          json: async () => ({
+            current_node: "assistant-2",
+            mapping: {
+              root: { id: "root", children: ["user-1"] },
+              "user-1": {
+                id: "user-1",
+                parent: "root",
+                children: ["assistant-1"],
+                message: {
+                  id: "user-1",
+                  author: { role: "user" },
+                  content: { content_type: "text", parts: ["First question"] },
+                  recipient: "all",
+                  create_time: 1715510000
+                }
+              },
+              "assistant-1": {
+                id: "assistant-1",
+                parent: "user-1",
+                children: ["user-2"],
+                message: {
+                  id: "assistant-1",
+                  author: { role: "assistant" },
+                  content: { content_type: "text", parts: ["First answer"] },
+                  recipient: "all",
+                  create_time: 1715510010
+                }
+              },
+              "user-2": {
+                id: "user-2",
+                parent: "assistant-1",
+                children: ["assistant-2"],
+                message: {
+                  id: "user-2",
+                  author: { role: "user" },
+                  content: { content_type: "text", parts: ["Second question"] },
+                  recipient: "all",
+                  create_time: 1715510020
+                }
+              },
+              "assistant-2": {
+                id: "assistant-2",
+                parent: "user-2",
+                children: [],
+                message: {
+                  id: "assistant-2",
+                  author: { role: "assistant" },
+                  content: { content_type: "text", parts: ["Second answer"] },
+                  recipient: "all",
+                  create_time: 1715510030
+                }
+              }
+            }
+          })
+        } as Response;
+      }
+
+      throw new Error(`Unexpected fetch url: ${url}`);
+    }
+  });
+
+  const { messages } = await scanMessages();
+
+  assert.deepEqual(
+    messages.map((message) => [message.id, message.role, message.orderIndex, message.text]),
+    [
+      ["user-1", "user", 0, "First question"],
+      ["assistant-1", "assistant", 1, "First answer"],
+      ["user-2", "user", 2, "Second question"],
+      ["assistant-2", "assistant", 3, "Second answer"]
+    ]
+  );
 });

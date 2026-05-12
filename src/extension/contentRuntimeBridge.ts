@@ -71,9 +71,24 @@ function createRuntimeMessageListener(): Parameters<typeof chrome.runtime.onMess
       return false;
     }
 
-    const response: ScanChatResponse = scanMessages(message.previousMessages);
-    sendResponse(response);
-    return false;
+    void scanMessages(message.previousMessages)
+      .then((response) => {
+        sendResponse(response as ScanChatResponse);
+      })
+      .catch(() => {
+        sendResponse({
+          messages: [],
+          sources: [],
+          history: {
+            coverage: "available",
+            reason: null,
+            visibleMessageCount: 0,
+            matchedPersistedMessageCount: 0,
+            missingPersistedMessageCount: 0
+          }
+        } as ScanChatResponse);
+      });
+    return true;
   };
 }
 

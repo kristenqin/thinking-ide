@@ -34,6 +34,38 @@ export type ScanMessagesResult = {
   history: HistoryAvailability;
 };
 
+type ApiConversationMessage = {
+  id: string;
+  author?: {
+    role?: string;
+  };
+  content?: {
+    content_type?: string;
+    parts?: unknown[];
+  };
+  metadata?: {
+    is_visually_hidden_from_conversation?: boolean;
+  };
+  recipient?: string;
+  create_time?: number;
+};
+
+type ApiConversationNode = {
+  id: string;
+  parent?: string;
+  children?: string[];
+  message?: ApiConversationMessage;
+};
+
+type ApiConversation = {
+  current_node?: string;
+  mapping: Record<string, ApiConversationNode>;
+};
+
+type SessionResponse = {
+  accessToken?: string;
+};
+
 function hashText(value: string): string {
   let hash = 5381;
 
@@ -131,6 +163,196 @@ function getMessageElements(): Array<{ element: Element; role: MessageRole }> {
     .filter((entry): entry is { element: Element; role: MessageRole } => Boolean(entry));
 }
 
+function getCurrentChatIdFromPath(): string | null {
+  const match = location.pathname.match(/^\/(?:c|g\/[a-z0-9-]+\/c)\/([a-z0-9-]+)/i);
+  return match?.[1] ?? null;
+}
+
+function isSupportedConversationRole(role: string | undefined): role is MessageRole {
+  return role === "user" || role === "assistant";
+}
+
+function shouldSkipConversationMessage(message: ApiConversationMessage | undefined): boolean {
+  if (!message) {
+    return true;
+  }
+
+  if (!isSupportedConversationRole(message.author?.role)) {
+    return true;
+  }
+
+  if (message.recipient && message.recipient !== "all") {
+    return true;
+  }
+
+  const contentType = message.content?.content_type;
+  if (
+    contentType === "thoughts" ||
+    contentType === "reasoning_recap" ||
+    contentType === "model_editable_context" ||
+    contentType === "user_editable_context"
+  ) {
+    return true;
+  }
+
+  if (message.metadata?.is_visually_hidden_from_conversation) {
+    return true;
+  }
+
+  return false;
+}
+
+function extractConversationText(message: ApiConversationMessage): string {
+  const contentType = message.content?.content_type;
+  if (contentType === "text" || contentType === "multimodal_text") {
+    const parts = Array.isArray(message.content?.parts) ? message.content.parts : [];
+    return normalizeText(
+      parts
+        .filter((part): part is string => typeof part === "string")
+        .join("\n\n")
+    );
+  }
+
+  return "";
+}
+
+function normalizeConversationMessages(conversation: ApiConversation, conversationKey: string): MessageRef[] {
+  const mapping = conversation.mapping ?? {};
+  const startNodeId =
+    conversation.current_node ||
+    Object.values(mapping).find((node) => !node.children || node.children.length === 0)?.id;
+  if (!startNodeId) {
+    return [];
+  }
+
+  const orderedNodes: ApiConversationNode[] = [];
+  let currentNodeId: string | undefined = startNodeId;
+
+  while (currentNodeId) {
+    const node: ApiConversationNode | undefined = mapping[currentNodeId];
+    if (!node) {
+      break;
+    }
+
+    if (node.parent === undefined) {
+      break;
+    }
+
+    if (!shouldSkipConversationMessage(node.message)) {
+      orderedNodes.unshift(node);
+    }
+
+    currentNodeId = node.parent;
+  }
+
+  const merged: Array<{ role: MessageRole; text: string; id: string; createdAt: string }> = [];
+
+  orderedNodes.forEach((node) => {
+    const message = node.message;
+    if (!message || !isSupportedConversationRole(message.author?.role)) {
+      return;
+    }
+
+    const text = extractConversationText(message);
+    if (!text) {
+      return;
+    }
+
+    const role = message.author.role;
+    const createdAt =
+      typeof message.create_time === "number"
+        ? new Date(message.create_time * 1000).toISOString()
+        : new Date().toISOString();
+    const previous = merged.at(-1);
+    if (previous && previous.role === "assistant" && role === "assistant") {
+      previous.text = `${previous.text}\n\n${text}`;
+      previous.createdAt = createdAt;
+      return;
+    }
+
+    merged.push({
+      role,
+      text,
+      id: message.id || `${conversationKey}:${role}:${merged.length}`,
+      createdAt
+    });
+  });
+
+  return merged.map(({ role, text, id, createdAt }, orderIndex) => {
+    const textHash = hashText(text);
+    return {
+      id,
+      conversationKey,
+      role,
+      orderIndex,
+      text,
+      textHash,
+      textPreview: clampText(text, 80),
+      domSelector: `[data-message-author-role="${role}"]`,
+      schemaVersion: MESSAGE_REF_SCHEMA_VERSION,
+      createdAt
+    };
+  });
+}
+
+async function fetchSessionAccessToken(): Promise<string | null> {
+  try {
+    const response = await fetch(new URL("/api/auth/session", location.origin).toString(), {
+      credentials: "include"
+    });
+    if (!response.ok) {
+      return null;
+    }
+
+    const session = (await response.json()) as SessionResponse;
+    return typeof session.accessToken === "string" ? session.accessToken : null;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchConversationPayload(chatId: string): Promise<ApiConversation | null> {
+  const accessToken = await fetchSessionAccessToken();
+  if (!accessToken) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(new URL(`/backend-api/conversation/${chatId}`, location.origin).toString(), {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "X-Authorization": `Bearer ${accessToken}`
+      },
+      credentials: "include"
+    });
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as ApiConversation;
+  } catch {
+    return null;
+  }
+}
+
+function buildScanResult(messages: MessageRef[], previousMessages: MessageRef[]): ScanMessagesResult {
+  const occurrenceCounts: Record<MessageRole, number> = {
+    user: 0,
+    assistant: 0
+  };
+  const sources = messages.map((message) => {
+    const occurrenceIndex = occurrenceCounts[message.role];
+    occurrenceCounts[message.role] += 1;
+    return buildSourceRef(message, occurrenceIndex);
+  });
+
+  return {
+    messages,
+    sources,
+    history: assessHistoryAvailability(messages, previousMessages)
+  };
+}
+
 function isHostGenerationInProgress(): boolean {
   return STREAMING_SIGNAL_SELECTORS.some((selector) => Boolean(document.querySelector(selector)));
 }
@@ -214,34 +436,33 @@ export function getAssistantCompletionState(): AssistantCompletionState {
   };
 }
 
-export function scanMessages(previousMessages: MessageRef[] = []): ScanMessagesResult {
+function scanVisibleMessages(previousMessages: MessageRef[] = []): ScanMessagesResult {
   const { conversationKey } = deriveConversationIdentity();
-  const occurrenceCounts: Record<MessageRole, number> = {
-    user: 0,
-    assistant: 0
-  };
   const entries = getMessageElements();
-  const pairs = entries.flatMap(({ element, role }, orderIndex) => {
-    const occurrenceIndex = occurrenceCounts[role];
-    occurrenceCounts[role] += 1;
-
+  const messages = entries.flatMap(({ element, role }, orderIndex) => {
     const message = buildMessageRef(element, role, orderIndex, conversationKey);
     if (!message) {
       return [];
     }
 
-    return [
-      {
-        message,
-        source: buildSourceRef(message, occurrenceIndex)
-      }
-    ];
+    return [message];
   });
-  const messages = pairs.map((pair) => pair.message);
 
-  return {
-    messages,
-    sources: pairs.map((pair) => pair.source),
-    history: assessHistoryAvailability(messages, previousMessages)
-  };
+  return buildScanResult(messages, previousMessages);
+}
+
+export async function scanMessages(previousMessages: MessageRef[] = []): Promise<ScanMessagesResult> {
+  const { conversationKey } = deriveConversationIdentity();
+  const chatId = getCurrentChatIdFromPath();
+  if (chatId) {
+    const conversation = await fetchConversationPayload(chatId);
+    if (conversation?.mapping) {
+      const messages = normalizeConversationMessages(conversation, conversationKey);
+      if (messages.length > 0) {
+        return buildScanResult(messages, previousMessages);
+      }
+    }
+  }
+
+  return scanVisibleMessages(previousMessages);
 }
