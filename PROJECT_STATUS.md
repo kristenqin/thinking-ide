@@ -16,25 +16,27 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 1. Wave 1 is now being redirected from host-DOM-heavy split-pane work toward a `sidePanel-first` shell strategy; use [docs/sidepanel-first-refactor-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/sidepanel-first-refactor-checklist.md) as the shell baseline.
 2. Treat [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active execution order.
 3. Wave 2 now has three landed partial adapter slices: stable `conversationKey` / locator identity, bounded completion gating, and a first restoration-safety guard that preserves restored maps when the host only exposes a partial visible history window.
-4. Treat the first `sidePanel-first` runtime checkpoint as landed: browser-owned sidePanel entry, background lifecycle ownership, a lightweight content runtime bridge, a panel session controller, and a latest-exchange-aligned runtime harness are now working together, while shell productization and deeper restoration semantics remain open.
-5. Keep the next main implementation focus on sidePanel-native startup/restored states for Wave 1 and the remaining Wave 2 restoration semantics while privacy-boundary cleanup stays queued behind those runtime blockers.
-6. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
-7. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
-8. During the spec-alignment phase, distinguish `checkpoint` commits from `acceptance` commits for user-visible work; do not report alignment closure unless the rendered mismatch for that slice is actually gone.
-9. Treat the older split-pane checkpoints as superseded shell experiments rather than the active acceptance target; the current Wave 1 checkpoint target is a stable browser-docked panel that no longer depends on host-layout surgery.
-10. Wave 3 prep is now implementation-ready: fixture set, normalized provider-draft contract, and first-batch provider plan are landed, but no provider runtime wiring exists yet.
-11. Code-writing behavior is now being brought under repo governance so implementation quality can be managed through explicit authoring, refactor, and review policies instead of memory.
-12. Worktree hygiene is now being formalized so long-running slices cannot quietly accumulate mixed local diffs outside the normal workflow.
+4. Treat the first `sidePanel-first` runtime checkpoint as landed: browser-owned sidePanel entry, background lifecycle ownership, a lightweight content runtime bridge, a panel session controller, and a latest-exchange-aligned runtime harness are now working together.
+5. Treat the second Wave 1 shell-productization checkpoint and the first code-governance checkpoint as in integration: sidePanel-native empty/restored/failed presentation is now cleaner, restoration messaging is more honest, and store persistence/mutation logic is now being pulled out of Zustand, but none of this counts as shell `acceptance` yet.
+6. Keep the next main implementation focus on explicit restored/partial-history runtime state, remaining Wave 2 restoration semantics, and deeper store/runtime boundary cleanup while privacy-boundary work stays queued behind those blockers.
+7. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
+8. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
+9. During the spec-alignment phase, distinguish `checkpoint` commits from `acceptance` commits for user-visible work; do not report alignment closure unless the rendered mismatch for that slice is actually gone.
+10. Treat the older split-pane checkpoints as superseded shell experiments rather than the active acceptance target; the current Wave 1 checkpoint target is a stable browser-docked panel that no longer depends on host-layout surgery.
+11. Wave 3 prep is now implementation-ready: fixture set, normalized provider-draft contract, and first-batch provider plan are landed, but no provider runtime wiring exists yet.
+12. Code-writing behavior is now being brought under repo governance so implementation quality can be managed through explicit authoring, refactor, and review policies instead of memory.
+13. Worktree hygiene is now being formalized so long-running slices cannot quietly accumulate mixed local diffs outside the normal workflow.
 
 ## Next
 
 1. Execute Wave 2 from the alignment plan: ChatAdapter acceptance for conversation identity, full available history scan, completion detection, and restoration.
 2. Continue Wave 2A by finishing restoration semantics on top of the new partial-history guard, especially reopen/rebind behavior beyond the first visible-history checkpoint.
 3. Start the first bounded Wave 3 runtime slice: background-worker request plumbing, provider adapter interface, and schema validation around the landed fixture set and provider-draft contract.
-4. Continue the Wave 1 shell migration: make `sidePanel` bootstrap and startup generation reliable, then remove layout-era shell residue so the product stops reading like a transplanted page workspace.
-5. Realign acceptance testing around layout, history, completion detection, semantic fixtures, and privacy-boundary checks.
-6. Apply the new code-authoring governance layer while the sidePanel migration proceeds so runtime slices do not harden layout-era or mixed-layer structure by accident.
-7. Apply the new worktree-hygiene layer before starting additional slices on top of the current sidePanel migration tree, so unfinished runtime work and governance slices stay classifiable.
+4. Continue the Wave 1 shell migration: turn the current sidePanel-native copy and callout checkpoint into explicit restored/partial/failed runtime state instead of notice-text inference.
+5. Continue the code-governance sequence after the first store checkpoint: keep peeling runtime sequencing and persistence boundary work away from the Zustand store.
+6. Realign acceptance testing around layout, history, completion detection, semantic fixtures, and privacy-boundary checks.
+7. Apply the new code-authoring governance layer while the sidePanel migration proceeds so runtime slices do not harden layout-era or mixed-layer structure by accident.
+8. Apply the new worktree-hygiene layer before starting additional slices on top of the current sidePanel migration tree, so unfinished runtime work and governance slices stay classifiable.
 
 ## Blocked
 
@@ -88,6 +90,9 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 37. Added repo-level code authoring governance through `code-authoring-policy`, `refactor-trigger-rules`, and `engineering-review-checklist` so implementation structure is now governed alongside task flow and spec alignment.
 38. Added repo-level worktree hygiene governance so dirty-tree budget, pre-new-slice sweep, and long-running checkpoint cadence are now explicit repo policy rather than ad hoc cleanup judgment.
 39. Landed the first `sidePanel-first` runtime checkpoint: the extension now boots through a browser-owned sidePanel entry, a dedicated background lifecycle, a lightweight content runtime bridge, and a panel session controller, while runtime validation now checks latest-exchange regeneration instead of assuming node counts always grow.
+40. Landed a second Wave 1 shell-productization checkpoint: the sidePanel now reads more like a native docked product, with cleaner empty/restored/warning callouts, sidePanel-native action copy, and removal of layout/overlay/collapse shell residue from the active styling path.
+41. Landed a second Wave 2 restoration checkpoint: sidePanel restoration messaging now distinguishes restored idle state, partial-history hold, and visible-window rebound more honestly, and the session controller is now unit-tested as a runtime boundary.
+42. Landed the first store/persistence code-governance checkpoint: durable document mutations and IndexedDB persistence guards now live outside Zustand in dedicated helpers, reducing store overload without changing user-visible behavior.
 
 ## Quality Gate
 

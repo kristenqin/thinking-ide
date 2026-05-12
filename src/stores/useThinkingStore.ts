@@ -1,31 +1,34 @@
 import { create } from "zustand";
-import { addEdge, applyEdgeChanges, applyNodeChanges, type Connection, type EdgeChange, type NodeChange } from "@xyflow/react";
+import type { Connection, EdgeChange, NodeChange } from "@xyflow/react";
 import type { ThinkingDocument } from "../models/document";
 import type { ConceptMapEdgeRecord, EdgeRelationType } from "../models/edge";
 import type { ConceptMapNodeRecord, NodeRole } from "../models/node";
 import type { LanguageSetting, UserSettings } from "../models/settings";
 import type { SourceRef } from "../models/source";
-import { deleteDocument, loadDocument, saveDocument } from "../services/repository";
-import { createId } from "../utils/id";
+import {
+  addDocumentConnection,
+  applyDocumentEdgeChanges,
+  applyDocumentNodeChanges,
+  markDocumentSourceLost,
+  type DocumentRecentAction,
+  renameDocumentNode,
+  restoreDocumentRemoval,
+  softRemoveDocumentEdge,
+  softRemoveDocumentNode,
+  updateDocumentEdgeRelation,
+  updateDocumentNodeRole,
+  updateDocumentSettings
+} from "../services/documentMutations";
+import { clearPersistedDocument, loadDocument, persistDocument } from "../services/repository";
 
 type Status = "ready" | "waiting" | "generating" | "synced" | "failed";
-type RecentAction =
-  | {
-      type: "remove_node";
-      node: ConceptMapNodeRecord;
-      relatedEdges: ConceptMapEdgeRecord[];
-    }
-  | {
-      type: "remove_edge";
-      edge: ConceptMapEdgeRecord;
-    };
 
 type ThinkingState = {
   document?: ThinkingDocument;
   status: Status;
   error?: string;
   notice?: string;
-  recentAction?: RecentAction;
+  recentAction?: DocumentRecentAction;
   hydrate: (conversationId: string) => Promise<void>;
   getDocument: () => ThinkingDocument | undefined;
   replaceDocument: (document: ThinkingDocument) => Promise<void>;
@@ -48,14 +51,13 @@ type ThinkingState = {
   clearCurrentMap: () => Promise<void>;
 };
 
-async function persist(document: ThinkingDocument | undefined): Promise<void> {
-  if (typeof indexedDB === "undefined") {
-    return;
-  }
-
-  if (document) {
-    await saveDocument({ ...document, updatedAt: new Date().toISOString() });
-  }
+async function commitDocument(
+  set: (partial: Partial<ThinkingState>) => void,
+  document: ThinkingDocument,
+  patch: Partial<ThinkingState> = {}
+): Promise<void> {
+  set({ document, ...patch });
+  await persistDocument(document);
 }
 
 export const useThinkingStore = create<ThinkingState>((set, get) => ({
@@ -73,8 +75,7 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
     return get().document;
   },
   async replaceDocument(document) {
-    set({ document, status: "synced", error: undefined });
-    await persist(document);
+    await commitDocument(set, document, { status: "synced", error: undefined });
   },
   setStatus(status, error) {
     set({ status, error });
@@ -88,14 +89,7 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
       return;
     }
 
-    const settings = {
-      ...current.settings,
-      ...updates,
-      updatedAt: new Date().toISOString()
-    };
-    const updated = { ...current, settings, updatedAt: new Date().toISOString() };
-    set({ document: updated });
-    await persist(updated);
+    await commitDocument(set, updateDocumentSettings(current, updates));
   },
   async setLanguage(language) {
     await get().updateSettings({ language });
@@ -109,10 +103,7 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
       return;
     }
 
-    const nodes = applyNodeChanges(changes, current.nodes);
-    const updated = { ...current, nodes, updatedAt: new Date().toISOString() };
-    set({ document: updated });
-    await persist(updated);
+    await commitDocument(set, applyDocumentNodeChanges(current, changes));
   },
   async onEdgesChange(changes) {
     const current = get().document;
@@ -120,10 +111,7 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
       return;
     }
 
-    const edges = applyEdgeChanges(changes, current.edges);
-    const updated = { ...current, edges, updatedAt: new Date().toISOString() };
-    set({ document: updated });
-    await persist(updated);
+    await commitDocument(set, applyDocumentEdgeChanges(current, changes));
   },
   async renameNode(nodeId, title) {
     const current = get().document;
@@ -131,12 +119,7 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
       return;
     }
 
-    const nodes = current.nodes.map((node) =>
-      node.id === nodeId ? { ...node, data: { ...node.data, title } } : node
-    );
-    const updated = { ...current, nodes, updatedAt: new Date().toISOString() };
-    set({ document: updated });
-    await persist(updated);
+    await commitDocument(set, renameDocumentNode(current, nodeId, title));
   },
   async updateNodeRole(nodeId, role) {
     const current = get().document;
@@ -144,12 +127,7 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
       return;
     }
 
-    const nodes = current.nodes.map((node) =>
-      node.id === nodeId ? { ...node, data: { ...node.data, role } } : node
-    );
-    const updated = { ...current, nodes, updatedAt: new Date().toISOString() };
-    set({ document: updated });
-    await persist(updated);
+    await commitDocument(set, updateDocumentNodeRole(current, nodeId, role));
   },
   async updateEdgeRelation(edgeId, relation) {
     const current = get().document;
@@ -157,21 +135,7 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
       return;
     }
 
-    const edges = current.edges.map((edge) =>
-      edge.id === edgeId
-        ? {
-            ...edge,
-            label: relation,
-            data: {
-              relation,
-              status: "draft" as const
-            }
-          }
-        : edge
-    );
-    const updated = { ...current, edges, updatedAt: new Date().toISOString() };
-    set({ document: updated });
-    await persist(updated);
+    await commitDocument(set, updateDocumentEdgeRelation(current, edgeId, relation));
   },
   async addConnection(connection) {
     const current = get().document;
@@ -179,22 +143,7 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
       return;
     }
 
-    const edges = addEdge(
-      {
-        id: createId("edge"),
-        source: connection.source,
-        target: connection.target,
-        label: "relates",
-        data: {
-          relation: "relates",
-          status: "draft"
-        }
-      },
-      current.edges
-    );
-    const updated = { ...current, edges, updatedAt: new Date().toISOString() };
-    set({ document: updated });
-    await persist(updated);
+    await commitDocument(set, addDocumentConnection(current, connection));
   },
   focusSource(sourceId) {
     return get().document?.sources.find((source) => source.id === sourceId);
@@ -205,15 +154,9 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
       return;
     }
 
-    const sources = current.sources.map((source) =>
-      source.id === sourceId ? { ...source, status: "lost" as const } : source
-    );
-    const updated = { ...current, sources, updatedAt: new Date().toISOString() };
-    set({
-      document: updated,
+    await commitDocument(set, markDocumentSourceLost(current, sourceId), {
       notice: "Original chat location is unavailable, but the node is still editable."
     });
-    await persist(updated);
   },
   async removeNode(nodeId) {
     const current = get().document;
@@ -221,39 +164,15 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
       return;
     }
 
-    const node = current.nodes.find((entry) => entry.id === nodeId);
-    if (!node || node.data.status === "removed") {
+    const removal = softRemoveDocumentNode(current, nodeId);
+    if (!removal) {
       return;
     }
 
-    const relatedEdges = current.edges.filter(
-      (edge) => edge.source === nodeId || edge.target === nodeId
-    );
-    const nodes = current.nodes.map((entry) =>
-      entry.id === nodeId ? { ...entry, data: { ...entry.data, status: "removed" as const } } : entry
-    );
-    const edges = current.edges.map((edge) =>
-      edge.source === nodeId || edge.target === nodeId
-        ? {
-            ...edge,
-            data: {
-              relation: edge.data?.relation ?? "relates",
-              status: "removed" as const
-            }
-          }
-        : edge
-    );
-    const updated = { ...current, nodes, edges, updatedAt: new Date().toISOString() };
-    set({
-      document: updated,
+    await commitDocument(set, removal.updated, {
       notice: "Node deleted.",
-      recentAction: {
-        type: "remove_node",
-        node,
-        relatedEdges
-      }
+      recentAction: removal.recentAction
     });
-    await persist(updated);
   },
   async removeEdge(edgeId) {
     const current = get().document;
@@ -261,32 +180,15 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
       return;
     }
 
-    const edge = current.edges.find((entry) => entry.id === edgeId);
-    if (!edge || edge.data?.status === "removed") {
+    const removal = softRemoveDocumentEdge(current, edgeId);
+    if (!removal) {
       return;
     }
 
-    const edges = current.edges.map((entry) =>
-      entry.id === edgeId
-        ? {
-            ...entry,
-            data: {
-              relation: entry.data?.relation ?? "relates",
-              status: "removed" as const
-            }
-          }
-        : entry
-    );
-    const updated = { ...current, edges, updatedAt: new Date().toISOString() };
-    set({
-      document: updated,
+    await commitDocument(set, removal.updated, {
       notice: "Edge deleted.",
-      recentAction: {
-        type: "remove_edge",
-        edge
-      }
+      recentAction: removal.recentAction
     });
-    await persist(updated);
   },
   async undoLastRemoval() {
     const current = get().document;
@@ -295,32 +197,10 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
       return;
     }
 
-    let nodes = current.nodes;
-    let edges = current.edges;
-
-    if (recentAction.type === "remove_node") {
-      nodes = current.nodes.map((entry) =>
-        entry.id === recentAction.node.id ? recentAction.node : entry
-      );
-      const relatedEdgeIds = new Set(recentAction.relatedEdges.map((edge) => edge.id));
-      edges = current.edges.map((entry) =>
-        relatedEdgeIds.has(entry.id)
-          ? recentAction.relatedEdges.find((edge) => edge.id === entry.id) ?? entry
-          : entry
-      );
-    } else {
-      edges = current.edges.map((entry) =>
-        entry.id === recentAction.edge.id ? recentAction.edge : entry
-      );
-    }
-
-    const updated = { ...current, nodes, edges, updatedAt: new Date().toISOString() };
-    set({
-      document: updated,
+    await commitDocument(set, restoreDocumentRemoval(current, recentAction), {
       notice: "Deletion undone.",
       recentAction: undefined
     });
-    await persist(updated);
   },
   async clearCurrentMap() {
     const current = get().document;
@@ -328,9 +208,7 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
       return;
     }
 
-    if (typeof indexedDB !== "undefined") {
-      await deleteDocument(current.conversation.id);
-    }
+    await clearPersistedDocument(current.conversation.id);
     set({
       document: undefined,
       notice: "Current map cleared.",

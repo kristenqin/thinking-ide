@@ -209,7 +209,7 @@ async function main() {
     await waitForHealthyPanel(panelPage, "chat scan");
 
     const initialState = await readPanelState(panelPage);
-    if (!/synced|generating|waiting/i.test(initialState.statusText)) {
+    if (!/up to date|synced|refreshing|generating|standing by|waiting/i.test(initialState.statusText)) {
       throw new Error(`Expected sidePanel UI to expose a visible status, received "${initialState.statusText}"`);
     }
 
@@ -221,7 +221,7 @@ async function main() {
       throw new Error("Expected sidePanel header to expose the refresh control");
     }
 
-    if (!initialState.buttonTexts.some((text) => /close panel|collapse/i.test(text))) {
+    if (!initialState.buttonTexts.some((text) => /close|close panel|collapse/i.test(text))) {
       throw new Error("Expected sidePanel header to expose the shell close control");
     }
 

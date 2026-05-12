@@ -135,13 +135,14 @@ The current next slices are:
 1. Follow [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active ordering baseline.
 2. Treat the older Wave 1 split-pane slices as superseded shell experiments. The active Wave 1 shell baseline is now [docs/sidepanel-first-refactor-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/sidepanel-first-refactor-checklist.md).
 3. Treat the first `sidePanel-first` runtime checkpoint as landed: browser-owned sidePanel entry, background lifecycle ownership, a lightweight host runtime bridge, and a dedicated panel session controller now form the default Wave 1 runtime path.
-4. Keep split-pane-era chrome and host-layout surgery out of new Wave 1 work unless a compatibility patch is clearly bounded and justified as a fallback.
-5. Treat the first Wave 2 adapter-identity slice as landed: stable `conversationKey`, derivation metadata, visible-history `orderIndex`, and privacy-safer `MessageRef` locator fields.
-6. Treat the first Wave 2 completion slice and the first restoration-safety slice as landed: settled-assistant gating, duplicate auto-trigger suppression, and partial-history protection are now in place, while fuller restoration semantics remain open.
-7. Treat Wave 3 prep as implementation-ready: provider-backed AI structuring with `DeepSeek` in the first candidate batch now has fixtures and a normalized provider-draft contract, but no runtime wiring yet.
-8. Continue the remaining Wave 1 parity tail only where it closes the sidePanel-product gap, especially sidePanel-native empty/restored states, shell productization, and removal of transplanted in-page workspace assumptions.
-9. Treat code authoring governance as active repo policy: new implementation slices should now follow `code-authoring-policy`, `refactor-trigger-rules`, and `engineering-review-checklist` instead of relying on ad hoc engineering judgment.
-10. Treat worktree hygiene as active repo policy: before opening another long-running slice on top of in-flight sidePanel migration diffs, classify the tree and run a sweep instead of letting mixed local residue keep growing.
+4. Treat the next Wave 1 checkpoint as landed in code once this slice is integrated: sidePanel-native copy/callouts and shell cleanup now remove most of the active layout/overlay residue, but shell `acceptance` is still open.
+5. Keep split-pane-era chrome and host-layout surgery out of new Wave 1 work unless a compatibility patch is clearly bounded and justified as a fallback.
+6. Treat the first Wave 2 adapter-identity slice as landed: stable `conversationKey`, derivation metadata, visible-history `orderIndex`, and privacy-safer `MessageRef` locator fields.
+7. Treat the first Wave 2 completion slice, the first restoration-safety slice, and the new restoration-messaging checkpoint as landed: settled-assistant gating, duplicate auto-trigger suppression, partial-history protection, and more honest restored/rebound copy are now in place, while fuller restoration semantics remain open.
+8. Treat Wave 3 prep as implementation-ready: provider-backed AI structuring with `DeepSeek` in the first candidate batch now has fixtures and a normalized provider-draft contract, but no runtime wiring yet.
+9. Continue the remaining Wave 1 parity tail only where it closes the sidePanel-product gap, especially explicit restored/partial-history runtime states, deeper shell productization, and removal of transplanted in-page workspace assumptions.
+10. Treat code authoring governance as active repo policy: the first store/persistence checkpoint is now landed, but broader runtime/store boundary cleanup is still open and should follow `code-authoring-policy`, `refactor-trigger-rules`, and `engineering-review-checklist`.
+11. Treat worktree hygiene as active repo policy: before opening another long-running slice on top of in-flight sidePanel migration diffs, classify the tree and run a sweep instead of letting mixed local residue keep growing.
 
 ## Completion Reporting
 

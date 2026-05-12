@@ -9,7 +9,85 @@ type ThinkingPanelProps = {
   onCollapse: () => void;
 };
 
-export function ThinkingPanel({ onGenerate, onCollapse }: ThinkingPanelProps) {
+type ShellNoticeTone = "neutral" | "info" | "warning" | "success" | "error";
+
+type ShellCallout = {
+  eyebrow: string;
+  message: string;
+  tone: Exclude<ShellNoticeTone, "neutral" | "success">;
+};
+
+function getShellNoticeTone(options: {
+  status: string;
+  error?: string;
+  notice?: string;
+}): ShellNoticeTone {
+  const { status, error, notice } = options;
+
+  if (status === "failed" || error) {
+    return "error";
+  }
+
+  if (notice?.includes("only part of this conversation is visible")) {
+    return "warning";
+  }
+
+  if (notice?.startsWith("Restored")) {
+    return "info";
+  }
+
+  if (notice?.startsWith("Map refreshed")) {
+    return "success";
+  }
+
+  return "neutral";
+}
+
+function getShellCallout(options: {
+  notice?: string;
+  isWorkspaceEmpty: boolean;
+  documentPresent: boolean;
+}): ShellCallout | null {
+  const { notice, isWorkspaceEmpty, documentPresent } = options;
+
+  if (notice?.startsWith("Restored saved map")) {
+    return {
+      eyebrow: "Restored locally",
+      message: "This panel reopened a saved draft for the active conversation. Refresh again after more history loads if source links still need review.",
+      tone: "info"
+    };
+  }
+
+  if (notice?.startsWith("Restored map rebound")) {
+    return {
+      eyebrow: "Visible history rebound",
+      message: "The saved draft is currently rebound against the visible conversation window. Review it before making structural edits.",
+      tone: "warning"
+    };
+  }
+
+  if (notice?.includes("only part of this conversation is visible")) {
+    return {
+      eyebrow: "Visible history only",
+      message: notice,
+      tone: "warning"
+    };
+  }
+
+  if (isWorkspaceEmpty) {
+    return {
+      eyebrow: "Awaiting first draft",
+      message: documentPresent
+        ? "Thinking IDE is connected, but the currently visible chat has not yielded draftable concepts yet."
+        : "Open a supported chat and wait for a completed assistant reply. Thinking IDE will draft the first concept map here.",
+      tone: "info"
+    };
+  }
+
+  return null;
+}
+
+export function ThinkingPanel({ onGenerate, onCollapse: onClosePanel }: ThinkingPanelProps) {
   const {
     document,
     status,
@@ -31,41 +109,57 @@ export function ThinkingPanel({ onGenerate, onCollapse }: ThinkingPanelProps) {
   const nodeCount = document?.nodes.filter((node) => node.data.status !== "removed").length ?? 0;
   const edgeCount = document?.edges.filter((edge) => edge.data?.status !== "removed").length ?? 0;
   const sourceLostCount = document?.sources.filter((source) => source.status === "lost").length ?? 0;
-  const isWorkspaceEmpty = Boolean(document) && nodeCount === 0;
+  const isWorkspaceEmpty = !document || nodeCount === 0;
   const mapSummary = document
     ? `${nodeCount} concepts · ${edgeCount} relations${sourceLostCount ? ` · ${sourceLostCount} source issue${sourceLostCount > 1 ? "s" : ""}` : ""}`
     : "Concept map workspace";
+  const shellNoticeTone = getShellNoticeTone({ status, error, notice });
+  const shellCallout = getShellCallout({
+    notice,
+    isWorkspaceEmpty,
+    documentPresent: Boolean(document)
+  });
 
   const statusLabel =
     status === "synced"
-      ? "Synced"
+      ? "Up to date"
       : status === "generating"
-        ? "Generating"
+        ? "Refreshing"
         : status === "failed"
-          ? "Needs review"
+          ? "Needs attention"
           : status === "waiting"
-            ? "Waiting"
-            : "Ready";
+            ? "Standing by"
+            : "Connected";
   const statusMessage =
     status === "generating"
-      ? "Scanning the active chat and refreshing the draft without interrupting this panel."
+      ? "Scanning the active chat and refreshing this side panel without interrupting the current conversation."
       : status === "waiting"
-        ? "Waiting for more conversation before expanding the current draft."
+        ? document
+          ? "Waiting for the next completed assistant reply before refreshing the current draft."
+          : "Waiting for a completed assistant reply before drafting the first map."
         : error ?? "Something blocked map generation. You can try the current scan again.";
   const showStatusBar = status === "generating" || status === "waiting" || status === "failed";
-  const headerSummary = isWorkspaceEmpty
-    ? "No concepts have been drafted from the visible chat yet. Continue the active conversation, then refresh once the latest reply is fully available."
-    : "Shape the active conversation into a concept map from this side panel.";
+  const headerSummary =
+    status === "failed"
+      ? "This side panel could not refresh from the active chat. Review the message below, then try again."
+      : status === "generating"
+        ? "Refreshing the active conversation into a side-panel concept map."
+        : shellCallout?.tone === "warning"
+          ? "Review the currently visible history before making larger changes to the draft."
+          : shellCallout?.tone === "info"
+            ? "This side panel stays attached to the active conversation while history and source links settle."
+            : document
+              ? "Refine the current concept map without leaving the active chat."
+              : "This panel stays ready for the active chat and drafts the first map once a completed reply is available.";
   const bottomLog = notice
     ? notice
-    : isWorkspaceEmpty
-      ? "No concepts available yet. Continue the active conversation, or refresh after the latest assistant reply finishes loading."
-      : document
-        ? `Map available for direct editing. ${mapSummary}.`
-        : "Start or reopen a supported chat and Thinking IDE will draft a concept map here."
-  const emptyWorkspaceLead = isWorkspaceEmpty
-    ? "Thinking IDE is connected, but the current visible chat has not yielded a concept draft yet."
-    : null;
+    : !document
+      ? "Waiting for the active chat to yield the first concept draft."
+      : isWorkspaceEmpty
+        ? "No concepts are available yet from the currently visible chat."
+        : error
+          ? error
+          : `Map ready for direct editing. ${mapSummary}.`;
 
   useEffect(() => {
     if (!isSettingsOpen) {
@@ -179,8 +273,8 @@ export function ThinkingPanel({ onGenerate, onCollapse }: ThinkingPanelProps) {
               </div>
             ) : null}
           </div>
-          <Button variant="ghost" onClick={onCollapse}>
-            Close panel
+          <Button variant="ghost" onClick={onClosePanel}>
+            Close
           </Button>
         </div>
       </header>
@@ -201,10 +295,10 @@ export function ThinkingPanel({ onGenerate, onCollapse }: ThinkingPanelProps) {
       ) : null}
 
       <div className="ti-panel__main">
-        {emptyWorkspaceLead ? (
-          <div className="ti-empty-workspace-callout" role="note">
-            <div className="ti-empty-workspace-callout__eyebrow">Awaiting concept draft</div>
-            <p>{emptyWorkspaceLead}</p>
+        {shellCallout ? (
+          <div className={`ti-empty-workspace-callout ti-empty-workspace-callout--${shellCallout.tone}`} role="note">
+            <div className="ti-empty-workspace-callout__eyebrow">{shellCallout.eyebrow}</div>
+            <p>{shellCallout.message}</p>
           </div>
         ) : null}
         {document ? (
@@ -216,7 +310,7 @@ export function ThinkingPanel({ onGenerate, onCollapse }: ThinkingPanelProps) {
         )}
       </div>
 
-      <div className={`ti-bottomlog${error ? " is-error" : ""}${notice ? " has-notice" : ""}`}>
+      <div className={`ti-bottomlog ti-bottomlog--${shellNoticeTone}`}>
         <p className="ti-bottomlog__message">{bottomLog}</p>
         <div className="ti-bottomlog__actions">
           {recentAction ? (

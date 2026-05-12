@@ -30,6 +30,7 @@ type SidepanelSessionStorePort = {
 type SidepanelSessionControllerOptions = {
   autoGenerate: boolean;
   store: SidepanelSessionStorePort;
+  runtime?: SidepanelRuntimePort;
 };
 
 export type SidepanelSessionController = {
@@ -40,9 +41,44 @@ export type SidepanelSessionController = {
   setAutoGenerate: (enabled: boolean) => void;
 };
 
+type SidepanelRuntimePort = {
+  closeSidePanel: typeof closeSidePanel;
+  fetchActiveChatContext: typeof fetchActiveChatContext;
+  scanActiveChat: typeof scanActiveChat;
+  subscribeToActiveHostChanges: typeof subscribeToActiveHostChanges;
+  subscribeToSettledMessages: typeof subscribeToSettledMessages;
+};
+
+const defaultRuntimePort: SidepanelRuntimePort = {
+  closeSidePanel,
+  fetchActiveChatContext,
+  scanActiveChat,
+  subscribeToActiveHostChanges,
+  subscribeToSettledMessages
+};
+
+function getRestoredIdleNotice() {
+  return "Restored saved map for this conversation. Refresh after more history loads if source links still need recovery.";
+}
+
+function getPartialHistoryNotice(mode: RegenerateMode) {
+  return mode === "manual"
+    ? "Refresh skipped because only part of this conversation is visible right now. The saved map remains unchanged."
+    : "Saved map stays in place because only part of this conversation is visible right now.";
+}
+
+function getReboundNotice() {
+  return "Restored map rebound against the currently visible conversation window.";
+}
+
+function getManualRefreshNotice() {
+  return "Map refreshed against the current chat history.";
+}
+
 export function createSidepanelSessionController({
   autoGenerate: initialAutoGenerate,
-  store
+  store,
+  runtime = defaultRuntimePort
 }: SidepanelSessionControllerOptions): SidepanelSessionController {
   let autoGenerate = initialAutoGenerate;
   let activeConversation: ConversationRef | null = null;
@@ -63,7 +99,7 @@ export function createSidepanelSessionController({
     contextSyncToken = token;
 
     try {
-      const context = await fetchActiveChatContext();
+      const context = await runtime.fetchActiveChatContext();
       if (disposed || contextSyncToken !== token) {
         return;
       }
@@ -81,7 +117,7 @@ export function createSidepanelSessionController({
 
       const restored = store.getDocument();
       if (restored?.conversation.id === context.conversation.id) {
-        store.setNotice("Restored saved map for this conversation.");
+        store.setNotice(getRestoredIdleNotice());
       } else if (source === "initial") {
         store.setNotice(undefined);
       }
@@ -134,18 +170,14 @@ export function createSidepanelSessionController({
     try {
       store.setStatus("generating");
       const previous = store.getDocument();
-      const { messages, sources, history } = await scanActiveChat(previous?.messages ?? []);
+      const { messages, sources, history } = await runtime.scanActiveChat(previous?.messages ?? []);
 
       if (
         previous?.conversation.conversationKey === conversation.conversationKey &&
         history.coverage === "partial"
       ) {
         setIdleStatus();
-        store.setNotice(
-          mode === "manual"
-            ? "Refresh skipped because ChatGPT is only exposing part of this conversation right now. The restored map is unchanged."
-            : "Restored saved map remains in place because ChatGPT is only exposing part of this conversation right now."
-        );
+        store.setNotice(getPartialHistoryNotice(mode));
         return;
       }
 
@@ -162,12 +194,12 @@ export function createSidepanelSessionController({
 
       await store.replaceDocument(nextDocument);
       if (previous?.conversation.conversationKey === conversation.conversationKey) {
-        store.setNotice("Restored map rebound to the currently available chat history.");
+        store.setNotice(getReboundNotice());
       } else if (mode === "manual") {
-        store.setNotice("Map refreshed against the current chat history.");
+        store.setNotice(getManualRefreshNotice());
       }
 
-      const { completion } = await fetchActiveChatContext();
+      const { completion } = await runtime.fetchActiveChatContext();
       if (completion.latestMessageRole === "assistant" && completion.completionKey) {
         lastAutoCompletionKey = completion.completionKey;
       }
@@ -187,7 +219,7 @@ export function createSidepanelSessionController({
       }
     }, RETRY_DELAY_MS);
 
-    unsubscribeSettled = subscribeToSettledMessages((event) => {
+    unsubscribeSettled = runtime.subscribeToSettledMessages((event) => {
       if (!autoGenerate || !activeConversation || event.conversationId !== activeConversation.id) {
         return;
       }
@@ -195,7 +227,7 @@ export function createSidepanelSessionController({
       void regenerate("auto", event.completionKey, activeConversation);
     });
 
-    unsubscribeHostChanges = subscribeToActiveHostChanges(() => {
+    unsubscribeHostChanges = runtime.subscribeToActiveHostChanges(() => {
       void syncContext("host-change");
     });
   }
@@ -216,7 +248,7 @@ export function createSidepanelSessionController({
       return regenerate(mode);
     },
     closePanel() {
-      return closeSidePanel();
+      return runtime.closeSidePanel();
     },
     setAutoGenerate(enabled) {
       autoGenerate = enabled;

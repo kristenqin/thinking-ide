@@ -6,7 +6,6 @@ import reactFlowStyles from "@xyflow/react/dist/style.css?inline";
 
 const ROOT_ID = "thinking-ide-sidepanel-root";
 const APP_ID = "thinking-ide-sidepanel-app";
-const SHELL_MODE_ATTR = "data-thinking-ide-layout-mode";
 
 function ensureMount() {
   const existing = document.getElementById(ROOT_ID);
@@ -16,7 +15,6 @@ function ensureMount() {
 
   const host = existing ?? document.createElement("div");
   host.id = ROOT_ID;
-  host.setAttribute(SHELL_MODE_ATTR, "sidepanel");
 
   if (!existing) {
     document.body.appendChild(host);
@@ -36,6 +34,9 @@ function ensureMount() {
 }
 
 function bootSidePanel() {
+  document.documentElement.style.height = "100vh";
+  document.documentElement.style.minHeight = "100vh";
+  document.documentElement.style.background = "#f6f5f2";
   document.body.style.margin = "0";
   document.body.style.height = "100vh";
   document.body.style.minHeight = "100vh";
