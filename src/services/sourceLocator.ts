@@ -90,6 +90,33 @@ function findHeadingElement(sourceElement: Element, hint: RevealTargetHint): Ele
   );
 }
 
+function findHeadingElementFromSource(sourceElement: Element, source: SourceRef): Element | undefined {
+  if (source.anchor.type !== "heading" || !source.anchor.headingText) {
+    return undefined;
+  }
+
+  const normalizedHeadingText = normalizeText(source.anchor.headingText);
+  if (!normalizedHeadingText) {
+    return undefined;
+  }
+
+  const levelSelector =
+    source.anchor.headingLevel === 1
+      ? 'h1, [role="heading"][aria-level="1"]'
+      : '[role="heading"]';
+  const headingCandidates = Array.from(sourceElement.querySelectorAll(levelSelector));
+  const exact = headingCandidates.find(
+    (element) => normalizeText(element.textContent ?? "") === normalizedHeadingText
+  );
+  if (exact) {
+    return exact;
+  }
+
+  return headingCandidates.find((element) =>
+    normalizeText(element.textContent ?? "").includes(normalizedHeadingText)
+  );
+}
+
 function revealElement(target: Element) {
   target.scrollIntoView({ behavior: "smooth", block: "center" });
   target.setAttribute("data-thinking-ide-highlight", "true");
@@ -113,7 +140,9 @@ export function revealSource(
   }
 
   const target =
-    targetHint?.kind === "heading" ? findHeadingElement(sourceElement, targetHint) ?? sourceElement : sourceElement;
+    findHeadingElementFromSource(sourceElement, source) ??
+    (targetHint?.kind === "heading" ? findHeadingElement(sourceElement, targetHint) : undefined) ??
+    sourceElement;
 
   revealElement(target);
 

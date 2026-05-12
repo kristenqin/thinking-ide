@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { generateDraftMap } from "./generator";
 import type { MessageRef } from "../models/messageRef";
-import type { SourceRef } from "../models/source";
+import type { SourceAnchor, SourceRef } from "../models/source";
 
 function createMessage(id: string, role: MessageRef["role"], text: string): MessageRef {
   return {
@@ -20,17 +20,19 @@ function createMessage(id: string, role: MessageRef["role"], text: string): Mess
   };
 }
 
-function createSource(id: string, messageId: string): SourceRef {
+function createSource(id: string, messageId: string, anchorOverrides: Partial<SourceAnchor> = {}): SourceRef {
   return {
     id,
     messageId,
     status: "active",
     anchor: {
+      type: "message",
       selector: "[data-message]",
       role: messageId.startsWith("u") ? "user" : "assistant",
       occurrenceIndex: 0,
       previewStart: "preview start",
-      previewEnd: "preview end"
+      previewEnd: "preview end",
+      ...anchorOverrides
     }
   };
 }
@@ -59,7 +61,15 @@ test("generateDraftMap builds multi-turn question, answer, and answer-outline no
       "# Runtime spine\nFirst concept explains the scan loop clearly.\n\n2. Second concept covers local persistence safely."
     )
   ];
-  const sources = [createSource("source-question", "u2"), createSource("source-answer", "a2")];
+  const sources = [
+    createSource("source-question", "u2"),
+    createSource("source-answer", "a2"),
+    createSource("source-answer-heading", "a2", {
+      type: "heading",
+      headingText: "Runtime spine",
+      headingLevel: 1
+    })
+  ];
 
   const draft = generateDraftMap(messages, sources);
   const questionNodes = draft.nodes.filter((node) => node.data.role === "question");
@@ -67,12 +77,12 @@ test("generateDraftMap builds multi-turn question, answer, and answer-outline no
   const outlineNodes = draft.nodes.filter((node) => node.data.role === "answer_outline");
   const conceptNodes = draft.nodes.filter((node) => node.data.role === "concept");
 
-  assert.equal(draft.nodes.length, 9);
-  assert.equal(draft.edges.length, 8);
+  assert.equal(draft.nodes.length, 8);
+  assert.equal(draft.edges.length, 7);
   assert.equal(questionNodes.length, 2);
   assert.equal(answerNodes.length, 2);
   assert.equal(outlineNodes.length, 2);
-  assert.equal(conceptNodes.length, 3);
+  assert.equal(conceptNodes.length, 2);
   assert.equal(questionNodes[0].data.title, "Old question that should now be preserved");
   assert.ok(questionNodes[1].data.title.startsWith("How does the runtime spine work in pract"));
   assert.equal(questionNodes[1].data.sourceId, "source-question");
@@ -91,7 +101,7 @@ test("generateDraftMap builds multi-turn question, answer, and answer-outline no
       },
       {
         title: "Runtime spine",
-        sourceId: "source-answer",
+        sourceId: "source-answer-heading",
         status: "draft"
       }
     ]
@@ -104,17 +114,12 @@ test("generateDraftMap builds multi-turn question, answer, and answer-outline no
     })),
     [
       {
-        title: "Runtime spine",
+        title: "the scan loop",
         sourceId: "source-answer",
         status: "draft"
       },
       {
-        title: "First concept explains the scan…",
-        sourceId: "source-answer",
-        status: "draft"
-      },
-      {
-        title: "Second concept covers local per…",
+        title: "local persistence",
         sourceId: "source-answer",
         status: "draft"
       }
@@ -130,7 +135,7 @@ test("generateDraftMap builds multi-turn question, answer, and answer-outline no
   );
   assert.equal(
     draft.edges.filter((edge) => edge.data?.relation === "expands").length,
-    3
+    2
   );
   assert.equal(
     draft.edges.filter((edge) => edge.data?.relation === "relates" && edge.label === "next").length,

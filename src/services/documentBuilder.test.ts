@@ -52,6 +52,7 @@ const sources: SourceRef[] = [
     messageId: "assistant-1",
     status: "active",
     anchor: {
+      type: "message",
       selector: "[data-message]",
       role: "assistant",
       occurrenceIndex: 0,

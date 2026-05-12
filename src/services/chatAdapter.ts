@@ -140,12 +140,38 @@ function buildSourceRef(message: MessageRef, occurrenceIndex: number): SourceRef
     messageId: message.id,
     status: "active",
     anchor: {
+      type: "message",
       selector: message.domSelector ?? `[data-message-author-role="${message.role}"]`,
       role: message.role,
       domId: message.domId,
       occurrenceIndex,
       previewStart,
       previewEnd
+    }
+  };
+}
+
+function buildHeadingSourceRef(
+  message: MessageRef,
+  occurrenceIndex: number,
+  headingText: string,
+  headingLevel: number,
+  domId?: string
+): SourceRef {
+  return {
+    id: createId("source"),
+    messageId: message.id,
+    status: "active",
+    anchor: {
+      type: "heading",
+      selector: message.domSelector ?? `[data-message-author-role="${message.role}"]`,
+      role: message.role,
+      domId,
+      occurrenceIndex,
+      previewStart: clampText(message.text, 80),
+      previewEnd: clampText(message.text.slice(-80), 80),
+      headingText,
+      headingLevel
     }
   };
 }
@@ -161,6 +187,30 @@ function getMessageElements(): Array<{ element: Element; role: MessageRole }> {
       return null;
     })
     .filter((entry): entry is { element: Element; role: MessageRole } => Boolean(entry));
+}
+
+function extractHeadingSources(
+  message: MessageRef,
+  element: Element,
+  occurrenceIndex: number
+): SourceRef[] {
+  const headingCandidates = Array.from(
+    element.querySelectorAll('h1, [role="heading"][aria-level="1"]')
+  );
+
+  const seen = new Set<string>();
+
+  return headingCandidates.flatMap((heading) => {
+    const headingText = normalizeText(heading.textContent ?? "");
+    if (!headingText || seen.has(headingText)) {
+      return [];
+    }
+
+    seen.add(headingText);
+    const headingDomId =
+      typeof heading.getAttribute === "function" ? heading.getAttribute("id") ?? undefined : undefined;
+    return [buildHeadingSourceRef(message, occurrenceIndex, headingText, 1, headingDomId)];
+  });
 }
 
 function getCurrentChatIdFromPath(): string | null {
@@ -340,10 +390,46 @@ function buildScanResult(messages: MessageRef[], previousMessages: MessageRef[])
     user: 0,
     assistant: 0
   };
-  const sources = messages.map((message) => {
+  const visibleEntries = getMessageElements();
+  const visibleAssistantElements = visibleEntries.filter((entry) => entry.role === "assistant").map((entry) => entry.element);
+  const assistantMessageQueue = [...messages.filter((message) => message.role === "assistant")];
+  const matchedAssistantElements = new Map<string, Element>();
+
+  visibleAssistantElements.forEach((element) => {
+    const elementText = normalizeText(element.textContent ?? "");
+    if (!elementText) {
+      return;
+    }
+
+    const exactIndex = assistantMessageQueue.findIndex((message) => message.text === elementText);
+    const candidateIndex =
+      exactIndex >= 0
+        ? exactIndex
+        : assistantMessageQueue.findIndex((message) => message.textHash === hashText(elementText));
+    if (candidateIndex < 0) {
+      return;
+    }
+
+    const [matchedMessage] = assistantMessageQueue.splice(candidateIndex, 1);
+    if (matchedMessage) {
+      matchedAssistantElements.set(matchedMessage.id, element);
+    }
+  });
+
+  const sources = messages.flatMap((message) => {
     const occurrenceIndex = occurrenceCounts[message.role];
     occurrenceCounts[message.role] += 1;
-    return buildSourceRef(message, occurrenceIndex);
+    const baseSource = buildSourceRef(message, occurrenceIndex);
+    if (message.role !== "assistant") {
+      return [baseSource];
+    }
+
+    const matchedElement = matchedAssistantElements.get(message.id);
+    if (!matchedElement) {
+      return [baseSource];
+    }
+
+    return [baseSource, ...extractHeadingSources(message, matchedElement, occurrenceIndex)];
   });
 
   return {

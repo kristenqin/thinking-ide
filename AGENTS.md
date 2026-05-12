@@ -143,9 +143,10 @@ The current next slices are:
 9. Continue the remaining Wave 1 parity tail only where it closes the sidePanel-product gap, especially consuming explicit restored/partial-history runtime states in the panel UI, deeper shell productization, and removal of transplanted in-page workspace assumptions.
 10. Treat the second Wave 2 generation checkpoint as landed: the runtime now materializes multi-turn `question` / `answer` node chains from the full-session history path instead of collapsing graph generation to the latest exchange.
 11. Treat the third Wave 2 generation checkpoint as landed: heuristic `answer_outline` nodes and `contains` edges now materialize from assistant structure.
-12. Treat the fourth Wave 2 source-semantics checkpoint as landed: `answer_outline` extraction now prefers Markdown H1 headings first, and jump-to-source now attempts a matching H1 inside the resolved assistant reply before falling back to the parent answer block; richer block anchors and short-concept quality remain open.
-13. Treat code authoring governance as active repo policy: the second store/runtime checkpoint is now landed, but broader runtime/store boundary cleanup is still open and should follow `code-authoring-policy`, `refactor-trigger-rules`, and `engineering-review-checklist`.
-14. Treat worktree hygiene as active repo policy: before opening another long-running slice on top of in-flight sidePanel migration diffs, classify the tree and run a sweep instead of letting mixed local residue keep growing.
+12. Treat the fourth and fifth Wave 2 source-semantics checkpoints as landed: `answer_outline` extraction now prefers Markdown H1 headings first, `SourceRef` now carries durable `anchor.type` metadata, `chatAdapter` can emit assistant H1 heading sources from the live DOM, and jump-to-source now resolves those heading anchors before falling back to the parent answer block.
+13. Treat the fourth Wave 2 concept-quality checkpoint as landed: heuristic concept extraction now produces shorter titles plus fuller summaries and avoids re-emitting Markdown H1 headings as duplicate concept nodes, but short-concept acceptance is still open.
+14. Treat code authoring governance as active repo policy: the second store/runtime checkpoint is now landed, but broader runtime/store boundary cleanup is still open and should follow `code-authoring-policy`, `refactor-trigger-rules`, and `engineering-review-checklist`.
+15. Treat worktree hygiene as active repo policy: before opening another long-running slice on top of in-flight sidePanel migration diffs, classify the tree and run a sweep instead of letting mixed local residue keep growing.
 
 ## Completion Reporting
 

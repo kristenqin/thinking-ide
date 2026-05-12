@@ -8,10 +8,13 @@ import {
 } from "./chatAdapter";
 
 class FakeMessageElement {
+  public children: FakeMessageElement[] = [];
+
   constructor(
     public readonly id: string,
     private readonly role: "user" | "assistant",
-    public readonly textContent: string
+    public readonly textContent: string,
+    private readonly tagName = "div"
   ) {}
 
   getAttribute(name: string): string | null {
@@ -19,7 +22,23 @@ class FakeMessageElement {
       return this.role;
     }
 
+    if (name === "id") {
+      return this.id;
+    }
+
     return null;
+  }
+
+  querySelectorAll(selector: string) {
+    if (selector === 'h1, [role="heading"][aria-level="1"]') {
+      return this.children.filter(
+        (child) =>
+          child.tagName === "h1" ||
+          (child.getAttribute("role") === "heading" && child.getAttribute("aria-level") === "1")
+      ) as unknown as NodeListOf<Element>;
+    }
+
+    return [] as unknown as NodeListOf<Element>;
   }
 }
 
@@ -135,6 +154,38 @@ test("scanMessages returns all visible messages with stable orderIndex and locat
     matchedPersistedMessageCount: 0,
     missingPersistedMessageCount: 0
   });
+});
+
+test("scanMessages captures assistant H1 heading sources from the visible DOM", async () => {
+  const assistant = new FakeMessageElement(
+    "assistant-1",
+    "assistant",
+    "# Runtime spine\nFirst assistant answer"
+  );
+  assistant.children.push(new FakeMessageElement("heading-1", "assistant", "Runtime spine", "h1"));
+
+  installEnvironment({
+    pathname: "/c/history-heading",
+    href: "https://chatgpt.com/c/history-heading",
+    title: "Heading thread - ChatGPT",
+    elements: [new FakeMessageElement("user-1", "user", "Question"), assistant]
+  });
+
+  const { sources } = await scanMessages();
+
+  assert.equal(sources.length, 3);
+  assert.deepEqual(
+    sources.map((source) => ({
+      messageId: source.messageId,
+      type: source.anchor.type,
+      headingText: source.anchor.headingText
+    })),
+    [
+      { messageId: "user-1", type: "message", headingText: undefined },
+      { messageId: "assistant-1", type: "message", headingText: undefined },
+      { messageId: "assistant-1", type: "heading", headingText: "Runtime spine" }
+    ]
+  );
 });
 
 test("getAssistantCompletionState reports the latest assistant completion key when the reply is settled", () => {

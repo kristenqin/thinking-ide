@@ -3,10 +3,25 @@ import type { MessageRef } from "../models/messageRef";
 import type { ConceptMapNodeRecord } from "../models/node";
 import type { SourceRef } from "../models/source";
 import { createId } from "../utils/id";
-import { clampText, splitIntoConcepts, splitIntoOutlineItems } from "../utils/text";
+import { clampText, normalizeText, splitIntoConcepts, splitIntoOutlineItems } from "../utils/text";
 
 function resolveSourceId(messageId: string, sources: SourceRef[]): string | undefined {
-  return sources.find((source) => source.messageId === messageId)?.id;
+  return sources.find((source) => source.messageId === messageId && source.anchor.type === "message")?.id;
+}
+
+function resolveOutlineSourceId(messageId: string, outline: string, sources: SourceRef[]): string | undefined {
+  const normalizedOutline = normalizeText(outline).toLowerCase();
+  const headingSource = sources.find(
+    (source) =>
+      source.messageId === messageId &&
+      source.anchor.type === "heading" &&
+      source.anchor.headingText?.toLowerCase() === normalizedOutline
+  );
+  if (headingSource) {
+    return headingSource.id;
+  }
+
+  return resolveSourceId(messageId, sources);
 }
 
 type Exchange = {
@@ -132,7 +147,7 @@ export function generateDraftMap(
           summary: outline,
           role: "answer_outline",
           status: "draft",
-          sourceId: resolveSourceId(answer.id, sources)
+          sourceId: resolveOutlineSourceId(answer.id, outline, sources)
         }
       });
 
@@ -171,8 +186,8 @@ export function generateDraftMap(
         y: (latestAnswerNode.position.y ?? 80) + index * 120
       },
       data: {
-        title: clampText(concept, 32),
-        summary: clampText(concept, 100),
+        title: clampText(concept.title, 32),
+        summary: clampText(concept.summary, 100),
         role: "concept",
         status: "draft",
         sourceId: resolveSourceId(latestAnswer.id, sources)

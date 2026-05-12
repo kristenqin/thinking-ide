@@ -111,8 +111,8 @@ Must prove:
 Current status:
 
 1. Basic `question` and `answer` exist
-2. Heuristic `answer_outline` generation now exists, but it is not yet backed by precise paragraph anchors
-3. Concepts are currently sentence fragments, not short concepts
+2. Heuristic `answer_outline` generation now exists and can bind to a durable H1 source anchor, but it is not yet backed by precise paragraph/block anchors
+3. Concepts now have shorter heuristic titles plus fuller summaries, but they still have not reached short-concept acceptance
 
 ### Suite F: Canvas Editing And Persistence
 
@@ -142,7 +142,7 @@ Must prove:
 Current status:
 
 1. Message-level single-source jump exists
-2. `answer_outline` now tries a matching Markdown H1 inside the assistant reply before falling back to the parent assistant block; richer paragraph/block anchors are still missing
+2. `answer_outline` now tries a durable H1 anchor first and then falls back to the parent assistant block; richer paragraph/block anchors are still missing
 3. Multi-source popover is missing
 
 ### Suite H: Privacy Boundary

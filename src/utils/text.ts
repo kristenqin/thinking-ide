@@ -10,12 +10,37 @@ export function normalizeText(input: string): string {
   return input.replace(/\s+/g, " ").trim();
 }
 
-export function splitIntoConcepts(text: string): string[] {
-  return text
+export type ConceptCandidate = {
+  title: string;
+  summary: string;
+};
+
+export function splitIntoConcepts(text: string): ConceptCandidate[] {
+  const segments = text
     .split(/\n+|(?<=。)|(?<=\.)|(?<=:)|(?<=：)|(?<=;)|(?<=；)/)
-    .map((segment) => normalizeText(stripOutlineMarker(segment)))
-    .filter((segment) => segment.length >= 8)
-    .slice(0, 5);
+    .map((segment) => segment.trim())
+    .filter((segment) => segment.length > 0)
+    .filter((segment) => !segment.startsWith("# "));
+
+  const candidates: ConceptCandidate[] = [];
+  const seenTitles = new Set<string>();
+
+  segments.forEach((segment) => {
+    const summary = normalizeText(stripOutlineMarker(segment));
+    if (summary.length < 8) {
+      return;
+    }
+
+    const title = deriveConceptTitle(summary);
+    if (title.length < 2 || seenTitles.has(title)) {
+      return;
+    }
+
+    seenTitles.add(title);
+    candidates.push({ title, summary });
+  });
+
+  return candidates.slice(0, 5);
 }
 
 function stripOutlineMarker(text: string): string {
@@ -25,6 +50,61 @@ function stripOutlineMarker(text: string): string {
     .replace(/^[-*+]\s+/, "")
     .replace(/^\d+[\.\)]\s+/, "")
     .replace(/^[一二三四五六七八九十]+[、.．]\s*/, "");
+}
+
+function deriveConceptTitle(summary: string): string {
+  const withoutLead = summary
+    .replace(
+      /^(?:first|second|third|fourth|fifth|another|next|final)\s+(?:concept|point|idea|step|theme|pillar|principle|reason|part)\s+(?:explains|covers|shows|describes|introduces|highlights|discusses|outlines)\s+/i,
+      ""
+    )
+    .replace(/^(?:首先|其次|再次|最后|另外|同时|然后|此外|并且|而且|所以|因此)[，,\s]*/u, "")
+    .trim();
+
+  const colonCandidate = withoutLead.split(/[:：]/).at(-1)?.trim();
+  const strippedColonCandidate = colonCandidate ? stripTrailingQualifier(colonCandidate) : "";
+  if (isCompactConcept(strippedColonCandidate, withoutLead)) {
+    return strippedColonCandidate;
+  }
+
+  const trailingNounLike = withoutLead.match(/([\p{Script=Han}A-Za-z0-9_.-]{2,20})[。.!?？；;]*$/u)?.[1];
+  const strippedTrailingNounLike = trailingNounLike ? stripTrailingQualifier(trailingNounLike) : "";
+  if (isCompactConcept(strippedTrailingNounLike, withoutLead)) {
+    return strippedTrailingNounLike;
+  }
+
+  const clauseCandidate = withoutLead
+    .split(/[，,、]/)
+    .map((part) => stripTrailingQualifier(part.trim()))
+    .find((part) => isCompactConcept(part, withoutLead));
+  if (clauseCandidate) {
+    return clauseCandidate;
+  }
+
+  return clampText(withoutLead, 24);
+}
+
+function stripTrailingQualifier(text: string): string {
+  return text
+    .replace(/\b(?:clearly|safely|directly|carefully|properly|effectively|better)\b[。.!?]?$/i, "")
+    .replace(/[。.!?？；;]+$/u, "")
+    .trim();
+}
+
+function isCompactConcept(candidate: string, summary: string): boolean {
+  if (!candidate) {
+    return false;
+  }
+
+  if (candidate.length < 2 || candidate.length > 20) {
+    return false;
+  }
+
+  if (candidate === summary) {
+    return false;
+  }
+
+  return true;
 }
 
 export function splitIntoOutlineItems(text: string): string[] {

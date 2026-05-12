@@ -52,6 +52,7 @@ function buildSource(anchorOverrides: Partial<SourceRef["anchor"]> = {}): Source
     messageId: "assistant_1",
     status: "active",
     anchor: {
+      type: "message",
       selector: '[data-message-author-role="assistant"]',
       role: "assistant",
       occurrenceIndex: 1,
@@ -126,7 +127,7 @@ test("revealSource highlights a matching anchored message", () => {
   assert.equal(target.getAttribute("data-thinking-ide-highlight"), null);
 });
 
-test("revealSource prefers a matching level-one heading inside the assistant message when given a heading hint", () => {
+test("revealSource prefers a matching level-one heading inside the assistant message when the source anchor is heading-based", () => {
   const message = new FakeElement(
     "assistant-target",
     "assistant",
@@ -136,10 +137,14 @@ test("revealSource prefers a matching level-one heading inside the assistant mes
   message.children.push(heading);
   const timers = installDom([message]);
 
-  const result = revealSource(buildSource({ domId: "assistant-target" }), {
-    kind: "heading",
-    text: "Runtime spine"
-  });
+  const result = revealSource(
+    buildSource({
+      domId: "assistant-target",
+      type: "heading",
+      headingText: "Runtime spine",
+      headingLevel: 1
+    })
+  );
 
   assert.equal(result, "revealed");
   assert.equal(message.scrolled, false);
