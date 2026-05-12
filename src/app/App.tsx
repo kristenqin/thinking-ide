@@ -3,7 +3,7 @@ import { ThinkingPanel } from "../components/panel/ThinkingPanel";
 import { buildThinkingDocument } from "../services/documentBuilder";
 import { generateDraftMap } from "../services/generator";
 import { getAssistantCompletionState, getConversationRef, scanMessages } from "../services/chatAdapter";
-import { observeChatMutations } from "../services/messageObserver";
+import { observeChatMutations, type MessageObserverHandle } from "../services/messageObserver";
 import { useThinkingStore } from "../stores/useThinkingStore";
 import { createDefaultSettings } from "../models/settings";
 
@@ -14,18 +14,42 @@ type AppProps = {
 };
 
 export function App({ onCollapse }: AppProps) {
-  const { document, hydrate, getDocument, replaceDocument, setStatus } = useThinkingStore();
+  const { document, hydrate, getDocument, replaceDocument, setNotice, setStatus } = useThinkingStore();
   const conversation = getConversationRef();
   const autoGenerate = document?.settings.autoGenerate ?? DEFAULT_SETTINGS.autoGenerate;
   const lastAutoCompletionKeyRef = useRef<string | null>(null);
+  const observerHandleRef = useRef<MessageObserverHandle | null>(null);
 
   useEffect(() => {
-    void hydrate(conversation.id);
-  }, [conversation.id, hydrate]);
+    let cancelled = false;
+
+    void hydrate(conversation.id).then(() => {
+      if (cancelled) {
+        return;
+      }
+
+      const restored = getDocument();
+      if (restored?.conversation.id === conversation.id) {
+        setNotice("Restored saved map for this conversation.");
+        return;
+      }
+
+      setNotice(undefined);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [conversation.id, getDocument, hydrate, setNotice]);
 
   useEffect(() => {
     lastAutoCompletionKeyRef.current = null;
+    observerHandleRef.current = null;
   }, [conversation.id]);
+
+  function setIdleStatus() {
+    setStatus(getDocument() ? "synced" : "waiting");
+  }
 
   async function regenerate(mode: "auto" | "manual" = "manual", completionKey?: string | null) {
     if (mode === "auto" && completionKey && lastAutoCompletionKeyRef.current === completionKey) {
@@ -34,7 +58,26 @@ export function App({ onCollapse }: AppProps) {
 
     try {
       setStatus("generating");
-      const { messages, sources } = scanMessages();
+      const previous = getDocument();
+      const { messages, sources, history } = scanMessages(previous?.messages ?? []);
+
+      if (
+        previous?.conversation.conversationKey === conversation.conversationKey &&
+        history.coverage === "partial"
+      ) {
+        setIdleStatus();
+        setNotice(
+          mode === "manual"
+            ? "Refresh skipped because ChatGPT is only exposing part of this conversation right now. The restored map is unchanged."
+            : "Restored saved map remains in place because ChatGPT is only exposing part of this conversation right now."
+        );
+
+        if (mode === "auto" && completionKey) {
+          observerHandleRef.current?.resetCompletionDedup(completionKey);
+        }
+        return;
+      }
+
       const generated = generateDraftMap(messages, sources);
       const document = buildThinkingDocument({
         conversation,
@@ -43,10 +86,15 @@ export function App({ onCollapse }: AppProps) {
         generatedNodes: generated.nodes,
         generatedEdges: generated.edges,
         settings: DEFAULT_SETTINGS,
-        previous: getDocument()
+        previous
       });
 
       await replaceDocument(document);
+      if (previous?.conversation.conversationKey === conversation.conversationKey) {
+        setNotice("Restored map rebound to the currently available chat history.");
+      } else if (mode === "manual") {
+        setNotice("Map refreshed against the current chat history.");
+      }
 
       const completionState = getAssistantCompletionState();
       if (completionState.latestMessageRole === "assistant" && completionState.completionKey) {
@@ -59,7 +107,7 @@ export function App({ onCollapse }: AppProps) {
 
   useEffect(() => {
     if (!autoGenerate) {
-      setStatus("waiting");
+      setIdleStatus();
       return;
     }
 
@@ -71,7 +119,7 @@ export function App({ onCollapse }: AppProps) {
     ) {
       void regenerate("auto", initialState.completionKey);
     } else {
-      setStatus("waiting");
+      setIdleStatus();
     }
 
     const handle = observeChatMutations((event) => {
@@ -80,13 +128,15 @@ export function App({ onCollapse }: AppProps) {
         return;
       }
 
-      setStatus("waiting");
+      setIdleStatus();
     });
+    observerHandleRef.current = handle;
 
     return () => {
+      observerHandleRef.current = null;
       handle.disconnect();
     };
-  }, [autoGenerate, conversation.id, setStatus]);
+  }, [autoGenerate, conversation.id, document?.conversation.conversationKey, getDocument, setStatus]);
 
   return <ThinkingPanel onGenerate={() => regenerate("manual")} onCollapse={onCollapse} />;
 }

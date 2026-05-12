@@ -15,8 +15,8 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 1. Wave 1 now has a landed page-level layout slice: default split-pane, overlay fallback, and collapse/expand rail with runtime coverage.
 2. Treat [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active execution order.
-3. Wave 2 now has two landed partial adapter slices: stable `conversationKey` / locator identity plus bounded completion gating and duplicate auto-trigger suppression.
-4. Keep the next main implementation focus on the remaining Wave 2 recovery semantics and fuller available-history restoration while remaining Wave 1 polish stays tracked as a tail item, not as an unbounded design rewrite.
+3. Wave 2 now has three landed partial adapter slices: stable `conversationKey` / locator identity, bounded completion gating, and a first restoration-safety guard that preserves restored maps when the host only exposes a partial visible history window.
+4. Keep the next main implementation focus on the remaining Wave 2 restoration semantics and privacy-boundary cleanup while remaining Wave 1 polish stays tracked as a tail item, not as an unbounded design rewrite.
 5. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
 6. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
 7. During the spec-alignment phase, distinguish `checkpoint` commits from `acceptance` commits for user-visible work; do not report alignment closure unless the rendered mismatch for that slice is actually gone.
@@ -25,7 +25,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 ## Next
 
 1. Execute Wave 2 from the alignment plan: ChatAdapter acceptance for conversation identity, full available history scan, completion detection, and restoration.
-2. Continue Wave 2A by adding stronger historical restoration semantics and explicit partial-history handling on top of the new message-identity and completion-gating shape.
+2. Continue Wave 2A by finishing restoration semantics on top of the new partial-history guard, especially reopen/rebind behavior beyond the first visible-history checkpoint.
 3. Continue Wave 3 preparation in parallel: provider-backed AI structuring baseline with `DeepSeek` in the first candidate batch.
 4. Continue the remaining Wave 1 parity tail: reduce real-host left-column dilution from the official ChatGPT sidebar and host-layout variance until the workspace reads as a true dual-pane product.
 5. Realign acceptance testing around layout, history, completion detection, semantic fixtures, and privacy-boundary checks.
@@ -75,6 +75,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 30. Landed the first partial Wave 2 adapter-identity slice: `ConversationRef` now exposes stable `conversationKey` derivation metadata, visible-history message scans now emit monotonic `orderIndex`, and `MessageRef` now carries privacy-safer locator metadata such as `textHash`, `textPreview`, and schema/version fields.
 31. Landed a second partial Wave 2 completion-gating slice: auto-generation now waits for a settled assistant reply, prefers host-native generation signals when available, falls back to a quiet-window stability check, and suppresses duplicate automatic parses for the same completed assistant response.
 32. Landed a second Wave 1 layout checkpoint: the panel now keeps collapse inside workspace header chrome, constrains the visible chat workspace toward a clearer reading column in split-pane mode, and replaces the blank `0 concepts` shell with explicit empty-workspace guidance.
+33. Landed a third partial Wave 2 restoration slice: restored maps now stay in place when ChatGPT only exposes a partial visible history window, auto-refresh no longer silently overwrites them on reopen/refresh, and the completion observer can re-arm the same settled reply once more history becomes available.
 
 ## Quality Gate
 

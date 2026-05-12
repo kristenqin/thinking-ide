@@ -156,3 +156,30 @@ test("observeChatMutations suppresses duplicate settled events for the same comp
 
   assert.deepEqual(events, [{ phase: "settled", completionKey: "assistant-3:cccc3333" }]);
 });
+
+test("observeChatMutations can release a settled completion key so the same reply may trigger again later", async () => {
+  installObserverEnvironment();
+  const events: ChatMutationEvent[] = [];
+  const handle = observeChatMutations((event) => events.push(event), {
+    debounceMs: 0,
+    settleMs: 5,
+    getCompletionState: () =>
+      ({
+        latestMessageRole: "assistant",
+        completionKey: "assistant-4:dddd4444",
+        isStreaming: false
+      }) satisfies AssistantCompletionState
+  });
+
+  FakeMutationObserver.instance?.emit([createAddedNodeMutation()]);
+  await flushTimers(15);
+  handle.resetCompletionDedup("assistant-4:dddd4444");
+  FakeMutationObserver.instance?.emit([createAddedNodeMutation()]);
+  await flushTimers(15);
+  handle.disconnect();
+
+  assert.deepEqual(events, [
+    { phase: "settled", completionKey: "assistant-4:dddd4444" },
+    { phase: "settled", completionKey: "assistant-4:dddd4444" }
+  ]);
+});

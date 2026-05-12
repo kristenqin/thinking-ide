@@ -13,3 +13,9 @@ export type MessageRef = {
   schemaVersion: number;
   createdAt: string;
 };
+
+export function buildMessageRestoreKey(
+  message: Pick<MessageRef, "conversationKey" | "role" | "orderIndex" | "textHash">
+): string {
+  return [message.conversationKey, message.role, message.orderIndex, message.textHash].join("::");
+}

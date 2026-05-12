@@ -1,5 +1,5 @@
 import type { ConversationIdentitySource, ConversationRef } from "../models/conversation";
-import type { MessageRef, MessageRole } from "../models/messageRef";
+import { buildMessageRestoreKey, type MessageRef, type MessageRole } from "../models/messageRef";
 import type { SourceRef } from "../models/source";
 import { createId } from "../utils/id";
 import { clampText, normalizeText } from "../utils/text";
@@ -18,6 +18,20 @@ export type AssistantCompletionState = {
   completionKey: string | null;
   latestAssistantMessage?: MessageRef;
   isStreaming: boolean;
+};
+
+export type HistoryAvailability = {
+  coverage: "available" | "partial";
+  reason: "restored-gap" | null;
+  visibleMessageCount: number;
+  matchedPersistedMessageCount: number;
+  missingPersistedMessageCount: number;
+};
+
+export type ScanMessagesResult = {
+  messages: MessageRef[];
+  sources: SourceRef[];
+  history: HistoryAvailability;
 };
 
 function hashText(value: string): string {
@@ -121,6 +135,40 @@ function isHostGenerationInProgress(): boolean {
   return STREAMING_SIGNAL_SELECTORS.some((selector) => Boolean(document.querySelector(selector)));
 }
 
+export function assessHistoryAvailability(
+  messages: MessageRef[],
+  previousMessages: MessageRef[] = []
+): HistoryAvailability {
+  if (previousMessages.length === 0) {
+    return {
+      coverage: "available",
+      reason: null,
+      visibleMessageCount: messages.length,
+      matchedPersistedMessageCount: 0,
+      missingPersistedMessageCount: 0
+    };
+  }
+
+  const visibleRestoreKeys = new Set(messages.map((message) => buildMessageRestoreKey(message)));
+  let matchedPersistedMessageCount = 0;
+
+  previousMessages.forEach((message) => {
+    if (visibleRestoreKeys.has(buildMessageRestoreKey(message))) {
+      matchedPersistedMessageCount += 1;
+    }
+  });
+
+  const missingPersistedMessageCount = Math.max(previousMessages.length - matchedPersistedMessageCount, 0);
+
+  return {
+    coverage: missingPersistedMessageCount > 0 ? "partial" : "available",
+    reason: missingPersistedMessageCount > 0 ? "restored-gap" : null,
+    visibleMessageCount: messages.length,
+    matchedPersistedMessageCount,
+    missingPersistedMessageCount
+  };
+}
+
 export function getConversationRef(): ConversationRef {
   const { conversationKey, identitySource } = deriveConversationIdentity();
   const title = document.title.replace(/\s+-\s+ChatGPT$/i, "").trim();
@@ -166,7 +214,7 @@ export function getAssistantCompletionState(): AssistantCompletionState {
   };
 }
 
-export function scanMessages(): { messages: MessageRef[]; sources: SourceRef[] } {
+export function scanMessages(previousMessages: MessageRef[] = []): ScanMessagesResult {
   const { conversationKey } = deriveConversationIdentity();
   const occurrenceCounts: Record<MessageRole, number> = {
     user: 0,
@@ -193,6 +241,7 @@ export function scanMessages(): { messages: MessageRef[]; sources: SourceRef[] }
 
   return {
     messages,
-    sources: pairs.map((pair) => pair.source)
+    sources: pairs.map((pair) => pair.source),
+    history: assessHistoryAvailability(messages, previousMessages)
   };
 }

@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getAssistantCompletionState, getConversationRef, scanMessages } from "./chatAdapter";
+import {
+  assessHistoryAvailability,
+  getAssistantCompletionState,
+  getConversationRef,
+  scanMessages
+} from "./chatAdapter";
 
 class FakeMessageElement {
   constructor(
@@ -86,7 +91,7 @@ test("scanMessages returns all visible messages with stable orderIndex and locat
     ]
   });
 
-  const { messages, sources } = scanMessages();
+  const { messages, sources, history } = scanMessages();
 
   assert.equal(messages.length, 4);
   assert.deepEqual(
@@ -111,6 +116,13 @@ test("scanMessages returns all visible messages with stable orderIndex and locat
     sources.map((source) => source.messageId),
     ["user-1", "assistant-1", "user-2", "assistant-2"]
   );
+  assert.deepEqual(history, {
+    coverage: "available",
+    reason: null,
+    visibleMessageCount: 4,
+    matchedPersistedMessageCount: 0,
+    missingPersistedMessageCount: 0
+  });
 });
 
 test("getAssistantCompletionState reports the latest assistant completion key when the reply is settled", () => {
@@ -149,4 +161,66 @@ test("getAssistantCompletionState prefers host-native generation signals when th
   assert.equal(state.latestMessageRole, "assistant");
   assert.equal(state.isStreaming, true);
   assert.match(state.completionKey ?? "", /^assistant-1:/);
+});
+
+test("assessHistoryAvailability marks restoration as partial when persisted messages are missing from the visible host window", () => {
+  const previousMessages = [
+    {
+      id: "user-1",
+      conversationKey: "/c/history-restore",
+      role: "user" as const,
+      orderIndex: 0,
+      text: "First question",
+      textHash: "1111aaaa",
+      textPreview: "First question",
+      schemaVersion: 1,
+      createdAt: "2026-05-12T00:00:00.000Z"
+    },
+    {
+      id: "assistant-1",
+      conversationKey: "/c/history-restore",
+      role: "assistant" as const,
+      orderIndex: 1,
+      text: "First answer",
+      textHash: "2222bbbb",
+      textPreview: "First answer",
+      schemaVersion: 1,
+      createdAt: "2026-05-12T00:00:00.000Z"
+    }
+  ];
+  const visibleMessages = [previousMessages[1]];
+
+  const history = assessHistoryAvailability(visibleMessages, previousMessages);
+
+  assert.deepEqual(history, {
+    coverage: "partial",
+    reason: "restored-gap",
+    visibleMessageCount: 1,
+    matchedPersistedMessageCount: 1,
+    missingPersistedMessageCount: 1
+  });
+});
+
+test("scanMessages reports available restoration coverage when all persisted messages are still visible", () => {
+  installEnvironment({
+    pathname: "/c/history-full",
+    href: "https://chatgpt.com/c/history-full",
+    title: "Full history - ChatGPT",
+    elements: [
+      new FakeMessageElement("user-1", "user", "First question"),
+      new FakeMessageElement("assistant-1", "assistant", "First answer")
+    ]
+  });
+
+  const previousMessages = scanMessages().messages;
+
+  const { history } = scanMessages(previousMessages);
+
+  assert.deepEqual(history, {
+    coverage: "available",
+    reason: null,
+    visibleMessageCount: 2,
+    matchedPersistedMessageCount: 2,
+    missingPersistedMessageCount: 0
+  });
 });

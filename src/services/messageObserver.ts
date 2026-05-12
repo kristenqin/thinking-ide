@@ -2,6 +2,7 @@ import { getAssistantCompletionState, type AssistantCompletionState } from "./ch
 
 export type MessageObserverHandle = {
   disconnect: () => void;
+  resetCompletionDedup: (completionKey?: string | null) => void;
 };
 
 export type ChatMutationPhase = "waiting" | "streaming" | "settled";
@@ -153,6 +154,11 @@ export function observeChatMutations(
   });
 
   return {
+    resetCompletionDedup(completionKey) {
+      if (!completionKey || dispatchedCompletionKey === completionKey) {
+        dispatchedCompletionKey = null;
+      }
+    },
     disconnect() {
       if (timeoutId) {
         window.clearTimeout(timeoutId);
