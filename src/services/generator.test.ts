@@ -44,10 +44,10 @@ test("generateDraftMap returns an empty graph for an empty message list", () => 
   });
 });
 
-test("generateDraftMap builds question, answer, and concept nodes from the latest exchange", () => {
+test("generateDraftMap builds multi-turn question and answer nodes while keeping concept extraction on the latest exchange", () => {
   const messages = [
-    createMessage("u1", "user", "Old question that should be ignored"),
-    createMessage("a1", "assistant", "Old answer that should be ignored"),
+    createMessage("u1", "user", "Old question that should now be preserved"),
+    createMessage("a1", "assistant", "Old answer that should now be preserved"),
     createMessage("u2", "user", "How does the runtime spine work in practice?"),
     createMessage(
       "a2",
@@ -58,18 +58,19 @@ test("generateDraftMap builds question, answer, and concept nodes from the lates
   const sources = [createSource("source-question", "u2"), createSource("source-answer", "a2")];
 
   const draft = generateDraftMap(messages, sources);
-  const questionNode = draft.nodes.find((node) => node.data.role === "question");
-  const answerNode = draft.nodes.find((node) => node.data.role === "answer");
+  const questionNodes = draft.nodes.filter((node) => node.data.role === "question");
+  const answerNodes = draft.nodes.filter((node) => node.data.role === "answer");
   const conceptNodes = draft.nodes.filter((node) => node.data.role === "concept");
 
-  assert.equal(draft.nodes.length, 4);
-  assert.equal(draft.edges.length, 3);
-  assert.ok(questionNode);
-  assert.ok(answerNode);
+  assert.equal(draft.nodes.length, 6);
+  assert.equal(draft.edges.length, 5);
+  assert.equal(questionNodes.length, 2);
+  assert.equal(answerNodes.length, 2);
   assert.equal(conceptNodes.length, 2);
-  assert.ok(questionNode.data.title.startsWith("How does the runtime spine work in pract"));
-  assert.equal(questionNode.data.sourceId, "source-question");
-  assert.equal(answerNode.data.sourceId, "source-answer");
+  assert.equal(questionNodes[0].data.title, "Old question that should now be preserved");
+  assert.ok(questionNodes[1].data.title.startsWith("How does the runtime spine work in pract"));
+  assert.equal(questionNodes[1].data.sourceId, "source-question");
+  assert.equal(answerNodes[1].data.sourceId, "source-answer");
   assert.deepEqual(
     conceptNodes.map((node) => ({
       title: node.data.title,
@@ -91,10 +92,14 @@ test("generateDraftMap builds question, answer, and concept nodes from the lates
   );
   assert.equal(
     draft.edges.filter((edge) => edge.data?.relation === "answers").length,
-    1
+    2
   );
   assert.equal(
     draft.edges.filter((edge) => edge.data?.relation === "expands").length,
     2
+  );
+  assert.equal(
+    draft.edges.filter((edge) => edge.data?.relation === "relates" && edge.label === "next").length,
+    1
   );
 });

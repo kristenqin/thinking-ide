@@ -9,6 +9,36 @@ function resolveSourceId(messageId: string, sources: SourceRef[]): string | unde
   return sources.find((source) => source.messageId === messageId)?.id;
 }
 
+type Exchange = {
+  question: MessageRef;
+  answer?: MessageRef;
+};
+
+function buildExchanges(messages: MessageRef[]): Exchange[] {
+  const exchanges: Exchange[] = [];
+  let pendingQuestion: MessageRef | undefined;
+
+  messages.forEach((message) => {
+    if (message.role === "user") {
+      pendingQuestion = message;
+      exchanges.push({ question: message });
+      return;
+    }
+
+    if (!pendingQuestion) {
+      return;
+    }
+
+    const exchange = exchanges.at(-1);
+    if (exchange && exchange.question.id === pendingQuestion.id && !exchange.answer) {
+      exchange.answer = message;
+      pendingQuestion = undefined;
+    }
+  });
+
+  return exchanges;
+}
+
 export function generateDraftMap(
   messages: MessageRef[],
   sources: SourceRef[]
@@ -20,68 +50,107 @@ export function generateDraftMap(
   const nodes: ConceptMapNodeRecord[] = [];
   const edges: ConceptMapEdgeRecord[] = [];
 
-  const userMessages = messages.filter((message) => message.role === "user");
-  const assistantMessages = messages.filter((message) => message.role === "assistant");
-  const seedQuestion = userMessages.at(-1) ?? messages[0];
-  const seedAnswer = assistantMessages.at(-1) ?? messages.at(-1) ?? messages[0];
+  const exchanges = buildExchanges(messages);
+  if (exchanges.length === 0) {
+    return { nodes: [], edges: [] };
+  }
 
-  const questionNodeId = createId("node");
-  nodes.push({
-    id: questionNodeId,
-    type: "concept",
-    position: { x: 48, y: 80 },
-    data: {
-      title: clampText(seedQuestion.text, 42),
-      summary: clampText(seedQuestion.text, 120),
-      role: "question",
-      status: "confirmed",
-      sourceId: resolveSourceId(seedQuestion.id, sources)
-    }
-  });
+  let previousQuestionNodeId: string | undefined;
 
-  const answerNodeId = createId("node");
-  nodes.push({
-    id: answerNodeId,
-    type: "concept",
-    position: { x: 340, y: 80 },
-    data: {
-      title: clampText(seedAnswer.text, 42),
-      summary: clampText(seedAnswer.text, 120),
-      role: "answer",
-      status: "confirmed",
-      sourceId: resolveSourceId(seedAnswer.id, sources)
-    }
-  });
-
-  edges.push({
-    id: createId("edge"),
-    source: questionNodeId,
-    target: answerNodeId,
-    data: {
-      relation: "answers",
-      status: "confirmed"
-    },
-    label: "answers"
-  });
-
-  splitIntoConcepts(seedAnswer.text).forEach((concept, index) => {
-    const conceptNodeId = createId("node");
+  exchanges.forEach((exchange, exchangeIndex) => {
+    const baseY = 80 + exchangeIndex * 220;
+    const questionNodeId = createId("node");
     nodes.push({
-      id: conceptNodeId,
+      id: questionNodeId,
       type: "concept",
-      position: { x: 680, y: 48 + index * 120 },
+      position: { x: 48, y: baseY },
       data: {
-        title: clampText(concept, 32),
-        summary: clampText(concept, 100),
-        role: "concept",
-        status: "draft",
-        sourceId: resolveSourceId(seedAnswer.id, sources)
+        title: clampText(exchange.question.text, 42),
+        summary: clampText(exchange.question.text, 120),
+        role: "question",
+        status: "confirmed",
+        sourceId: resolveSourceId(exchange.question.id, sources)
+      }
+    });
+
+    if (previousQuestionNodeId) {
+      edges.push({
+        id: createId("edge"),
+        source: previousQuestionNodeId,
+        target: questionNodeId,
+        data: {
+          relation: "relates",
+          status: "draft"
+        },
+        label: "next"
+      });
+    }
+
+    previousQuestionNodeId = questionNodeId;
+
+    if (!exchange.answer) {
+      return;
+    }
+
+    const answerNodeId = createId("node");
+    nodes.push({
+      id: answerNodeId,
+      type: "concept",
+      position: { x: 340, y: baseY },
+      data: {
+        title: clampText(exchange.answer.text, 42),
+        summary: clampText(exchange.answer.text, 120),
+        role: "answer",
+        status: "confirmed",
+        sourceId: resolveSourceId(exchange.answer.id, sources)
       }
     });
 
     edges.push({
       id: createId("edge"),
-      source: answerNodeId,
+      source: questionNodeId,
+      target: answerNodeId,
+      data: {
+        relation: "answers",
+        status: "confirmed"
+      },
+      label: "answers"
+    });
+  });
+
+  const latestAnswer = [...exchanges].reverse().find((exchange) => exchange.answer)?.answer;
+  if (!latestAnswer) {
+    return { nodes, edges };
+  }
+
+  const latestAnswerNode = [...nodes]
+    .reverse()
+    .find((node) => node.data.role === "answer" && node.data.sourceId === resolveSourceId(latestAnswer.id, sources));
+  if (!latestAnswerNode) {
+    return { nodes, edges };
+  }
+
+  splitIntoConcepts(latestAnswer.text).forEach((concept, index) => {
+    const conceptNodeId = createId("node");
+    nodes.push({
+      id: conceptNodeId,
+      type: "concept",
+      position: {
+        x: 680,
+        y: (latestAnswerNode.position.y ?? 80) + index * 120
+      },
+      data: {
+        title: clampText(concept, 32),
+        summary: clampText(concept, 100),
+        role: "concept",
+        status: "draft",
+        sourceId: resolveSourceId(latestAnswer.id, sources)
+      }
+    });
+
+    edges.push({
+      id: createId("edge"),
+      source: latestAnswerNode.id,
       target: conceptNodeId,
       data: {
         relation: "expands",
