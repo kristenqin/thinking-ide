@@ -42,28 +42,27 @@ not primarily by the number of runtime subsystems already wired together.
 
 Goal:
 
-Make the product look and behave like the spec-defined workspace at the page level.
+Make the product look and behave like the spec-defined workspace while using the adopted `sidePanel` shell strategy.
 
 Current status:
 
 1. The first implementation slice is landed.
-2. The repo now defaults to a true page-level split-pane when a single safe page shell can be established.
-3. Overlay is retained only as a fallback path.
-4. Collapse and expand rail behavior is implemented and covered by runtime validation.
-5. Remaining Wave 1 work is now a bounded parity tail, not an unbounded layout rewrite.
+2. The repo previously pursued a page-level split-pane model, but the active architecture is now being redirected toward a `sidePanel-first` shell.
+3. The remaining Wave 1 work should be judged against [sidepanel-first-refactor-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/sidepanel-first-refactor-checklist.md), not against deeper host-layout surgery.
+4. Remaining Wave 1 work is now a bounded shell migration and sidePanel-productization tail, not an unbounded layout rewrite.
 
 Must include:
 
-1. True `4:6` split-pane as the default success path
-2. Overlay kept as fallback only
-3. Header control parity
-4. Collapse and expand rail behavior
-5. Layout acceptance coverage
+1. Stable Chrome `sidePanel` shell as the default success path
+2. Header control parity inside the docked panel shell
+3. SidePanel-native empty, waiting, restored, and failed states
+4. Bootstrap acceptance coverage for the panel app and host runtime bridge
+5. Minimal host-DOM coupling
 
 Reason this comes first:
 
 1. It is the most visible product mismatch.
-2. Later UI alignment work will keep drifting if the page-level workspace model is wrong.
+2. Later UI alignment work will keep drifting if the shell model itself is wrong.
 
 ### Wave 2: ChatAdapter And History Recovery
 

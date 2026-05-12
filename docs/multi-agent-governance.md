@@ -55,6 +55,7 @@ Rules:
 2. Read adjacent files as needed, but do not "cleanup" them opportunistically.
 3. If another agent changed a file in your write set after you started, re-read it before patching.
 4. If concurrent edits change the same contract, escalate instead of racing.
+5. If the worktree is `mixed dirty` or `boundary-risk dirty` under [docs/worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md), do not treat the task as ready until a sweep or handoff decision is made.
 
 ## Task Flow
 
@@ -68,6 +69,7 @@ Rules:
 8. If done, ensure the slice still satisfies [docs/definition-of-done.md](/Users/qyx/Desktop/project/thinking-ide/docs/definition-of-done.md).
 9. For user-facing slices, apply [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) before calling the slice complete.
 10. For UI or runtime issue investigation slices, apply [docs/debug-triage-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/debug-triage-policy.md) before code-first debugging.
+11. Before starting a new slice on a dirty tree, apply [docs/worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md) and classify the existing diffs instead of layering another task on top.
 
 ## Parallelism Default
 
@@ -149,6 +151,8 @@ For spec-alignment slices, interpret those statuses through [spec-acceptance-com
    Name the governing UI spec docs and classify the slice as `logic-only`, `UI-coupled`, or `UI-alignment`.
 6. UI/runtime debug slice
    Capture screenshot or render-result evidence first and record the evidence source used.
+7. Mixed-worktree slice
+   Verify that the dirty-tree budget was classified and that any sweep or carry-forward decision is documented in the completion summary.
 
 ## Capacity Hygiene
 

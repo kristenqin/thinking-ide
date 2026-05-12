@@ -21,6 +21,7 @@ Use this workflow for changes in Thinking IDE. It is intentionally narrow: small
 4. Re-read files before committing if another agent may have touched the same area.
 5. Never revert unrelated diffs to make your branch look clean.
 6. During spec-alignment work, classify user-visible slices using [spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md) so `checkpoint` commits are not mistaken for product acceptance.
+7. Before starting a new slice or letting a long-running slice expand, apply [docs/worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md) so mixed local diffs are classified and swept instead of silently accumulating.
 
 ## Commit Gate
 
@@ -38,6 +39,7 @@ Before opening a PR, merging, or handing off a branch:
 5. If the required gate is incomplete because of a known repo gap, record that gap explicitly in `PROJECT_STATUS.md` or the relevant design doc before calling the slice done.
 6. Do not merge code that passes only by relying on unstated local edits.
 7. For user-visible spec-alignment slices, do not report the slice as aligned unless it meets the `acceptance` bar in [spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md).
+8. Do not treat a slice as commit-ready if [docs/worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md) would still classify the tree as `mixed dirty` or `boundary-risk dirty` without an explicit carry-forward decision.
 
 ## What Not To Commit
 
@@ -58,6 +60,7 @@ Before opening a PR, merging, or handing off a branch:
 4. If concurrent work touches a shared runtime boundary, escalate instead of racing.
 5. When handing off, report exact files changed, checks run, known gaps, and whether the branch is `done`, `partial`, or `blocked`.
 6. Prefer additive follow-up commits over rewriting another agent's history.
+7. If multiple slices are present locally, run a worktree sweep and classify them before integrating or starting another branch-sized change.
 
 ## Tags And Checkpoints
 
@@ -80,3 +83,4 @@ Before opening a PR, merging, or handing off a branch:
 5. Apply the document sync policy and update required docs.
 6. Record any intentional gaps in repo artifacts.
 7. Merge or hand off without reverting other agents' work.
+8. Re-check worktree hygiene before starting the next slice, not only before committing the current one.

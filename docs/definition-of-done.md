@@ -26,6 +26,10 @@ This repository uses the following minimum definition of done for any milestone 
    If the slice changes user-visible UI or interaction, it satisfies the acceptance checks in [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) or records the remaining UI gap explicitly.
 11. Spec-alignment slices use the right commit semantics.
    If the slice is part of spec-parity work, it is reported as `checkpoint` or `acceptance` according to [docs/spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md), not silently treated as fully aligned because repo scripts passed.
+12. Code authoring stays inside repo policy.
+   The implementation respects [docs/code-authoring-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/code-authoring-policy.md), and any refactor trigger raised by [docs/refactor-trigger-rules.md](/Users/qyx/Desktop/project/thinking-ide/docs/refactor-trigger-rules.md) is either handled in-slice or recorded explicitly as a known gap.
+13. Worktree hygiene is explicit.
+   If the slice started or ended on a dirty tree, [docs/worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md) was applied and any carry-forward diffs were classified rather than silently ignored.
 
 ## Not Enough On Its Own
 
@@ -37,6 +41,8 @@ The following do not qualify as done by themselves:
 4. A feature “mostly works” but the unresolved failure mode is undocumented.
 5. Logic behavior landed, but the required user-facing state/interaction treatment was silently deferred.
 6. A user-visible alignment slice passed repo gates, but the rendered result still shows the core mismatch the slice was meant to close.
+7. The code technically works, but layer ownership drift, temporary shims, or refactor triggers were ignored without recording the risk.
+8. A slice was reported complete even though mixed or boundary-risk local diffs were still obscuring what belonged to the slice.
 
 ## Default Verification Command Set
 

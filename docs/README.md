@@ -19,6 +19,11 @@ This folder contains the operational engineering guardrails for autonomous execu
 13. Layout fidelity contract: [layout-fidelity-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/layout-fidelity-contract.md)
 14. Test alignment baseline: [test-alignment-baseline.md](/Users/qyx/Desktop/project/thinking-ide/docs/test-alignment-baseline.md)
 15. Spec acceptance commit policy: [spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md)
+16. SidePanel-first refactor checklist: [sidepanel-first-refactor-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/sidepanel-first-refactor-checklist.md)
+17. Code authoring policy: [code-authoring-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/code-authoring-policy.md)
+18. Refactor trigger rules: [refactor-trigger-rules.md](/Users/qyx/Desktop/project/thinking-ide/docs/refactor-trigger-rules.md)
+19. Engineering review checklist: [engineering-review-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/engineering-review-checklist.md)
+20. Worktree hygiene policy: [worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md)
 
 ## Execution Tracking
 
@@ -31,6 +36,11 @@ This folder contains the operational engineering guardrails for autonomous execu
 1. Spec gap assessment: [spec-gap-assessment-2026-05-12.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-gap-assessment-2026-05-12.md)
 2. AI structuring baseline: [ai-structuring-baseline.md](/Users/qyx/Desktop/project/thinking-ide/docs/ai-structuring-baseline.md)
 3. Spec alignment execution plan: [spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md)
+4. SidePanel-first refactor checklist: [sidepanel-first-refactor-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/sidepanel-first-refactor-checklist.md)
+5. Code authoring policy: [code-authoring-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/code-authoring-policy.md)
+6. Refactor trigger rules: [refactor-trigger-rules.md](/Users/qyx/Desktop/project/thinking-ide/docs/refactor-trigger-rules.md)
+7. Engineering review checklist: [engineering-review-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/engineering-review-checklist.md)
+8. Worktree hygiene policy: [worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md)
 
 ## Evaluation Fixtures
 
@@ -69,3 +79,5 @@ This folder contains the operational engineering guardrails for autonomous execu
 10. Use `design-system/README.md` whenever a slice needs a concrete visual baseline or reusable UI pattern guidance.
 11. For non-trivial work, default to sidecar agents with non-overlapping write sets and keep the main thread focused on orchestration and integration.
 12. During spec-parity work, use `spec-acceptance-commit-policy` so checkpoint commits are not misreported as accepted product alignment.
+13. During implementation work, use `code-authoring-policy`, `refactor-trigger-rules`, and `engineering-review-checklist` so code-writing behavior is governed as explicitly as task execution.
+14. During long-running or mixed-diff work, use `worktree-hygiene-policy` before starting another slice so local changes are classified and swept instead of silently accumulating.

@@ -13,23 +13,27 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 ## Now
 
-1. Wave 1 now has a landed page-level layout slice: default split-pane, overlay fallback, and collapse/expand rail with runtime coverage.
+1. Wave 1 is now being redirected from host-DOM-heavy split-pane work toward a `sidePanel-first` shell strategy; use [docs/sidepanel-first-refactor-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/sidepanel-first-refactor-checklist.md) as the shell baseline.
 2. Treat [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active execution order.
 3. Wave 2 now has three landed partial adapter slices: stable `conversationKey` / locator identity, bounded completion gating, and a first restoration-safety guard that preserves restored maps when the host only exposes a partial visible history window.
-4. Keep the next main implementation focus on the remaining Wave 2 restoration semantics and privacy-boundary cleanup while remaining Wave 1 polish stays tracked as a tail item, not as an unbounded design rewrite.
+4. Keep the next main implementation focus on sidePanel bootstrap reliability for Wave 1 and the remaining Wave 2 restoration semantics while privacy-boundary cleanup stays queued behind those runtime blockers.
 5. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
 6. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
 7. During the spec-alignment phase, distinguish `checkpoint` commits from `acceptance` commits for user-visible work; do not report alignment closure unless the rendered mismatch for that slice is actually gone.
-8. Wave 1 now has a third checkpoint candidate focused on compressing the official host sidebar and protecting the actual chat reading column budget in split-pane mode; it still does not qualify as layout `acceptance`.
+8. Treat the older split-pane checkpoints as superseded shell experiments rather than the active acceptance target; the current Wave 1 checkpoint target is a stable browser-docked panel that no longer depends on host-layout surgery.
 9. Wave 3 prep is now implementation-ready: fixture set, normalized provider-draft contract, and first-batch provider plan are landed, but no provider runtime wiring exists yet.
+10. Code-writing behavior is now being brought under repo governance so implementation quality can be managed through explicit authoring, refactor, and review policies instead of memory.
+11. Worktree hygiene is now being formalized so long-running slices cannot quietly accumulate mixed local diffs outside the normal workflow.
 
 ## Next
 
 1. Execute Wave 2 from the alignment plan: ChatAdapter acceptance for conversation identity, full available history scan, completion detection, and restoration.
 2. Continue Wave 2A by finishing restoration semantics on top of the new partial-history guard, especially reopen/rebind behavior beyond the first visible-history checkpoint.
 3. Start the first bounded Wave 3 runtime slice: background-worker request plumbing, provider adapter interface, and schema validation around the landed fixture set and provider-draft contract.
-4. Continue the remaining Wave 1 parity tail: validate and refine real-host workspace behavior until the product stops reading like adapted ChatGPT chrome plus a side workspace.
+4. Continue the Wave 1 shell migration: make `sidePanel` bootstrap and startup generation reliable, then remove layout-era shell residue so the product stops reading like a transplanted page workspace.
 5. Realign acceptance testing around layout, history, completion detection, semantic fixtures, and privacy-boundary checks.
+6. Apply the new code-authoring governance layer while the sidePanel migration proceeds so runtime slices do not harden layout-era or mixed-layer structure by accident.
+7. Apply the new worktree-hygiene layer before starting additional slices on top of the current sidePanel migration tree, so unfinished runtime work and governance slices stay classifiable.
 
 ## Blocked
 
@@ -79,6 +83,9 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 33. Landed a third partial Wave 2 restoration slice: restored maps now stay in place when ChatGPT only exposes a partial visible history window, auto-refresh no longer silently overwrites them on reopen/refresh, and the completion observer can re-arm the same settled reply once more history becomes available.
 34. Landed a Wave 3 prep slice: repo-owned AI structuring fixtures, a normalized provider-draft contract, and an explicit first-batch provider plan including `DeepSeek` are now in place for the first bounded runtime integration slice.
 35. Landed a third Wave 1 layout checkpoint: split-pane mode now identifies the leading host sidebar and compresses it into a narrow navigation lane so the visible chat reading column keeps more of the left-side workspace budget.
+36. Adopted a new Wave 1 shell baseline: future layout-alignment work now targets a `sidePanel-first` workspace shell instead of deep host-DOM layout rewriting.
+37. Added repo-level code authoring governance through `code-authoring-policy`, `refactor-trigger-rules`, and `engineering-review-checklist` so implementation structure is now governed alongside task flow and spec alignment.
+38. Added repo-level worktree hygiene governance so dirty-tree budget, pre-new-slice sweep, and long-running checkpoint cadence are now explicit repo policy rather than ad hoc cleanup judgment.
 
 ## Quality Gate
 
@@ -102,6 +109,10 @@ For a feature slice to move to `done`, it must satisfy every item in [docs/defin
 14. Design system: [docs/design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md)
 15. Alignment plan: [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md)
 16. Spec acceptance commit policy: [docs/spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md)
+17. Code authoring policy: [docs/code-authoring-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/code-authoring-policy.md)
+18. Refactor trigger rules: [docs/refactor-trigger-rules.md](/Users/qyx/Desktop/project/thinking-ide/docs/refactor-trigger-rules.md)
+19. Engineering review checklist: [docs/engineering-review-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/engineering-review-checklist.md)
+20. Worktree hygiene policy: [docs/worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md)
 
 ## Notes
 

@@ -19,6 +19,10 @@ Before starting any task, read these in order:
 7. [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md)
 8. [docs/git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
 9. [docs/spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md) for spec-parity work
+10. [docs/code-authoring-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/code-authoring-policy.md) for implementation slices
+11. [docs/refactor-trigger-rules.md](/Users/qyx/Desktop/project/thinking-ide/docs/refactor-trigger-rules.md) before extending complex areas
+12. [docs/engineering-review-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/engineering-review-checklist.md) when closing user-visible or runtime-facing code work
+13. [docs/worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md) before starting a new slice on a dirty tree
 
 Use [docs/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/README.md) as the navigation page for all governance artifacts.
 
@@ -71,6 +75,8 @@ Do not let UI components directly own DOM scanning or persistence logic.
 10. If a task matches the automatic delegation triggers in [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md), spawn sidecars proactively instead of waiting for the user to request them.
 11. If a task is primarily about a UI or runtime issue investigation, follow [docs/debug-triage-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/debug-triage-policy.md) and capture screenshot or render-result evidence before code-first debugging.
 12. For user-visible alignment work, do not describe a slice as aligned unless it meets the `acceptance` bar in [docs/spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md); otherwise report it as a `checkpoint`.
+13. For implementation work, follow [docs/code-authoring-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/code-authoring-policy.md) and stop for a bounded cleanup when [docs/refactor-trigger-rules.md](/Users/qyx/Desktop/project/thinking-ide/docs/refactor-trigger-rules.md) says further accretion would harden the wrong structure.
+14. If the worktree is not clean, apply [docs/worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md) before starting another non-emergency slice.
 
 Shared runtime boundaries are:
 
@@ -92,6 +98,8 @@ Use the smallest valid gate for the slice:
 5. UI-facing behavior change: apply the acceptance checks in [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md) in addition to the command gate
 6. UI/runtime debug investigation: terminology, links, governance consistency, and debug-triage-policy consistency review
 7. Release or integration parity check: `npm run ci`
+8. Code-authoring governance slice: terminology, links, and consistency review across `AGENTS.md`, `PROJECT_STATUS.md`, `definition-of-done`, and the new authoring-policy docs
+9. Worktree-hygiene governance slice: terminology, links, and consistency review across `AGENTS.md`, `PROJECT_STATUS.md`, `git-workflow`, `multi-agent-governance`, and `definition-of-done`
 
 For design-system-only slices, use terminology, link, and cross-reference review as the minimum gate unless the slice also changes shipped frontend code.
 
@@ -125,13 +133,15 @@ Check these before changing core behavior:
 The current next slices are:
 
 1. Follow [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active ordering baseline.
-2. Treat the first Wave 1 layout slice as landed: split-pane default, overlay fallback, collapse rail, and runtime validation are now in place.
-3. Treat the second Wave 1 layout checkpoint as landed: header-owned collapse chrome, stronger left-column readability, and explicit empty-workspace guidance still stop short of layout `acceptance`.
-4. Treat the third Wave 1 layout checkpoint as in integration: split-pane mode now compresses the leading host sidebar so the chat reading column keeps more of the left-side workspace budget, but real-host acceptance is still open.
+2. Treat the older Wave 1 split-pane slices as superseded shell experiments. The active Wave 1 shell baseline is now [docs/sidepanel-first-refactor-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/sidepanel-first-refactor-checklist.md).
+3. Treat the current Wave 1 checkpoint target as a stable browser-docked panel app: host runtime bridge on the chat tab, sidePanel-owned UI shell, reliable bootstrap, and reduced layout-era shell residue.
+4. Keep split-pane-era chrome and host-layout surgery out of new Wave 1 work unless a compatibility patch is clearly bounded and justified as a fallback.
 5. Treat the first Wave 2 adapter-identity slice as landed: stable `conversationKey`, derivation metadata, visible-history `orderIndex`, and privacy-safer `MessageRef` locator fields.
 6. Treat the first Wave 2 completion slice and the first restoration-safety slice as landed: settled-assistant gating, duplicate auto-trigger suppression, and partial-history protection are now in place, while fuller restoration semantics remain open.
 7. Treat Wave 3 prep as implementation-ready: provider-backed AI structuring with `DeepSeek` in the first candidate batch now has fixtures and a normalized provider-draft contract, but no runtime wiring yet.
-8. Continue the remaining Wave 1 parity tail only where it closes the real-host workspace gap, especially left-column dilution from host sidebar/layout variance and unified dual-pane feel.
+8. Continue the remaining Wave 1 parity tail only where it closes the sidePanel-product gap, especially startup reliability, sidePanel-native empty/restored states, and removal of transplanted in-page workspace assumptions.
+9. Treat code authoring governance as active repo policy: new implementation slices should now follow `code-authoring-policy`, `refactor-trigger-rules`, and `engineering-review-checklist` instead of relying on ad hoc engineering judgment.
+10. Treat worktree hygiene as active repo policy: before opening another long-running slice on top of in-flight sidePanel migration diffs, classify the tree and run a sweep instead of letting mixed local residue keep growing.
 
 ## Completion Reporting
 
