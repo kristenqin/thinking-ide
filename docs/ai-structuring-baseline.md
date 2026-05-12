@@ -116,6 +116,13 @@ The call timing baseline follows [thinking_ide_技术方案文档.md](/Users/qyx
 
 The repo should normalize provider-specific prompts and responses into one internal contract before results leave the background worker.
 
+The earlier `ConceptMapNode[] / ConceptMapEdge[]` output shorthand is too loose for implementation, because it incorrectly implies that the provider returns persisted domain objects with layout, timestamps, ids, and store-owned status fields.
+
+Wave 3 should therefore use a two-stage contract:
+
+1. provider-facing `draft` payload
+2. background-owned normalized repo payload
+
 ### Input
 
 ```ts
@@ -144,8 +151,78 @@ type StructureTurnInput = {
 2. `previousNodes` and `previousEdges` are prior map abstractions for merge-awareness, not transcript replay.
 3. `turnKey` should uniquely identify the current turn for dedupe, retry, and log correlation.
 4. The background layer may include provider metadata internally, but that metadata should not leak into the normalized store contract.
+5. During implementation, `previousNodes` and `previousEdges` should be reduced into a bounded merge-context view before they leave the background worker so provider payloads do not include layout noise or unnecessary store fields.
 
-### Output
+### Provider draft output
+
+```ts
+type ProviderStructureTurnOutput = {
+  question: StructuredNodeDraft
+  answer: StructuredNodeDraft
+  answerOutline: StructuredNodeDraft[]
+  concepts: StructuredNodeDraft[]
+  relations: StructuredEdgeDraft[]
+}
+```
+
+```ts
+type StructuredNodeDraft = {
+  clientKey: string
+  title: string
+  summary?: string
+  primaryRole: 'question' | 'answer' | 'answer_outline' | 'concept'
+  secondaryRoles?: Array<'claim' | 'insight' | 'model'>
+  sourceAnchors: SourceAnchorDraft[]
+  derivedFromMessageRefIds: string[]
+  confidence?: number
+}
+```
+
+```ts
+type SourceAnchorDraft = {
+  messageRefId: string
+  anchorType: 'whole_message' | 'heading' | 'block' | 'offset_range'
+  headingText?: string
+  ordinal?: number
+  quoteText?: string
+  startOffset?: number
+  endOffset?: number
+}
+```
+
+```ts
+type StructuredEdgeDraft = {
+  clientKey: string
+  sourceClientKey: string
+  targetClientKey: string
+  relationType:
+    | 'answered_by'
+    | 'contains'
+    | 'mentions'
+    | 'follow_up'
+    | 'explains'
+    | 'derived_from'
+    | 'refines'
+    | 'expands'
+    | 'relates_to'
+    | 'supports'
+    | 'contrasts'
+  label?: string
+  confidence?: number
+}
+```
+
+### Provider draft rules
+
+1. The provider returns `draft` objects, not persisted repo entities.
+2. The provider must not return layout, timestamps, generated ids, `status`, or `createdBy` fields.
+3. All returned roles and relations must stay inside the repo vocabularies.
+4. `answer_outline` nodes must be anchored to the assistant message in a way the repo can later resolve.
+5. `concept` titles must be short enough for graph display.
+6. Output must be valid JSON and schema-checked before normalization.
+7. Provider-native explanations or chain-of-thought must be discarded before returning to the app.
+
+### Normalized repo output
 
 ```ts
 type StructureTurnOutput = {
@@ -154,13 +231,17 @@ type StructureTurnOutput = {
 }
 ```
 
-### Output rules
+### Normalization ownership
 
-1. All returned nodes and edges must use repo role and relation vocabularies.
-2. `answer_outline` nodes must be anchored to the assistant message in a way the repo can later resolve.
-3. `concept` titles must be short enough for graph display.
-4. Output must be valid JSON and schema-checked before merge.
-5. Provider-native explanations or chain-of-thought must be discarded before returning to the app.
+The background layer, not the provider, is responsible for:
+
+1. assigning stable repo ids
+2. creating timestamps
+3. setting `status = candidate`
+4. setting `createdBy = system`
+5. creating or preserving merge-aware metadata
+6. mapping `clientKey` references into repo node ids
+7. rejecting invalid anchors, unsupported roles, and unsupported relations
 
 ## Normalization Expectations
 
@@ -173,6 +254,36 @@ The provider may return richer or messier text, but the repo baseline must norma
 5. relation labels limited to the repo contract unless a later spec change expands them
 
 If the provider returns extra roles, extra relations, or verbose titles, the background layer should normalize or reject the payload rather than letting schema drift reach the store.
+
+## Implementation-Ready Evaluation Fixtures
+
+The fixed fixture set for the first provider batch lives in:
+
+1. [fixtures/ai-structuring/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/fixtures/ai-structuring/README.md)
+2. [fixtures/ai-structuring/wave3-fixtures.v1.json](/Users/qyx/Desktop/project/thinking-ide/docs/fixtures/ai-structuring/wave3-fixtures.v1.json)
+
+These fixtures are the minimum repo-owned evaluation baseline for Wave 3 runtime wiring.
+
+### Fixture coverage requirements
+
+The first fixture set must cover:
+
+1. Markdown heading extraction into `answer_outline`
+2. Ordered steps / process answers
+3. Chinese and English concept compression
+4. Repeated terms and long-sentence over-generation pressure
+5. Cases where the provider should stay inside the `3-7` concept target band
+
+### Fixture scoring dimensions
+
+Each provider candidate should be reviewed on:
+
+1. JSON contract validity
+2. role and relation vocabulary fidelity
+3. `answer_outline` usefulness and anchorability
+4. short-concept quality
+5. bilingual output quality
+6. latency and retry ergonomics
 
 ## Provider Decision Framing
 
@@ -189,19 +300,40 @@ Provider choice should be a constrained engineering decision, not an open-ended 
 7. rate-limit behavior and retry ergonomics
 8. total cost at expected MVP request volume
 
-### DeepSeek as a candidate
+### First-batch provider plan
+
+Wave 3 implementation should start with one bounded provider batch rather than an open-ended model search.
+
+#### Batch A candidates
+
+1. `DeepSeek API`
+   Use an OpenAI-compatible chat-completions style entrypoint if that is the cleanest integration path.
+2. `OpenAI-compatible structured-output baseline`
+   Use one provider with strong JSON / schema reliability as the contract-fidelity baseline.
+3. `Anthropic-compatible comparison provider`
+   Use one provider with strong long-form markdown understanding as a comparison point for `answer_outline` quality.
+
+#### Evaluation order
+
+1. Run the fixed Wave 3 fixture set against `DeepSeek` first.
+2. Run the same fixture set against the structured-output baseline provider.
+3. Run the same fixture set against the markdown-quality comparison provider.
+4. Choose the smallest implementation surface that still clears contract and quality gates.
+
+#### What `DeepSeek` must prove
 
 `DeepSeek` should be included in the first provider evaluation batch because it is a plausible fit for the repo's needs:
 
 1. it is strong enough to be worth testing on structured extraction
 2. it may be attractive on cost for repeated per-turn calls
-3. it is relevant for bilingual Chinese/English output quality in this repo's context
+3. it is relevant for bilingual Chinese and English output quality in this repo's context
 
-But `DeepSeek` should not be declared the default provider until it proves three things on repo-owned fixtures:
+But `DeepSeek` should not be declared the default provider until it proves four things on repo-owned fixtures:
 
 1. stable schema fidelity without frequent invalid JSON
 2. good `answer_outline` and short-concept quality on markdown-heavy answers
 3. acceptable timeout, retry, and rate-limit behavior in the background-worker call path
+4. no recurring tendency to emit long sentence fragments where the contract expects compact concepts
 
 ### Suggested decision process
 
@@ -210,6 +342,16 @@ But `DeepSeek` should not be declared the default provider until it proves three
 3. Score results on contract adherence first, then quality, then latency/cost.
 4. Prefer the provider that minimizes normalization pain and failure handling, not just the one with the best isolated output.
 5. If results are close, prefer the simpler and cheaper option.
+
+### Provider-plan boundary
+
+This memo intentionally does not lock:
+
+1. a final provider winner
+2. exact production model sku names
+3. whether the first live path uses direct user keys or a backend proxy
+
+Those belong to the runtime implementation slice once the batch above is actually evaluated.
 
 ## Fallback Behavior
 
@@ -255,3 +397,22 @@ The next code slice in this lane should be considered ready when it can name:
 5. the failure-state contract for timeout, invalid JSON, and retry
 
 Until those are defined, AI-structuring work should be treated as decision-incomplete rather than implementation-ready.
+
+## What Is Implementation-Ready Now
+
+After this prep slice, Wave 3 should be treated as implementation-ready at the planning level because the repo now has:
+
+1. a tightened provider-draft contract instead of the earlier over-loose domain-object shorthand
+2. a fixed fixture set for representative turns
+3. a concrete first-batch provider plan that explicitly includes `DeepSeek`
+4. a clear normalization ownership boundary between provider output and repo persistence
+
+## What Still Blocks Wave 3 Runtime Wiring
+
+The next runtime slice is still blocked on execution work, not on missing planning artifacts:
+
+1. background-worker request plumbing has not been implemented
+2. no schema validator is wired yet for the provider-draft payload
+3. no provider adapter interface exists yet
+4. no provider credentials or proxy strategy is selected yet
+5. privacy-boundary remediation is not complete because persisted `MessageRef.text` still exists elsewhere in the repo

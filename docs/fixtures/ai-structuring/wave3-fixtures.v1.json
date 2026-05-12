@@ -1,0 +1,190 @@
+{
+  "version": "wave3-fixtures.v1",
+  "createdAt": "2026-05-12",
+  "description": "Representative completed-turn fixtures for Wave 3 provider evaluation.",
+  "fixtures": [
+    {
+      "fixtureId": "fx_zh_markdown_headings",
+      "language": "zh",
+      "purpose": "Verify markdown heading extraction into bounded answer_outline nodes and compact concept extraction.",
+      "input": {
+        "conversationKey": "fixture-conv-001",
+        "turnKey": "turn-001",
+        "userMessage": {
+          "messageRefId": "user-001",
+          "content": "帮我解释一下为什么 Chrome 扩展里 content script 和 service worker 要分开设计？"
+        },
+        "assistantMessage": {
+          "messageRefId": "assistant-001",
+          "content": "## 核心原因\n\ncontent script 运行在页面上下文附近，适合读取 DOM 和响应页面事件；service worker 负责扩展级逻辑、权限和跨页面状态。\n\n## 为什么不能只用 content script\n\n1. 它不适合长期持有全局状态。\n2. 它直接调用外部 API 更容易暴露风险。\n3. 它不适合统一处理多个页面之间的消息。\n\n## 实际分工建议\n\n- content script：扫描消息、注入 UI、转发事件。\n- service worker：调用 AI 服务、做重试、管理存储。\n\n## 一句话总结\n\ncontent script 负责贴近页面，service worker 负责扩展后端能力。"
+        }
+      },
+      "assertions": {
+        "requiredPrimaryRoles": ["question", "answer", "answer_outline", "concept"],
+        "answerOutline": {
+          "min": 3,
+          "max": 5,
+          "mustReflectMarkdownHeadings": true,
+          "requiredHeadingTexts": ["核心原因", "为什么不能只用 content script", "实际分工建议"]
+        },
+        "concepts": {
+          "min": 3,
+          "max": 6,
+          "maxTitleChars": 18,
+          "mustAvoidLongSentenceTitles": true,
+          "expectedKeywords": ["content script", "service worker", "全局状态", "AI 服务"]
+        },
+        "relations": {
+          "mustInclude": ["answered_by", "contains", "mentions"],
+          "allowOnly": ["answered_by", "contains", "mentions", "explains", "derived_from", "relates_to"]
+        }
+      }
+    },
+    {
+      "fixtureId": "fx_zh_steps_nonheading",
+      "language": "zh",
+      "purpose": "Verify that numbered steps without markdown headings still produce answer_outline structure and bounded concepts.",
+      "input": {
+        "conversationKey": "fixture-conv-002",
+        "turnKey": "turn-002",
+        "userMessage": {
+          "messageRefId": "user-002",
+          "content": "如果我要把一个旧前端项目逐步迁移到 TypeScript，应该怎么做？"
+        },
+        "assistantMessage": {
+          "messageRefId": "assistant-002",
+          "content": "可以按四步推进：\n\n1. 先把构建链改成支持 TypeScript，但允许 `allowJs`，确保旧代码还能跑。\n2. 先从公共工具函数和 API 类型开始迁移，因为它们复用率高，收益最大。\n3. 再迁移核心状态层和复杂组件，同时补充类型测试和运行时回归。\n4. 最后收紧 `tsconfig`，逐步关闭 `any` 和隐式错误。\n\n迁移时最重要的是小步推进，而不是一次性重写。"
+        }
+      },
+      "assertions": {
+        "requiredPrimaryRoles": ["question", "answer", "answer_outline", "concept"],
+        "answerOutline": {
+          "min": 3,
+          "max": 5,
+          "mustReflectOrderedSteps": true
+        },
+        "concepts": {
+          "min": 3,
+          "max": 5,
+          "maxTitleChars": 16,
+          "mustAvoidLongSentenceTitles": true,
+          "expectedKeywords": ["allowJs", "公共工具函数", "状态层", "tsconfig"]
+        },
+        "relations": {
+          "mustInclude": ["answered_by", "contains", "mentions"],
+          "allowOnly": ["answered_by", "contains", "mentions", "explains", "derived_from", "relates_to", "follow_up"]
+        }
+      }
+    },
+    {
+      "fixtureId": "fx_en_markdown_tradeoffs",
+      "language": "en",
+      "purpose": "Verify English markdown structure, tradeoff framing, and concise concept extraction.",
+      "input": {
+        "conversationKey": "fixture-conv-003",
+        "turnKey": "turn-003",
+        "userMessage": {
+          "messageRefId": "user-003",
+          "content": "Can you explain the tradeoffs between optimistic UI and strict server confirmation?"
+        },
+        "assistantMessage": {
+          "messageRefId": "assistant-003",
+          "content": "## Optimistic UI\n\nOptimistic UI makes the app feel fast because the interface updates before the server responds.\n\n## Server-confirmed UI\n\nStrict confirmation is slower but reduces inconsistency because the UI waits for the source of truth.\n\n## Main tradeoffs\n\n- Optimistic UI improves perceived speed.\n- Server-confirmed UI improves consistency.\n- Optimistic UI needs rollback handling.\n- Server-confirmed UI can feel sluggish under latency.\n\n## Practical rule\n\nUse optimistic UI for reversible actions and strict confirmation for risky or irreversible actions."
+        }
+      },
+      "assertions": {
+        "requiredPrimaryRoles": ["question", "answer", "answer_outline", "concept"],
+        "answerOutline": {
+          "min": 3,
+          "max": 5,
+          "mustReflectMarkdownHeadings": true,
+          "requiredHeadingTexts": ["Optimistic UI", "Server-confirmed UI", "Main tradeoffs", "Practical rule"]
+        },
+        "concepts": {
+          "min": 3,
+          "max": 6,
+          "maxTitleChars": 24,
+          "mustAvoidLongSentenceTitles": true,
+          "expectedKeywords": ["optimistic UI", "rollback handling", "consistency", "latency"]
+        },
+        "relations": {
+          "mustInclude": ["answered_by", "contains", "mentions"],
+          "allowOnly": ["answered_by", "contains", "mentions", "explains", "contrasts", "supports", "relates_to"]
+        }
+      }
+    },
+    {
+      "fixtureId": "fx_bilingual_product_brief",
+      "language": "zh-en-mixed",
+      "purpose": "Verify bilingual handling without degrading concept compactness or schema fidelity.",
+      "input": {
+        "conversationKey": "fixture-conv-004",
+        "turnKey": "turn-004",
+        "userMessage": {
+          "messageRefId": "user-004",
+          "content": "帮我整理一个双语产品 brief，主题是 AI note-taking assistant。"
+        },
+        "assistantMessage": {
+          "messageRefId": "assistant-004",
+          "content": "## Product goal\n\nBuild an AI note-taking assistant that captures meetings, extracts action items, and keeps decisions searchable.\n\n## Core user value\n\n- 减少会后整理时间\n- Keep decisions traceable\n- 自动提炼 action items 和 follow-ups\n\n## MVP scope\n\n1. Meeting transcript import\n2. Action item extraction\n3. Decision timeline\n4. Lightweight search\n\n## Success metric\n\nUsers should be able to review key decisions in under 2 minutes after a meeting."
+        }
+      },
+      "assertions": {
+        "requiredPrimaryRoles": ["question", "answer", "answer_outline", "concept"],
+        "answerOutline": {
+          "min": 3,
+          "max": 5,
+          "mustReflectMarkdownHeadings": true
+        },
+        "concepts": {
+          "min": 3,
+          "max": 6,
+          "maxTitleChars": 20,
+          "mustAvoidLongSentenceTitles": true,
+          "expectedKeywords": ["AI note-taking assistant", "action items", "decision timeline", "search"]
+        },
+        "relations": {
+          "mustInclude": ["answered_by", "contains", "mentions"],
+          "allowOnly": ["answered_by", "contains", "mentions", "explains", "supports", "relates_to"]
+        }
+      }
+    },
+    {
+      "fixtureId": "fx_repeated_terms_overgeneration",
+      "language": "zh",
+      "purpose": "Detect long-fragment overgeneration and repeated-term duplication pressure.",
+      "input": {
+        "conversationKey": "fixture-conv-005",
+        "turnKey": "turn-005",
+        "userMessage": {
+          "messageRefId": "user-005",
+          "content": "帮我总结一下为什么调试策略应该优先从运行结果出发。"
+        },
+        "assistantMessage": {
+          "messageRefId": "assistant-005",
+          "content": "调试策略应该优先从运行结果出发，因为运行结果直接暴露了问题发生在哪一层。\n\n如果先看代码，容易扩大搜索面，尤其是 UI 和布局问题。先看截图、DOM 结构、尺寸、状态文本，再看 store，最后回代码，能更快缩小范围。\n\n这种顺序还能降低上下文噪音，避免主线程先吸收太多实现细节。对前端问题来说，这比先做大段源码推理更接近真实排查路径。"
+        }
+      },
+      "assertions": {
+        "requiredPrimaryRoles": ["question", "answer", "answer_outline", "concept"],
+        "answerOutline": {
+          "min": 2,
+          "max": 4,
+          "allowNonHeadingParagraphThemes": true
+        },
+        "concepts": {
+          "min": 3,
+          "max": 5,
+          "maxTitleChars": 14,
+          "mustAvoidLongSentenceTitles": true,
+          "mustAvoidDuplicateConcepts": true,
+          "expectedKeywords": ["运行结果", "DOM 结构", "搜索面", "上下文噪音"]
+        },
+        "relations": {
+          "mustInclude": ["answered_by", "contains", "mentions"],
+          "allowOnly": ["answered_by", "contains", "mentions", "explains", "supports", "relates_to"]
+        }
+      }
+    }
+  ]
+}

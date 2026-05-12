@@ -89,6 +89,12 @@ Goal:
 
 Replace heuristic-only structuring with a real provider-backed MVP structuring path.
 
+Current status:
+
+1. Planning assets are now implementation-ready at the repo level.
+2. The repo now has a fixed Wave 3 fixture set, a tightened provider-draft contract, and a first-batch provider plan that explicitly includes `DeepSeek`.
+3. Runtime wiring, schema validation, and provider adapter code are still open.
+
 Must include:
 
 1. Background-worker service boundary
@@ -182,5 +188,7 @@ The next implementation wave should be:
 The next decision/prep wave that can continue in parallel is:
 
 1. **Wave 3: AI Structuring Baseline**
+
+Wave 3 is now ready for a bounded runtime implementation slice, but it is still not counted as landed product capability until provider-backed structuring actually runs through the background-worker path.
 
 The remaining waves depend on those foundations.

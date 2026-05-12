@@ -32,6 +32,11 @@ This folder contains the operational engineering guardrails for autonomous execu
 2. AI structuring baseline: [ai-structuring-baseline.md](/Users/qyx/Desktop/project/thinking-ide/docs/ai-structuring-baseline.md)
 3. Spec alignment execution plan: [spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md)
 
+## Evaluation Fixtures
+
+1. AI structuring fixtures: [fixtures/ai-structuring/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/fixtures/ai-structuring/README.md)
+2. Wave 3 fixture set: [fixtures/ai-structuring/wave3-fixtures.v1.json](/Users/qyx/Desktop/project/thinking-ide/docs/fixtures/ai-structuring/wave3-fixtures.v1.json)
+
 ## Architecture History
 
 1. [ADR-0001-runtime-spine.md](/Users/qyx/Desktop/project/thinking-ide/docs/architecture-decisions/ADR-0001-runtime-spine.md)
