@@ -16,14 +16,15 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 1. Wave 1 is now being redirected from host-DOM-heavy split-pane work toward a `sidePanel-first` shell strategy; use [docs/sidepanel-first-refactor-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/sidepanel-first-refactor-checklist.md) as the shell baseline.
 2. Treat [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active execution order.
 3. Wave 2 now has three landed partial adapter slices: stable `conversationKey` / locator identity, bounded completion gating, and a first restoration-safety guard that preserves restored maps when the host only exposes a partial visible history window.
-4. Keep the next main implementation focus on sidePanel bootstrap reliability for Wave 1 and the remaining Wave 2 restoration semantics while privacy-boundary cleanup stays queued behind those runtime blockers.
-5. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
-6. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
-7. During the spec-alignment phase, distinguish `checkpoint` commits from `acceptance` commits for user-visible work; do not report alignment closure unless the rendered mismatch for that slice is actually gone.
-8. Treat the older split-pane checkpoints as superseded shell experiments rather than the active acceptance target; the current Wave 1 checkpoint target is a stable browser-docked panel that no longer depends on host-layout surgery.
-9. Wave 3 prep is now implementation-ready: fixture set, normalized provider-draft contract, and first-batch provider plan are landed, but no provider runtime wiring exists yet.
-10. Code-writing behavior is now being brought under repo governance so implementation quality can be managed through explicit authoring, refactor, and review policies instead of memory.
-11. Worktree hygiene is now being formalized so long-running slices cannot quietly accumulate mixed local diffs outside the normal workflow.
+4. Treat the first `sidePanel-first` runtime checkpoint as landed: browser-owned sidePanel entry, background lifecycle ownership, a lightweight content runtime bridge, a panel session controller, and a latest-exchange-aligned runtime harness are now working together, while shell productization and deeper restoration semantics remain open.
+5. Keep the next main implementation focus on sidePanel-native startup/restored states for Wave 1 and the remaining Wave 2 restoration semantics while privacy-boundary cleanup stays queued behind those runtime blockers.
+6. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
+7. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
+8. During the spec-alignment phase, distinguish `checkpoint` commits from `acceptance` commits for user-visible work; do not report alignment closure unless the rendered mismatch for that slice is actually gone.
+9. Treat the older split-pane checkpoints as superseded shell experiments rather than the active acceptance target; the current Wave 1 checkpoint target is a stable browser-docked panel that no longer depends on host-layout surgery.
+10. Wave 3 prep is now implementation-ready: fixture set, normalized provider-draft contract, and first-batch provider plan are landed, but no provider runtime wiring exists yet.
+11. Code-writing behavior is now being brought under repo governance so implementation quality can be managed through explicit authoring, refactor, and review policies instead of memory.
+12. Worktree hygiene is now being formalized so long-running slices cannot quietly accumulate mixed local diffs outside the normal workflow.
 
 ## Next
 
@@ -86,6 +87,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 36. Adopted a new Wave 1 shell baseline: future layout-alignment work now targets a `sidePanel-first` workspace shell instead of deep host-DOM layout rewriting.
 37. Added repo-level code authoring governance through `code-authoring-policy`, `refactor-trigger-rules`, and `engineering-review-checklist` so implementation structure is now governed alongside task flow and spec alignment.
 38. Added repo-level worktree hygiene governance so dirty-tree budget, pre-new-slice sweep, and long-running checkpoint cadence are now explicit repo policy rather than ad hoc cleanup judgment.
+39. Landed the first `sidePanel-first` runtime checkpoint: the extension now boots through a browser-owned sidePanel entry, a dedicated background lifecycle, a lightweight content runtime bridge, and a panel session controller, while runtime validation now checks latest-exchange regeneration instead of assuming node counts always grow.
 
 ## Quality Gate
 

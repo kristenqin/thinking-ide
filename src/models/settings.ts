@@ -1,4 +1,4 @@
-export type PanelMode = "layout" | "overlay";
+export type PanelMode = "sidepanel";
 export type LanguageSetting = "zh" | "en" | "auto";
 
 export type UserSettings = {
@@ -13,7 +13,7 @@ export type UserSettings = {
 
 export function createDefaultSettings(overrides: Partial<UserSettings> = {}): UserSettings {
   return {
-    panelMode: "layout",
+    panelMode: "sidepanel",
     panelWidth: 720,
     language: "auto",
     autoGenerate: true,

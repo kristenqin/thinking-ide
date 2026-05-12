@@ -26,7 +26,7 @@ export function ThinkingPanel({ onGenerate, onCollapse }: ThinkingPanelProps) {
   const settingsCardRef = useRef<HTMLDivElement>(null);
   const conversationTitle = document?.conversation.title || "Current chat";
   const isGenericConversationTitle = /^(chatgpt|current chat)$/i.test(conversationTitle.trim());
-  const displayConversationTitle = isGenericConversationTitle ? "Current chat" : conversationTitle;
+  const displayConversationTitle = isGenericConversationTitle ? "Active chat" : conversationTitle;
   const autoGenerate = document?.settings.autoGenerate ?? true;
   const nodeCount = document?.nodes.filter((node) => node.data.status !== "removed").length ?? 0;
   const edgeCount = document?.edges.filter((edge) => edge.data?.status !== "removed").length ?? 0;
@@ -48,23 +48,23 @@ export function ThinkingPanel({ onGenerate, onCollapse }: ThinkingPanelProps) {
             : "Ready";
   const statusMessage =
     status === "generating"
-      ? "Scanning the current chat and refreshing the draft without interrupting your workspace."
+      ? "Scanning the active chat and refreshing the draft without interrupting this panel."
       : status === "waiting"
         ? "Waiting for more conversation before expanding the current draft."
         : error ?? "Something blocked map generation. You can try the current scan again.";
   const showStatusBar = status === "generating" || status === "waiting" || status === "failed";
   const headerSummary = isWorkspaceEmpty
-    ? "No concepts have been drafted from the visible chat yet. Continue or reopen the conversation on the left, then refresh once the latest reply is fully available."
-    : "Shape the conversation into a concept map without leaving the chat flow.";
+    ? "No concepts have been drafted from the visible chat yet. Continue the active conversation, then refresh once the latest reply is fully available."
+    : "Shape the active conversation into a concept map from this side panel.";
   const bottomLog = notice
     ? notice
     : isWorkspaceEmpty
-      ? "No concepts available yet. Continue the conversation on the left, or refresh after the latest assistant reply finishes loading."
+      ? "No concepts available yet. Continue the active conversation, or refresh after the latest assistant reply finishes loading."
       : document
         ? `Map available for direct editing. ${mapSummary}.`
-        : "Start a conversation on the left and Thinking IDE will draft a concept map here."
+        : "Start or reopen a supported chat and Thinking IDE will draft a concept map here."
   const emptyWorkspaceLead = isWorkspaceEmpty
-    ? "Thinking IDE is attached, but the current visible chat has not yielded a concept draft yet."
+    ? "Thinking IDE is connected, but the current visible chat has not yielded a concept draft yet."
     : null;
 
   useEffect(() => {
@@ -120,8 +120,8 @@ export function ThinkingPanel({ onGenerate, onCollapse }: ThinkingPanelProps) {
               Settings
             </Button>
             {isSettingsOpen ? (
-              <div className="ti-settings-card" ref={settingsCardRef} role="dialog" aria-label="Workspace settings">
-                <div className="ti-floating-card__eyebrow">Workspace settings</div>
+              <div className="ti-settings-card" ref={settingsCardRef} role="dialog" aria-label="Panel settings">
+                <div className="ti-floating-card__eyebrow">Panel settings</div>
                 <label className="ti-toggle-row" htmlFor="ti-auto-generate-toggle">
                   <div className="ti-toggle-row__copy">
                     <span>Auto-refresh from chat</span>
@@ -180,7 +180,7 @@ export function ThinkingPanel({ onGenerate, onCollapse }: ThinkingPanelProps) {
             ) : null}
           </div>
           <Button variant="ghost" onClick={onCollapse}>
-            Collapse
+            Close panel
           </Button>
         </div>
       </header>

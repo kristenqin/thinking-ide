@@ -64,7 +64,10 @@ export const useThinkingStore = create<ThinkingState>((set, get) => ({
     const existing = await loadDocument(conversationId);
     if (existing) {
       set({ document: existing, status: "synced", error: undefined });
+      return;
     }
+
+    set({ document: undefined, status: "ready", error: undefined, notice: undefined, recentAction: undefined });
   },
   getDocument() {
     return get().document;

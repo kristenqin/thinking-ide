@@ -3,13 +3,19 @@
   "name": "Thinking IDE",
   "version": "0.1.0",
   "description": "AI-assisted concept map workspace for ChatGPT.",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "permissions": ["storage", "activeTab", "scripting", "tabs", "sidePanel"],
+  "action": {
+    "default_title": "Open Thinking IDE"
+  },
   "host_permissions": [
     "https://chatgpt.com/*",
     "https://chat.openai.com/*",
     "http://127.0.0.1/*",
     "http://localhost/*"
   ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
   "background": {
     "service_worker": "background.js",
     "type": "module"

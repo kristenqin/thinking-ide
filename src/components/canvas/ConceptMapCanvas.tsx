@@ -12,7 +12,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ConceptMapEdgeRecord, EdgeRelationType } from "../../models/edge";
 import type { ConceptMapNodeRecord, NodeRole } from "../../models/node";
 import { useThinkingStore } from "../../stores/useThinkingStore";
-import { revealSource } from "../../services/sourceLocator";
+import { revealSourceInActiveChat } from "../../services/activeChatRuntime";
 import { Button } from "../ui/button";
 import { ConceptNode } from "./ConceptNode";
 
@@ -339,10 +339,10 @@ export function ConceptMapCanvas() {
                   variant="ghost"
                   className={`ti-node-toolbar__button ${selectedNodeSourceLost ? "ti-node-toolbar__button--warning" : ""}`}
                   title={selectedNodeSourceLost ? sourceLostTooltip() : undefined}
-                  onClick={() => {
+                  onClick={async () => {
                     const sourceId = selectedNode.data.sourceId;
                     const source = focusSource(sourceId ?? "");
-                    const result = revealSource(source);
+                    const result = await revealSourceInActiveChat(source);
                     if (result === "lost" && sourceId) {
                       void markSourceLost(sourceId);
                     }

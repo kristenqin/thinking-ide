@@ -129,7 +129,7 @@ test("buildThinkingDocument keeps generated data unchanged when there is no prev
   assert.match(document.conversation.updatedAt, /^\d{4}-\d{2}-\d{2}T/);
 });
 
-test("buildThinkingDocument preserves manual node edits, settings, and manual relates edges", () => {
+test("buildThinkingDocument preserves manual node edits, sidepanel settings, and manual relates edges", () => {
   const generatedNodes = [
     createNode("generated-question", "question", "Refresh behavior"),
     createNode("generated-answer", "answer", "Restore from storage", "source-1"),
@@ -167,7 +167,7 @@ test("buildThinkingDocument preserves manual node edits, settings, and manual re
     ],
     settings: {
       ...createDefaultSettings({
-        panelMode: "overlay",
+        panelMode: "sidepanel",
         panelWidth: 420,
         updatedAt: "2026-05-10T00:00:00.000Z"
       })
