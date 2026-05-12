@@ -20,6 +20,7 @@ Use this workflow for changes in Thinking IDE. It is intentionally narrow: small
 3. Do not batch unrelated fixes into the same commit.
 4. Re-read files before committing if another agent may have touched the same area.
 5. Never revert unrelated diffs to make your branch look clean.
+6. During spec-alignment work, classify user-visible slices using [spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md) so `checkpoint` commits are not mistaken for product acceptance.
 
 ## Commit Gate
 
@@ -36,6 +37,7 @@ Before opening a PR, merging, or handing off a branch:
 4. Apply [docs/document-sync-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/document-sync-policy.md) before calling the slice done.
 5. If the required gate is incomplete because of a known repo gap, record that gap explicitly in `PROJECT_STATUS.md` or the relevant design doc before calling the slice done.
 6. Do not merge code that passes only by relying on unstated local edits.
+7. For user-visible spec-alignment slices, do not report the slice as aligned unless it meets the `acceptance` bar in [spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md).
 
 ## What Not To Commit
 
@@ -45,6 +47,7 @@ Before opening a PR, merging, or handing off a branch:
 4. Half-applied refactors that change contracts without updating the governing docs.
 5. Generated artifacts or local state unless the task explicitly requires them.
 6. “Fixup” edits to nearby files that were not part of the assigned slice.
+7. A commit message that implies a visible spec gap is fully closed when the slice is still only a `checkpoint`.
 
 ## Multi-Agent Integration
 

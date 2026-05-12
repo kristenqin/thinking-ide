@@ -18,6 +18,7 @@ This folder contains the operational engineering guardrails for autonomous execu
 12. Bundle notes: [bundle-reduction-notes.md](/Users/qyx/Desktop/project/thinking-ide/docs/bundle-reduction-notes.md)
 13. Layout fidelity contract: [layout-fidelity-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/layout-fidelity-contract.md)
 14. Test alignment baseline: [test-alignment-baseline.md](/Users/qyx/Desktop/project/thinking-ide/docs/test-alignment-baseline.md)
+15. Spec acceptance commit policy: [spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md)
 
 ## Execution Tracking
 
@@ -62,3 +63,4 @@ This folder contains the operational engineering guardrails for autonomous execu
 9. Use `frontend-ui-contract` whenever a slice changes user-visible UI or interaction behavior.
 10. Use `design-system/README.md` whenever a slice needs a concrete visual baseline or reusable UI pattern guidance.
 11. For non-trivial work, default to sidecar agents with non-overlapping write sets and keep the main thread focused on orchestration and integration.
+12. During spec-parity work, use `spec-acceptance-commit-policy` so checkpoint commits are not misreported as accepted product alignment.

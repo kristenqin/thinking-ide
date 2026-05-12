@@ -114,6 +114,12 @@ Known gaps:
 Needs handoff:
 ```
 
+For spec-alignment slices, interpret those statuses through [spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md):
+
+1. `done` means `acceptance`
+2. `partial` means `checkpoint`
+3. `blocked` stays `blocked`
+
 ## Escalate Immediately If
 
 1. The task needs files outside the approved write set.

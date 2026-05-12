@@ -18,6 +18,7 @@ Before starting any task, read these in order:
 6. [docs/design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md) for any slice that changes reusable visual language or workspace presentation
 7. [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md)
 8. [docs/git-workflow.md](/Users/qyx/Desktop/project/thinking-ide/docs/git-workflow.md)
+9. [docs/spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md) for spec-parity work
 
 Use [docs/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/README.md) as the navigation page for all governance artifacts.
 
@@ -69,6 +70,7 @@ Do not let UI components directly own DOM scanning or persistence logic.
 9. Default to parallel sidecar execution for non-trivial work; keep the main thread focused on orchestration, integration, and final gates whenever write sets allow.
 10. If a task matches the automatic delegation triggers in [docs/multi-agent-governance.md](/Users/qyx/Desktop/project/thinking-ide/docs/multi-agent-governance.md), spawn sidecars proactively instead of waiting for the user to request them.
 11. If a task is primarily about a UI or runtime issue investigation, follow [docs/debug-triage-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/debug-triage-policy.md) and capture screenshot or render-result evidence before code-first debugging.
+12. For user-visible alignment work, do not describe a slice as aligned unless it meets the `acceptance` bar in [docs/spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md); otherwise report it as a `checkpoint`.
 
 Shared runtime boundaries are:
 

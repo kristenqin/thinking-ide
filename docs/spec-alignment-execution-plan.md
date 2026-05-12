@@ -161,6 +161,7 @@ During this alignment phase:
 1. A slice that improves only engineering scaffolding does not increase reported product completion.
 2. A slice increases reported product completion only when it closes one of the work-order gaps above.
 3. Completion reporting should reference the affected wave explicitly.
+4. User-visible slices must also follow [spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md): safe `checkpoint` commits are allowed, but they do not count as alignment acceptance unless the visible mismatch for that wave is actually closed.
 
 ## Default Main-Thread Priorities
 

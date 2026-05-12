@@ -19,6 +19,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 4. Keep the next main implementation focus on Wave 2 completion gating and recovery semantics while remaining Wave 1 polish stays tracked as a tail item, not as an unbounded design rewrite.
 5. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
 6. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
+7. During the spec-alignment phase, distinguish `checkpoint` commits from `acceptance` commits for user-visible work; do not report alignment closure unless the rendered mismatch for that slice is actually gone.
 
 ## Next
 
@@ -93,6 +94,7 @@ For a feature slice to move to `done`, it must satisfy every item in [docs/defin
 13. Frontend UI contract: [docs/frontend-ui-contract.md](/Users/qyx/Desktop/project/thinking-ide/docs/frontend-ui-contract.md)
 14. Design system: [docs/design-system/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/design-system/README.md)
 15. Alignment plan: [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md)
+16. Spec acceptance commit policy: [docs/spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md)
 
 ## Notes
 
