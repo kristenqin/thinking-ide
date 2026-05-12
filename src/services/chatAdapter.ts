@@ -5,6 +5,20 @@ import { createId } from "../utils/id";
 import { clampText, normalizeText } from "../utils/text";
 
 const MESSAGE_REF_SCHEMA_VERSION = 1;
+const STREAMING_SIGNAL_SELECTORS = [
+  '[data-testid="stop-button"]',
+  'button[aria-label="Stop generating"]',
+  'button[aria-label="停止生成"]',
+  '[class*="result-streaming"]',
+  '[data-status="in_progress"]'
+];
+
+export type AssistantCompletionState = {
+  latestMessageRole: MessageRole | null;
+  completionKey: string | null;
+  latestAssistantMessage?: MessageRef;
+  isStreaming: boolean;
+};
 
 function hashText(value: string): string {
   let hash = 5381;
@@ -103,6 +117,10 @@ function getMessageElements(): Array<{ element: Element; role: MessageRole }> {
     .filter((entry): entry is { element: Element; role: MessageRole } => Boolean(entry));
 }
 
+function isHostGenerationInProgress(): boolean {
+  return STREAMING_SIGNAL_SELECTORS.some((selector) => Boolean(document.querySelector(selector)));
+}
+
 export function getConversationRef(): ConversationRef {
   const { conversationKey, identitySource } = deriveConversationIdentity();
   const title = document.title.replace(/\s+-\s+ChatGPT$/i, "").trim();
@@ -114,6 +132,37 @@ export function getConversationRef(): ConversationRef {
     title,
     sourceUrl: location.href,
     updatedAt: new Date().toISOString()
+  };
+}
+
+export function getAssistantCompletionState(): AssistantCompletionState {
+  const { conversationKey } = deriveConversationIdentity();
+  const entries = getMessageElements();
+  const latestEntry = entries.at(-1);
+
+  if (!latestEntry) {
+    return {
+      latestMessageRole: null,
+      completionKey: null,
+      isStreaming: isHostGenerationInProgress()
+    };
+  }
+
+  if (latestEntry.role !== "assistant") {
+    return {
+      latestMessageRole: latestEntry.role,
+      completionKey: null,
+      isStreaming: isHostGenerationInProgress()
+    };
+  }
+
+  const message = buildMessageRef(latestEntry.element, "assistant", entries.length - 1, conversationKey);
+
+  return {
+    latestMessageRole: "assistant",
+    completionKey: message ? `${message.id}:${message.textHash}` : null,
+    latestAssistantMessage: message ?? undefined,
+    isStreaming: isHostGenerationInProgress()
   };
 }
 

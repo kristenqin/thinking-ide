@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getConversationRef, scanMessages } from "./chatAdapter";
+import { getAssistantCompletionState, getConversationRef, scanMessages } from "./chatAdapter";
 
 class FakeMessageElement {
   constructor(
@@ -22,12 +22,14 @@ function installEnvironment({
   pathname,
   href,
   title,
-  elements
+  elements,
+  streamingSelectors = []
 }: {
   pathname: string;
   href: string;
   title: string;
   elements: FakeMessageElement[];
+  streamingSelectors?: string[];
 }) {
   Object.defineProperty(globalThis, "location", {
     configurable: true,
@@ -47,6 +49,9 @@ function installEnvironment({
         }
 
         return [] as unknown as NodeListOf<Element>;
+      },
+      querySelector(selector: string) {
+        return streamingSelectors.includes(selector) ? ({} as Element) : null;
       }
     }
   });
@@ -106,4 +111,42 @@ test("scanMessages returns all visible messages with stable orderIndex and locat
     sources.map((source) => source.messageId),
     ["user-1", "assistant-1", "user-2", "assistant-2"]
   );
+});
+
+test("getAssistantCompletionState reports the latest assistant completion key when the reply is settled", () => {
+  installEnvironment({
+    pathname: "/c/history-2",
+    href: "https://chatgpt.com/c/history-2",
+    title: "Settled reply - ChatGPT",
+    elements: [
+      new FakeMessageElement("user-1", "user", "Question"),
+      new FakeMessageElement("assistant-1", "assistant", "Structured answer")
+    ]
+  });
+
+  const state = getAssistantCompletionState();
+
+  assert.equal(state.latestMessageRole, "assistant");
+  assert.equal(state.isStreaming, false);
+  assert.match(state.completionKey ?? "", /^assistant-1:/);
+  assert.equal(state.latestAssistantMessage?.id, "assistant-1");
+});
+
+test("getAssistantCompletionState prefers host-native generation signals when they are present", () => {
+  installEnvironment({
+    pathname: "/c/history-3",
+    href: "https://chatgpt.com/c/history-3",
+    title: "Streaming reply - ChatGPT",
+    elements: [
+      new FakeMessageElement("user-1", "user", "Question"),
+      new FakeMessageElement("assistant-1", "assistant", "Still streaming")
+    ],
+    streamingSelectors: ['[data-testid="stop-button"]']
+  });
+
+  const state = getAssistantCompletionState();
+
+  assert.equal(state.latestMessageRole, "assistant");
+  assert.equal(state.isStreaming, true);
+  assert.match(state.completionKey ?? "", /^assistant-1:/);
 });
