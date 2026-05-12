@@ -67,11 +67,11 @@ test("generateDraftMap builds multi-turn question, answer, and answer-outline no
   const outlineNodes = draft.nodes.filter((node) => node.data.role === "answer_outline");
   const conceptNodes = draft.nodes.filter((node) => node.data.role === "concept");
 
-  assert.equal(draft.nodes.length, 13);
-  assert.equal(draft.edges.length, 12);
+  assert.equal(draft.nodes.length, 9);
+  assert.equal(draft.edges.length, 8);
   assert.equal(questionNodes.length, 2);
   assert.equal(answerNodes.length, 2);
-  assert.equal(outlineNodes.length, 6);
+  assert.equal(outlineNodes.length, 2);
   assert.equal(conceptNodes.length, 3);
   assert.equal(questionNodes[0].data.title, "Old question that should now be preserved");
   assert.ok(questionNodes[1].data.title.startsWith("How does the runtime spine work in pract"));
@@ -90,27 +90,7 @@ test("generateDraftMap builds multi-turn question, answer, and answer-outline no
         status: "draft"
       },
       {
-        title: "Old answer that should now be pre…",
-        sourceId: undefined,
-        status: "draft"
-      },
-      {
-        title: "First earlier outline item",
-        sourceId: undefined,
-        status: "draft"
-      },
-      {
         title: "Runtime spine",
-        sourceId: "source-answer",
-        status: "draft"
-      },
-      {
-        title: "First concept explains the scan l…",
-        sourceId: "source-answer",
-        status: "draft"
-      },
-      {
-        title: "Second concept covers local persi…",
         sourceId: "source-answer",
         status: "draft"
       }
@@ -146,7 +126,7 @@ test("generateDraftMap builds multi-turn question, answer, and answer-outline no
   );
   assert.equal(
     draft.edges.filter((edge) => edge.data?.relation === "contains").length,
-    6
+    2
   );
   assert.equal(
     draft.edges.filter((edge) => edge.data?.relation === "expands").length,

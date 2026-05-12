@@ -65,7 +65,7 @@ function createRuntimeMessageListener(): Parameters<typeof chrome.runtime.onMess
 
     if (message.type === MESSAGE_REVEAL_SOURCE) {
       const response: RevealSourceResponse = {
-        result: revealSource(message.source)
+        result: revealSource(message.source, message.targetHint)
       };
       sendResponse(response);
       return false;

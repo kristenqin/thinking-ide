@@ -6,11 +6,13 @@ import type { SourceRef } from "../models/source";
 class FakeElement {
   public attributes = new Map<string, string>();
   public scrolled = false;
+  public children: FakeElement[] = [];
 
   constructor(
     public readonly id: string,
     role: "user" | "assistant",
-    public textContent: string
+    public textContent: string,
+    private readonly tagName = "div"
   ) {
     this.attributes.set("data-message-author-role", role);
   }
@@ -25,6 +27,18 @@ class FakeElement {
 
   removeAttribute(name: string) {
     this.attributes.delete(name);
+  }
+
+  querySelectorAll(selector: string) {
+    if (selector === 'h1, [role="heading"][aria-level="1"]') {
+      return this.children.filter(
+        (child) =>
+          child.tagName === "h1" ||
+          (child.getAttribute("role") === "heading" && child.getAttribute("aria-level") === "1")
+      ) as unknown as NodeListOf<Element>;
+    }
+
+    return [] as unknown as NodeListOf<Element>;
   }
 
   scrollIntoView() {
@@ -110,6 +124,30 @@ test("revealSource highlights a matching anchored message", () => {
 
   timers.flushTimers();
   assert.equal(target.getAttribute("data-thinking-ide-highlight"), null);
+});
+
+test("revealSource prefers a matching level-one heading inside the assistant message when given a heading hint", () => {
+  const message = new FakeElement(
+    "assistant-target",
+    "assistant",
+    "Exchange 1 should trigger the observer. Heading block and surrounding answer text. preserve manual node positions."
+  );
+  const heading = new FakeElement("", "assistant", "Runtime spine", "h1");
+  message.children.push(heading);
+  const timers = installDom([message]);
+
+  const result = revealSource(buildSource({ domId: "assistant-target" }), {
+    kind: "heading",
+    text: "Runtime spine"
+  });
+
+  assert.equal(result, "revealed");
+  assert.equal(message.scrolled, false);
+  assert.equal(heading.scrolled, true);
+  assert.equal(heading.getAttribute("data-thinking-ide-highlight"), "true");
+
+  timers.flushTimers();
+  assert.equal(heading.getAttribute("data-thinking-ide-highlight"), null);
 });
 
 test("revealSource marks the source as lost instead of highlighting the wrong assistant fallback", () => {

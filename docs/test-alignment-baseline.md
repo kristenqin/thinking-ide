@@ -142,7 +142,7 @@ Must prove:
 Current status:
 
 1. Message-level single-source jump exists
-2. `answer_outline` currently falls back to the parent assistant reply rather than a paragraph/block anchor
+2. `answer_outline` now tries a matching Markdown H1 inside the assistant reply before falling back to the parent assistant block; richer paragraph/block anchors are still missing
 3. Multi-source popover is missing
 
 ### Suite H: Privacy Boundary

@@ -28,6 +28,14 @@ function stripOutlineMarker(text: string): string {
 }
 
 export function splitIntoOutlineItems(text: string): string[] {
+  const markdownH1 = Array.from(text.matchAll(/^# (.+)$/gm))
+    .map((match) => normalizeText(stripOutlineMarker(match[1] ?? "")))
+    .filter((segment) => segment.length >= 3);
+  const uniqueMarkdownH1 = Array.from(new Set(markdownH1));
+  if (uniqueMarkdownH1.length > 0) {
+    return uniqueMarkdownH1.slice(0, 4);
+  }
+
   const outlineMarkerPattern = /^(?:#{1,6}\s+|[-*+]\s+|\d+[\.\)]\s+|[一二三四五六七八九十]+[、.．]\s*)/;
   const items: string[] = [];
   let paragraphBuffer = "";

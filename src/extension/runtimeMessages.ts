@@ -2,7 +2,7 @@ import type { AssistantCompletionState, ScanMessagesResult } from "../services/c
 import type { ConversationRef } from "../models/conversation";
 import type { MessageRef } from "../models/messageRef";
 import type { SourceRef } from "../models/source";
-import type { RevealSourceResult } from "../services/sourceLocator";
+import type { RevealSourceResult, RevealTargetHint } from "../services/sourceLocator";
 
 export const MESSAGE_FETCH_CHAT_CONTEXT = "thinking-ide/fetch-chat-context";
 export const MESSAGE_SCAN_CHAT = "thinking-ide/scan-chat";
@@ -46,6 +46,7 @@ export type CloseSidePanelRequest = {
 export type RevealSourceRequest = {
   type: typeof MESSAGE_REVEAL_SOURCE;
   source?: SourceRef;
+  targetHint?: RevealTargetHint;
 };
 
 export type RevealSourceResponse = {

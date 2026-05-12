@@ -2,6 +2,10 @@ import { normalizeText } from "../utils/text";
 import type { SourceRef } from "../models/source";
 
 export type RevealSourceResult = "revealed" | "lost" | "missing";
+export type RevealTargetHint = {
+  kind: "heading";
+  text: string;
+};
 
 type AnchorMatch = {
   start: boolean;
@@ -64,22 +68,54 @@ function findSourceElement(source: SourceRef): Element | undefined {
   return undefined;
 }
 
-export function revealSource(source: SourceRef | undefined): RevealSourceResult {
+function findHeadingElement(sourceElement: Element, hint: RevealTargetHint): Element | undefined {
+  const normalizedHint = normalizeText(hint.text);
+  if (!normalizedHint) {
+    return undefined;
+  }
+
+  const headingCandidates = Array.from(
+    sourceElement.querySelectorAll('h1, [role="heading"][aria-level="1"]')
+  );
+
+  const exact = headingCandidates.find(
+    (element) => normalizeText(element.textContent ?? "") === normalizedHint
+  );
+  if (exact) {
+    return exact;
+  }
+
+  return headingCandidates.find((element) =>
+    normalizeText(element.textContent ?? "").includes(normalizedHint)
+  );
+}
+
+function revealElement(target: Element) {
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+  target.setAttribute("data-thinking-ide-highlight", "true");
+  window.setTimeout(() => {
+    target.removeAttribute("data-thinking-ide-highlight");
+  }, 2200);
+}
+
+export function revealSource(
+  source: SourceRef | undefined,
+  targetHint?: RevealTargetHint
+): RevealSourceResult {
   if (!source) {
     return "missing";
   }
 
-  const match = findSourceElement(source);
+  const sourceElement = findSourceElement(source);
 
-  if (!match) {
+  if (!sourceElement) {
     return "lost";
   }
 
-  match.scrollIntoView({ behavior: "smooth", block: "center" });
-  match.setAttribute("data-thinking-ide-highlight", "true");
-  window.setTimeout(() => {
-    match.removeAttribute("data-thinking-ide-highlight");
-  }, 2200);
+  const target =
+    targetHint?.kind === "heading" ? findHeadingElement(sourceElement, targetHint) ?? sourceElement : sourceElement;
+
+  revealElement(target);
 
   return "revealed";
 }

@@ -342,7 +342,15 @@ export function ConceptMapCanvas() {
                   onClick={async () => {
                     const sourceId = selectedNode.data.sourceId;
                     const source = focusSource(sourceId ?? "");
-                    const result = await revealSourceInActiveChat(source);
+                    const result = await revealSourceInActiveChat(
+                      source,
+                      selectedNode.data.role === "answer_outline"
+                        ? {
+                            kind: "heading",
+                            text: selectedNode.data.summary ?? selectedNode.data.title
+                          }
+                        : undefined
+                    );
                     if (result === "lost" && sourceId) {
                       void markSourceLost(sourceId);
                     }

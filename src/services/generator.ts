@@ -129,7 +129,7 @@ export function generateDraftMap(
         },
         data: {
           title: clampText(outline, 34),
-          summary: clampText(outline, 120),
+          summary: outline,
           role: "answer_outline",
           status: "draft",
           sourceId: resolveSourceId(answer.id, sources)

@@ -2,7 +2,7 @@ import type { ConversationRef } from "../models/conversation";
 import type { MessageRef } from "../models/messageRef";
 import type { SourceRef } from "../models/source";
 import type { AssistantCompletionState, ScanMessagesResult } from "./chatAdapter";
-import type { RevealSourceResult } from "./sourceLocator";
+import type { RevealSourceResult, RevealTargetHint } from "./sourceLocator";
 import {
   MESSAGE_ACTIVE_HOST_CHANGED,
   MESSAGE_CHAT_SETTLED,
@@ -80,10 +80,14 @@ export async function closeSidePanel(): Promise<void> {
   });
 }
 
-export async function revealSourceInActiveChat(source: SourceRef | undefined): Promise<RevealSourceResult> {
+export async function revealSourceInActiveChat(
+  source: SourceRef | undefined,
+  targetHint?: RevealTargetHint
+): Promise<RevealSourceResult> {
   const response = await sendMessageToActiveTab<RevealSourceResponse>({
     type: MESSAGE_REVEAL_SOURCE,
-    source
+    source,
+    targetHint
   });
 
   return response.result;
