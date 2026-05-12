@@ -13,9 +13,11 @@ const PAGE_SHELL_ATTR = "data-thinking-ide-page-shell";
 const COLLAPSED_ATTR = "data-thinking-ide-collapsed";
 const CHAT_MAIN_ATTR = "data-thinking-ide-chat-main";
 const CHAT_WORKSPACE_ATTR = "data-thinking-ide-chat-workspace";
+const HOST_SIDEBAR_ATTR = "data-thinking-ide-host-sidebar";
 const PANEL_WIDTH = "clamp(560px, 60vw, 960px)";
 const RAIL_WIDTH = "72px";
-const CHAT_COLUMN_WIDTH = "min(100%, 760px)";
+const CHAT_COLUMN_WIDTH = "clamp(520px, 34vw, 720px)";
+const HOST_SIDEBAR_WIDTH = "clamp(78px, 6vw, 92px)";
 
 const LIGHT_DOM_LAYOUT_STYLES = `
 html[${LAYOUT_MODE_ATTR}="layout"] {
@@ -28,6 +30,7 @@ body[${LAYOUT_MODE_ATTR}="layout"] {
   min-height: 100vh;
   overflow-x: hidden;
   --thinking-ide-chat-column-width: ${CHAT_COLUMN_WIDTH};
+  --thinking-ide-host-sidebar-width: ${HOST_SIDEBAR_WIDTH};
 }
 
 body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] {
@@ -40,6 +43,25 @@ body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] {
 }
 
 body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] > * {
+  min-width: 0;
+}
+
+body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] > [${HOST_SIDEBAR_ATTR}="true"] {
+  flex: 0 0 var(--thinking-ide-host-sidebar-width);
+  width: var(--thinking-ide-host-sidebar-width) !important;
+  min-width: var(--thinking-ide-host-sidebar-width) !important;
+  max-width: var(--thinking-ide-host-sidebar-width) !important;
+  overflow-x: clip;
+  overflow-y: auto;
+  border-right: 1px solid rgba(221, 215, 207, 0.72);
+}
+
+body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] > :not([${HOST_SIDEBAR_ATTR}="true"]) {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+
+body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] > [${HOST_SIDEBAR_ATTR}="true"] * {
   min-width: 0;
 }
 
@@ -56,10 +78,14 @@ body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] main[${CHAT_MAI
 
 body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] main[${CHAT_MAIN_ATTR}="true"] > [${CHAT_WORKSPACE_ATTR}="true"] {
   flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   min-width: 0;
   width: 100%;
   max-width: none !important;
   box-sizing: border-box;
+  padding-inline: clamp(18px, 2.2vw, 28px);
 }
 
 body[${LAYOUT_MODE_ATTR}="layout"] > [${PAGE_SHELL_ATTR}="true"] main[${CHAT_MAIN_ATTR}="true"] :is(form, [data-message-author-role]) {
@@ -165,6 +191,10 @@ function clearPageShellMarker() {
 
   document.querySelectorAll(`[${CHAT_WORKSPACE_ATTR}="true"]`).forEach((element) => {
     element.removeAttribute(CHAT_WORKSPACE_ATTR);
+  });
+
+  document.querySelectorAll(`[${HOST_SIDEBAR_ATTR}="true"]`).forEach((element) => {
+    element.removeAttribute(HOST_SIDEBAR_ATTR);
   });
 }
 
@@ -276,9 +306,37 @@ function markChatWorkspace(pageRoot: HTMLElement) {
   }
 
   main.setAttribute(CHAT_MAIN_ATTR, "true");
+  markHostSidebar(pageRoot, main);
   const workspace = findWorkspaceContainer(main);
   if (workspace instanceof HTMLElement) {
     workspace.setAttribute(CHAT_WORKSPACE_ATTR, "true");
+  }
+}
+
+function markHostSidebar(pageRoot: HTMLElement, main: HTMLElement) {
+  const mainRect = main.getBoundingClientRect();
+  const siblings = Array.from(pageRoot.children).filter(
+    (child): child is HTMLElement => child instanceof HTMLElement && !child.contains(main)
+  );
+
+  const candidate = siblings
+    .filter((child) => {
+      const rect = child.getBoundingClientRect();
+      if (rect.width < 64 || rect.height < 240) {
+        return false;
+      }
+
+      if (rect.left > mainRect.left) {
+        return false;
+      }
+
+      const navSignals = child.querySelectorAll("nav, [role='navigation'], a, button").length;
+      return navSignals >= 4 || rect.width >= 180;
+    })
+    .sort((left, right) => left.getBoundingClientRect().left - right.getBoundingClientRect().left)[0];
+
+  if (candidate instanceof HTMLElement) {
+    candidate.setAttribute(HOST_SIDEBAR_ATTR, "true");
   }
 }
 

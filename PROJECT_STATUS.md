@@ -20,14 +20,15 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 5. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
 6. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
 7. During the spec-alignment phase, distinguish `checkpoint` commits from `acceptance` commits for user-visible work; do not report alignment closure unless the rendered mismatch for that slice is actually gone.
-8. Wave 1 now has a second checkpoint candidate focused on left-column readability, header-owned collapse chrome, and explicit empty-workspace guidance; it still does not qualify as layout `acceptance`.
+8. Wave 1 now has a third checkpoint candidate focused on compressing the official host sidebar and protecting the actual chat reading column budget in split-pane mode; it still does not qualify as layout `acceptance`.
+9. Wave 3 prep is now implementation-ready: fixture set, normalized provider-draft contract, and first-batch provider plan are landed, but no provider runtime wiring exists yet.
 
 ## Next
 
 1. Execute Wave 2 from the alignment plan: ChatAdapter acceptance for conversation identity, full available history scan, completion detection, and restoration.
 2. Continue Wave 2A by finishing restoration semantics on top of the new partial-history guard, especially reopen/rebind behavior beyond the first visible-history checkpoint.
-3. Continue Wave 3 preparation in parallel: provider-backed AI structuring baseline with `DeepSeek` in the first candidate batch.
-4. Continue the remaining Wave 1 parity tail: reduce real-host left-column dilution from the official ChatGPT sidebar and host-layout variance until the workspace reads as a true dual-pane product.
+3. Start the first bounded Wave 3 runtime slice: background-worker request plumbing, provider adapter interface, and schema validation around the landed fixture set and provider-draft contract.
+4. Continue the remaining Wave 1 parity tail: validate and refine real-host workspace behavior until the product stops reading like adapted ChatGPT chrome plus a side workspace.
 5. Realign acceptance testing around layout, history, completion detection, semantic fixtures, and privacy-boundary checks.
 
 ## Blocked
@@ -76,6 +77,8 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 31. Landed a second partial Wave 2 completion-gating slice: auto-generation now waits for a settled assistant reply, prefers host-native generation signals when available, falls back to a quiet-window stability check, and suppresses duplicate automatic parses for the same completed assistant response.
 32. Landed a second Wave 1 layout checkpoint: the panel now keeps collapse inside workspace header chrome, constrains the visible chat workspace toward a clearer reading column in split-pane mode, and replaces the blank `0 concepts` shell with explicit empty-workspace guidance.
 33. Landed a third partial Wave 2 restoration slice: restored maps now stay in place when ChatGPT only exposes a partial visible history window, auto-refresh no longer silently overwrites them on reopen/refresh, and the completion observer can re-arm the same settled reply once more history becomes available.
+34. Landed a Wave 3 prep slice: repo-owned AI structuring fixtures, a normalized provider-draft contract, and an explicit first-batch provider plan including `DeepSeek` are now in place for the first bounded runtime integration slice.
+35. Landed a third Wave 1 layout checkpoint: split-pane mode now identifies the leading host sidebar and compresses it into a narrow navigation lane so the visible chat reading column keeps more of the left-side workspace budget.
 
 ## Quality Gate
 

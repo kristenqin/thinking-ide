@@ -126,11 +126,12 @@ The current next slices are:
 
 1. Follow [docs/spec-alignment-execution-plan.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-alignment-execution-plan.md) as the active ordering baseline.
 2. Treat the first Wave 1 layout slice as landed: split-pane default, overlay fallback, collapse rail, and runtime validation are now in place.
-3. Treat the second Wave 1 layout checkpoint as landed once integrated: header-owned collapse chrome, stronger left-column readability, and explicit empty-workspace guidance still stop short of layout `acceptance`.
-4. Treat the first Wave 2 adapter-identity slice as landed: stable `conversationKey`, derivation metadata, visible-history `orderIndex`, and privacy-safer `MessageRef` locator fields.
-5. Treat the first Wave 2 completion slice as landed: settled-assistant gating and duplicate auto-trigger suppression are now in place, while restoration semantics remain open.
-6. Prepare Wave 3 in parallel: provider-backed AI structuring with `DeepSeek` in the first candidate batch.
-7. Continue the remaining Wave 1 parity tail only where it closes the real-host workspace gap, especially left-column dilution from host sidebar/layout variance.
+3. Treat the second Wave 1 layout checkpoint as landed: header-owned collapse chrome, stronger left-column readability, and explicit empty-workspace guidance still stop short of layout `acceptance`.
+4. Treat the third Wave 1 layout checkpoint as in integration: split-pane mode now compresses the leading host sidebar so the chat reading column keeps more of the left-side workspace budget, but real-host acceptance is still open.
+5. Treat the first Wave 2 adapter-identity slice as landed: stable `conversationKey`, derivation metadata, visible-history `orderIndex`, and privacy-safer `MessageRef` locator fields.
+6. Treat the first Wave 2 completion slice and the first restoration-safety slice as landed: settled-assistant gating, duplicate auto-trigger suppression, and partial-history protection are now in place, while fuller restoration semantics remain open.
+7. Treat Wave 3 prep as implementation-ready: provider-backed AI structuring with `DeepSeek` in the first candidate batch now has fixtures and a normalized provider-draft contract, but no runtime wiring yet.
+8. Continue the remaining Wave 1 parity tail only where it closes the real-host workspace gap, especially left-column dilution from host sidebar/layout variance and unified dual-pane feel.
 
 ## Completion Reporting
 
