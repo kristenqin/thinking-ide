@@ -24,6 +24,7 @@ This folder contains the operational engineering guardrails for autonomous execu
 18. Refactor trigger rules: [refactor-trigger-rules.md](/Users/qyx/Desktop/project/thinking-ide/docs/refactor-trigger-rules.md)
 19. Engineering review checklist: [engineering-review-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/engineering-review-checklist.md)
 20. Worktree hygiene policy: [worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md)
+21. Session handoff guide: [session-handoff.md](/Users/qyx/Desktop/project/thinking-ide/docs/session-handoff.md)
 
 ## Execution Tracking
 
@@ -41,6 +42,7 @@ This folder contains the operational engineering guardrails for autonomous execu
 6. Refactor trigger rules: [refactor-trigger-rules.md](/Users/qyx/Desktop/project/thinking-ide/docs/refactor-trigger-rules.md)
 7. Engineering review checklist: [engineering-review-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/engineering-review-checklist.md)
 8. Worktree hygiene policy: [worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md)
+9. Session handoff guide: [session-handoff.md](/Users/qyx/Desktop/project/thinking-ide/docs/session-handoff.md)
 
 ## Evaluation Fixtures
 
@@ -81,3 +83,4 @@ This folder contains the operational engineering guardrails for autonomous execu
 12. During spec-parity work, use `spec-acceptance-commit-policy` so checkpoint commits are not misreported as accepted product alignment.
 13. During implementation work, use `code-authoring-policy`, `refactor-trigger-rules`, and `engineering-review-checklist` so code-writing behavior is governed as explicitly as task execution.
 14. During long-running or mixed-diff work, use `worktree-hygiene-policy` before starting another slice so local changes are classified and swept instead of silently accumulating.
+15. During cross-session takeover, use `session-handoff.md` so the new thread resumes from repo state and git checkpoints instead of relying on chat memory.

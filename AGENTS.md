@@ -23,6 +23,7 @@ Before starting any task, read these in order:
 11. [docs/refactor-trigger-rules.md](/Users/qyx/Desktop/project/thinking-ide/docs/refactor-trigger-rules.md) before extending complex areas
 12. [docs/engineering-review-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/engineering-review-checklist.md) when closing user-visible or runtime-facing code work
 13. [docs/worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md) before starting a new slice on a dirty tree
+14. [docs/session-handoff.md](/Users/qyx/Desktop/project/thinking-ide/docs/session-handoff.md) when handing work to a new Codex session or taking work over from one
 
 Use [docs/README.md](/Users/qyx/Desktop/project/thinking-ide/docs/README.md) as the navigation page for all governance artifacts.
 
@@ -77,6 +78,7 @@ Do not let UI components directly own DOM scanning or persistence logic.
 12. For user-visible alignment work, do not describe a slice as aligned unless it meets the `acceptance` bar in [docs/spec-acceptance-commit-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-acceptance-commit-policy.md); otherwise report it as a `checkpoint`.
 13. For implementation work, follow [docs/code-authoring-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/code-authoring-policy.md) and stop for a bounded cleanup when [docs/refactor-trigger-rules.md](/Users/qyx/Desktop/project/thinking-ide/docs/refactor-trigger-rules.md) says further accretion would harden the wrong structure.
 14. If the worktree is not clean, apply [docs/worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md) before starting another non-emergency slice.
+15. If work is moving to another Codex session, apply [docs/session-handoff.md](/Users/qyx/Desktop/project/thinking-ide/docs/session-handoff.md) so the handoff is grounded in repo state and git rather than chat memory.
 
 Shared runtime boundaries are:
 

@@ -26,6 +26,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 11. Wave 3 prep is now implementation-ready: fixture set, normalized provider-draft contract, and first-batch provider plan are landed, but no provider runtime wiring exists yet.
 12. Code-writing behavior is now being brought under repo governance so implementation quality can be managed through explicit authoring, refactor, and review policies instead of memory.
 13. Worktree hygiene is now being formalized so long-running slices cannot quietly accumulate mixed local diffs outside the normal workflow.
+14. Cross-session takeover is now governed by a repo-level handoff guide so new Codex threads can resume from git and status artifacts instead of chat-only summaries.
 
 ## Next
 
@@ -128,6 +129,7 @@ For a feature slice to move to `done`, it must satisfy every item in [docs/defin
 18. Refactor trigger rules: [docs/refactor-trigger-rules.md](/Users/qyx/Desktop/project/thinking-ide/docs/refactor-trigger-rules.md)
 19. Engineering review checklist: [docs/engineering-review-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/engineering-review-checklist.md)
 20. Worktree hygiene policy: [docs/worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md)
+21. Session handoff guide: [docs/session-handoff.md](/Users/qyx/Desktop/project/thinking-ide/docs/session-handoff.md)
 
 ## Notes
 
