@@ -42,11 +42,23 @@ Use a handoff prompt like this in the new session:
 ```text
 Take over /Users/qyx/Desktop/project/thinking-ide.
 
-Read AGENTS.md in order, then PROJECT_STATUS.md and docs/spec-alignment-execution-plan.md.
+Read AGENTS.md in order, then PROJECT_STATUS.md, docs/spec-alignment-execution-plan.md, and docs/session-handoff.md.
 
 Confirm the current branch, latest clean checkpoint commit, worktree state, and active Wave priorities before changing code.
 
-If a new tool capability is available in this session, use it only after grounding on the repo state and current governance rules.
+Report back:
+1. current branch
+2. latest clean checkpoint commit
+3. worktree status
+4. active Wave priorities
+5. whether the new session-specific tool capability actually works
+
+If a new tool capability is available in this session, validate that capability first, then use it to test the highest-priority open slice without re-deriving the roadmap.
+
+For a browser-capability handoff, prefer this order:
+1. verify the browser tool works in the current session
+2. run one real-host smoke pass against the current highest-priority product gap
+3. write any changed execution picture back to PROJECT_STATUS.md before continuing implementation
 
 Report progress using checkpoint/acceptance language from docs/spec-acceptance-commit-policy.md.
 ```
