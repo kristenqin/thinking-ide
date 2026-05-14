@@ -127,6 +127,25 @@ Reason this is separated from Wave 3:
 1. The service boundary and provider decision must be stable first.
 2. Then prompts, normalization, and fixtures can iterate against a real contract.
 
+### Rendering Direction Reset: Structure View First
+
+Goal:
+
+Make the primary user-facing rendering mode a structure-first tree before further graph-specific upgrades.
+
+Must include:
+
+1. `Session -> Question -> Answer -> Outline` as the default reading tree
+2. expand/collapse interaction that behaves more like a mind map than the current graph canvas
+3. source navigation that remains attached to the structure tree
+4. explicit separation between the primary `Structure View` and a later `Concept View`
+
+Reason this now outranks deeper graph polish:
+
+1. the current graph canvas is harder to navigate than a collapsible tree for long sessions
+2. the landed payload-markdown-AST and heading-tree checkpoints now make a tree projection technically plausible
+3. concept-view work should continue, but as a later view built on top of the structure-first reading flow
+
 ### Wave 5: Privacy Boundary Correction
 
 Goal:
@@ -183,8 +202,8 @@ Until the alignment phase ends, the main thread should default to:
 
 The next implementation wave should be:
 
-1. **Wave 1: Layout Fidelity**
-2. **Wave 2: ChatAdapter And History Recovery**
+1. **Wave 2: ChatAdapter And History Recovery**
+2. **Rendering Direction Reset: Structure View First**
 
 The next decision/prep wave that can continue in parallel is:
 

@@ -297,3 +297,16 @@ Use this log to track unresolved or recently resolved testing discoveries that n
 - Expected behavior: each state should have one primary status, one reason, and one next step, rather than requiring users to reconcile several parallel explanations that only partially differ.
 - Evidence: sidecar information-architecture review flagged repeated notices, competing status labels, summary/notice/footer duplication, and duplicated `source_lost` explanation; state-expression and task-flow reviews independently reached the same conclusion when analyzing refresh and guarded-state behavior.
 - Development handoff notes: prioritize simplifying the messaging hierarchy before polishing individual strings. Separate panel-global state, selected-object state, and action-result feedback so users do not need to infer which layer of the system each message belongs to.
+
+### TF-0010 Sidepanel open state and latest-session data leak across host sites
+
+- Date: 2026-05-14
+- Spec / governing doc: [thinking_ide_prd_产品需求文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_prd_产品需求文档.md), [thinking_ide_mvp_项目文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_mvp_项目文档.md), and [ui-ux-acceptance-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/ui-ux-acceptance-checklist.md)
+- Case or scope: host-site scoping, sidepanel open-state isolation, and active-session data isolation across supported hosts
+- Environment: user-observed multi-host usage during manual review; the sidepanel opens correctly on ChatGPT, but after opening on one supported site it also auto-opens on other host pages and renders the most recent session data there
+- Status: `confirmed`
+- Severity: `checkpoint-gap`
+- Observed behavior: once the user opens the sidepanel on one host site, the sidepanel also auto-opens on other pages or supported hosts, and those pages render or reuse the most recent session’s data instead of staying closed or host-scoped.
+- Expected behavior: sidepanel visibility and active-session payload should be scoped to the current host context. Opening the panel on one host should not automatically force it open on other hosts, and cross-host pages should not eagerly render the latest unrelated session data by default.
+- Evidence: direct user review observation in this session: ChatGPT host opens correctly, but “只要我通过一个站点打开，目前所有的页面（包括我预想的所有站点）都会同时打开这个 side panel，并且都会渲染处理最近的一次数据。”
+- Development handoff notes: treat this as a host-isolation and session-scoping issue, not just a UI annoyance. Verify whether panel open state is currently stored globally instead of per-host/per-tab, and whether the rendered draft/session binding is falling back to the most recent global session rather than resolving against the active host page.

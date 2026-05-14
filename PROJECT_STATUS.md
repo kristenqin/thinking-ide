@@ -27,16 +27,18 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 12. Code-writing behavior is now being brought under repo governance so implementation quality can be managed through explicit authoring, refactor, and review policies instead of memory.
 13. Worktree hygiene is now being formalized so long-running slices cannot quietly accumulate mixed local diffs outside the normal workflow.
 14. Cross-session takeover is now governed by a repo-level handoff guide so new Codex threads can resume from git and status artifacts instead of chat-only summaries.
+15. The frontend rendering direction is now being reset from `graph-first` toward `Structure View first`: the next user-facing priority is a collapsible `Session -> Question -> Answer -> Outline` tree, with `Concept View` retained as a later enhancement path.
 
 ## Next
 
-1. Continue Wave 2 by closing the product-facing long-session input gap, not just the adapter/runtime checkpoint gap: all relevant questions and answers from a usable historical conversation need to flow into graph generation.
-2. Continue Wave 2 by deepening the landed heading-tree / section `answer_outline` checkpoint into paragraph/block anchor acceptance; no-heading answers now return an empty outline, and DOM should stay primarily as the source-anchor layer.
-3. Continue Wave 2 by improving concept quality toward actual short-concept behavior rather than only shorter heuristic titles.
-4. Start the first bounded Wave 3 runtime slice once the richer Wave 2 input path is stable enough to justify provider-backed structuring.
-5. Prioritize the still-open P0 privacy-boundary correction instead of letting it stay indefinitely behind local runtime refinement.
-6. Realign acceptance testing around the actual MVP feature range defined in the PRD, MVP doc, task breakdown, and test-spec documents.
-7. Keep Wave 1 shell work bounded to obvious sidePanel product gaps; do not let shell polish continue to displace larger unimplemented MVP capabilities.
+1. Continue Wave 2 by closing the product-facing long-session input gap, not just the adapter/runtime checkpoint gap: all relevant questions and answers from a usable historical conversation need to flow into the primary structure view.
+2. Shift the next frontend rendering slice to `Structure View first`: render `Session -> Question -> Answer -> Outline` as a collapsible tree or mind-map-like hierarchy instead of continuing to treat the graph canvas as the default primary view.
+3. Continue Wave 2 by deepening the landed heading-tree / section `answer_outline` checkpoint into paragraph/block anchor acceptance; no-heading answers now return an empty outline, and DOM should stay primarily as the source-anchor layer.
+4. Continue Wave 2 by improving concept quality toward actual short-concept behavior, but now treat that work as groundwork for a later `Concept View` rather than the first reading surface.
+5. Start the first bounded Wave 3 runtime slice once the richer Wave 2 input path is stable enough to justify provider-backed structuring.
+6. Prioritize the still-open P0 privacy-boundary correction instead of letting it stay indefinitely behind local runtime refinement.
+7. Realign acceptance testing around the actual MVP feature range defined in the PRD, MVP doc, task breakdown, and test-spec documents.
+8. Keep Wave 1 shell work bounded to obvious sidePanel product gaps; do not let shell polish continue to displace larger unimplemented MVP capabilities.
 
 ## Blocked
 
@@ -104,6 +106,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 51. Landed a third Wave 1 shell-productization checkpoint: on the real `chatgpt.com` host landing page, the sidePanel now reports an explicit entry state instead of pretending it is already attached to an active conversation, and the panel copy now consumes session-state semantics more directly for entry/restored/partial-history callouts. This is still a Wave 1 checkpoint, not shell acceptance.
 52. Landed the sixth Wave 2 answer-structure checkpoint: assistant payload text now preserves raw `markdownText` alongside normalized display `text`, and `generateDraftMap()` now derives `answer_outline` headings from a payload-markdown-AST-first path with empty-outline fallback when no headings exist. This closes the flattened-text heuristic path, but nested heading semantics, richer section modeling, and paragraph/block anchors are still open.
 53. Landed the seventh Wave 2 answer-structure checkpoint: `answer_outline` now carries first-pass heading-tree semantics instead of a flat heading list, with nested `contains` edges between outline nodes and section summaries derived from the markdown AST. This is still a checkpoint: paragraph/block anchors, richer section modeling, and broader graph semantics remain open.
+54. Reset the frontend rendering direction to `Structure View first`: the next primary UI target is a collapsible `Session -> Question -> Answer -> Outline` tree, while `Concept View` is now treated as a later enhancement path rather than the first rendering surface.
 
 ## Quality Gate
 

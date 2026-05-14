@@ -106,10 +106,13 @@ Notes:
 
 Spec expectation:
 
-1. generate `answer_outline`
-2. use the rendered answer structure rather than flat text only
-3. allow users to jump back to relevant source structure
-4. if the answer has no heading structure, return an empty outline rather than guessing one from paragraphs
+1. make the primary reading view a structure-first tree
+2. root the tree in the current session
+3. show `question -> answer -> answer_outline` as the first-class hierarchy
+4. generate `answer_outline`
+5. use real answer structure rather than flat text only
+6. allow users to jump back to relevant source structure
+7. if the answer has no heading structure, return an empty outline rather than guessing one from paragraphs
 
 Current state:
 
@@ -119,11 +122,31 @@ Notes:
 
 1. a payload-markdown-AST-first `answer_outline` checkpoint is now landed, and it now carries first-pass heading-tree semantics
 2. no-heading answers now return an empty outline instead of paragraph or sentence fallback guesses
-3. durable H1 source anchors still exist only as a partial source-semantics checkpoint layered on top of message-level source jumps
-4. paragraph/block-level source precision is still open
-5. the next acceptance target is paragraph/block anchor precision on top of the landed payload-markdown-AST-first heading-tree extraction
+3. the repo still renders the analyzed content primarily as a graph canvas, not as the new structure-first tree view
+4. durable H1 source anchors still exist only as a partial source-semantics checkpoint layered on top of message-level source jumps
+5. paragraph/block-level source precision is still open
+6. the next acceptance target is a real `Session -> Question -> Answer -> Outline` tree view with paragraph/block anchor precision layered on top of the landed payload-markdown-AST-first heading-tree extraction
 
-### F-05 Short concept extraction
+### F-05 Structure-first rendering and interaction
+
+Spec expectation:
+
+1. the primary view should privilege comprehension and navigation over graph semantics
+2. users should be able to expand and collapse the session tree like a mind map
+3. the first rendering target should be `Session -> Question -> Answer -> Outline`
+4. graph-style concept relationships can remain a later enhancement
+
+Current state:
+
+`gap`
+
+Notes:
+
+1. the current canvas is still graph-first and does not provide tree-style expand/collapse behavior
+2. current answer-structure work is the data foundation for a tree view, but the view itself is not landed
+3. this rendering reset is now the preferred frontend direction for the next user-facing slice
+
+### F-06 Short concept extraction
 
 Spec expectation:
 
@@ -139,8 +162,9 @@ Notes:
 
 1. shorter heuristic titles now exist
 2. short-concept acceptance is still open
+3. concept extraction should now be treated as the basis of a later `Concept View`, not as the primary rendering mode for the current MVP reading flow
 
-### F-06 Correct graph semantics
+### F-07 Correct graph semantics
 
 Spec expectation:
 
@@ -161,8 +185,9 @@ Notes:
 
 1. node coverage is much better than early runtime-spine versions
 2. edge semantics still lag the documented vocabulary
+3. graph semantics remain important, but they no longer define the first view the user should land in during the current MVP phase
 
-### F-07 Direct node and edge manipulation
+### F-08 Direct node and edge manipulation
 
 Spec expectation:
 
@@ -181,7 +206,7 @@ Notes:
 1. this is one of the stronger functional areas already landed
 2. it should not dominate priority over still-missing P0 semantic/input features
 
-### F-08 Source jump to original chat content
+### F-09 Source jump to original chat content
 
 Spec expectation:
 
@@ -198,7 +223,7 @@ Notes:
 1. message-level and heading-level anchors now exist
 2. multi-source and paragraph/block precision remain open
 
-### F-09 Local persistence and refresh recovery
+### F-10 Local persistence and refresh recovery
 
 Spec expectation:
 
@@ -216,7 +241,7 @@ Notes:
 2. recovery honesty and partial-history protection improved
 3. privacy-compliant persistence contract is still not finished
 
-### F-10 AI structuring service
+### F-11 AI structuring service
 
 Spec expectation:
 
@@ -234,7 +259,7 @@ Notes:
 1. Wave 3 prep exists
 2. real provider-backed runtime capability does not
 
-### F-11 Settings, i18n, and state views
+### F-12 Settings, i18n, and state views
 
 Spec expectation:
 
@@ -251,7 +276,7 @@ Notes:
 1. auto-refresh and clear-map controls exist
 2. i18n and full state-view coverage do not
 
-### F-12 Privacy-boundary compliance
+### F-13 Privacy-boundary compliance
 
 Spec expectation:
 
@@ -265,7 +290,7 @@ Notes:
 
 1. this is still a direct spec deviation
 
-### F-13 Acceptance-grade test coverage
+### F-14 Acceptance-grade test coverage
 
 Spec expectation:
 
@@ -310,12 +335,13 @@ In other words:
 Use this order until the MVP scope is materially closer to the spec:
 
 1. complete long-session usable input and recovery behavior
-2. complete real answer structure extraction and source semantics
-3. complete short-concept quality uplift
-4. land the first real provider-backed AI structuring runtime slice
-5. close privacy-boundary storage violations
-6. expand acceptance coverage around the actual MVP feature range
-7. only then keep deepening secondary shell/state refinements
+2. complete the structure-first tree view for `Session -> Question -> Answer -> Outline`
+3. complete real answer structure extraction and source semantics
+4. complete short-concept quality uplift as a later `Concept View` foundation
+5. land the first real provider-backed AI structuring runtime slice
+6. close privacy-boundary storage violations
+7. expand acceptance coverage around the actual MVP feature range
+8. only then keep deepening secondary shell/state refinements
 
 ## Reporting Rule
 
