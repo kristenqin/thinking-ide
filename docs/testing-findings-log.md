@@ -118,6 +118,17 @@ Use this log to track unresolved or recently resolved testing discoveries that n
 - Failed or gap cases: state-expression clarity for `visible history only`, `refreshing`, and blank-canvas guarded states; information-architecture duplication across status chip / notice / footer / selected-node / tooltip surfaces; task-flow clarity for `Refresh`; task-flow controllability for edit-then-refresh or refresh-then-reload; cross-sample stability of restored/recovery semantics
 - Notes: three sidecar review passes were merged here: state-expression review, task-flow review, and information-architecture review. All three converged on the same high-level conclusion: many functional checkpoints remain sample-bounded and should not be treated as UX-ready. The most consistent issues are that `Refresh`, `RESTORED LOCALLY`, and `VISIBLE HISTORY ONLY` currently describe different system layers at once; blank-canvas guarded states do not clearly explain why no graph is shown or what specific next step will unblock the graph; and `source_lost` plus refresh-related messaging are duplicated across multiple UI surfaces without adding enough new meaning.
 
+### TR-0010 Focused review pass for `Refresh / Restore / partial-history`
+
+- Date: 2026-05-14
+- Spec / governing doc: [ui-ux-acceptance-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/ui-ux-acceptance-checklist.md), [review-reporting-protocol.md](/Users/qyx/Desktop/project/thinking-ide/docs/review-reporting-protocol.md), and [thinking_ide_测试用例文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_测试用例文档.md)
+- Environment: synthesized from the recorded real-host evidence on `https://chatgpt.com/c/6a049933-5204-83ec-ae8a-628b87d50442` and `https://chatgpt.com/c/6a0056a1-5d74-83a4-b767-b8a105284575`, plus prior synthesized review evidence in `TR-0009`
+- Status: `checkpoint`
+- Passed cases: none newly promoted to stronger acceptance language in this focused pass; the closest positive evidence remains the sample-bounded restore success already recorded in `TR-0002`
+- Blocked cases: none newly blocked; this pass was able to judge the scoped review items from recorded evidence
+- Failed or gap cases: `restored locally` remains only `partial`; `visible history only` is still a direct experience gap; `refreshing` still fails as a single understandable state; the end-state reassurance implied by `UP TO DATE` remains weak where refresh has already undone a local edit or deletion; the `Refresh` task loop remains a controllability gap; the preferred information architecture of one primary status, one reason, and one next step is still not met
+- Notes: three new sidecar review passes were merged here with intentionally narrow scope: state-expression review, task-flow/controllability review, and information-architecture review, all focused only on `Refresh / Restore / partial-history`. All three converged that there is no materially distinct new finding beyond `TF-0004`, `TF-0005`, `TF-0006`, `TF-0007`, `TF-0008`, and `TF-0009`; instead, the new evidence strengthens those existing findings. The most important carry-forward conclusion is that `Refresh` remains non-singular in user meaning, restored-history confidence remains sample-bounded, and guarded blank-canvas behavior still prevents this slice from being treated as UX-ready.
+
 ## Entry Template
 
 ```text
