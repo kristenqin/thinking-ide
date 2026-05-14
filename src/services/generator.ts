@@ -3,7 +3,7 @@ import type { MessageRef } from "../models/messageRef";
 import type { ConceptMapNodeRecord } from "../models/node";
 import type { SourceRef } from "../models/source";
 import { createId } from "../utils/id";
-import { extractOutlineHeadings } from "../utils/markdown";
+import { extractOutlineSections } from "../utils/markdown";
 import { clampText, normalizeText, splitIntoConcepts } from "../utils/text";
 
 function resolveSourceId(messageId: string, sources: SourceRef[]): string | undefined {
@@ -140,8 +140,12 @@ export function generateDraftMap(
       label: "answers"
     });
 
-    extractOutlineHeadings(answer.markdownText ?? answer.text).forEach((outline, index) => {
+    const outlineSections = extractOutlineSections(answer.markdownText ?? answer.text);
+    const outlineNodeIds: string[] = [];
+
+    outlineSections.forEach((outline, index) => {
       const outlineNodeId = createId("node");
+      outlineNodeIds.push(outlineNodeId);
       nodes.push({
         id: outlineNodeId,
         type: "concept",
@@ -151,7 +155,7 @@ export function generateDraftMap(
         },
         data: {
           title: clampText(outline.title, 34),
-          summary: outline.title,
+          summary: clampText(outline.sectionText, 100),
           role: "answer_outline",
           status: "draft",
           sourceId: resolveOutlineSourceId(answer.id, outline.title, outline.level, sources)
@@ -160,7 +164,10 @@ export function generateDraftMap(
 
       edges.push({
         id: createId("edge"),
-        source: answerNodeId,
+        source:
+          outline.parentIndex !== undefined
+            ? (outlineNodeIds[outline.parentIndex] ?? answerNodeId)
+            : answerNodeId,
         target: outlineNodeId,
         data: {
           relation: "contains",

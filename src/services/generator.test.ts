@@ -197,14 +197,39 @@ test("generateDraftMap preserves markdown heading levels for nested answer outli
     outlineNodes.map((node) => ({
       title: node.data.title,
       sourceId: node.data.sourceId,
-      x: node.position.x
+      x: node.position.x,
+      summary: node.data.summary
     })),
     [
-      { title: "Top level", sourceId: "source-h1", x: 340 },
-      { title: "Nested section", sourceId: "source-h2", x: 376 },
-      { title: "Deep section", sourceId: "source-h3", x: 412 }
+      {
+        title: "Top level",
+        sourceId: "source-h1",
+        x: 340,
+        summary: "Intro Nested section Details Deep section More details"
+      },
+      {
+        title: "Nested section",
+        sourceId: "source-h2",
+        x: 376,
+        summary: "Details Deep section More details"
+      },
+      {
+        title: "Deep section",
+        sourceId: "source-h3",
+        x: 412,
+        summary: "More details"
+      }
     ]
   );
+
+  const containsEdges = draft.edges.filter((edge) => edge.data?.relation === "contains");
+  assert.equal(containsEdges.length, 3);
+  assert.equal(draft.nodes.find((node) => node.id === containsEdges[0]?.source)?.data.role, "answer");
+  assert.equal(draft.nodes.find((node) => node.id === containsEdges[0]?.target)?.data.title, "Top level");
+  assert.equal(draft.nodes.find((node) => node.id === containsEdges[1]?.source)?.data.title, "Top level");
+  assert.equal(draft.nodes.find((node) => node.id === containsEdges[1]?.target)?.data.title, "Nested section");
+  assert.equal(draft.nodes.find((node) => node.id === containsEdges[2]?.source)?.data.title, "Nested section");
+  assert.equal(draft.nodes.find((node) => node.id === containsEdges[2]?.target)?.data.title, "Deep section");
 });
 
 test("generateDraftMap reads answer_outline headings from markdownText when normalized text has lost heading syntax", () => {

@@ -117,11 +117,11 @@ Current state:
 
 Notes:
 
-1. a payload-markdown-AST-first `answer_outline` checkpoint is now landed
+1. a payload-markdown-AST-first `answer_outline` checkpoint is now landed, and it now carries first-pass heading-tree semantics
 2. no-heading answers now return an empty outline instead of paragraph or sentence fallback guesses
 3. durable H1 source anchors still exist only as a partial source-semantics checkpoint layered on top of message-level source jumps
 4. paragraph/block-level source precision is still open
-5. the next acceptance target is richer heading-tree and section semantics on top of the landed payload-markdown-AST-first extraction
+5. the next acceptance target is paragraph/block anchor precision on top of the landed payload-markdown-AST-first heading-tree extraction
 
 ### F-05 Short concept extraction
 
