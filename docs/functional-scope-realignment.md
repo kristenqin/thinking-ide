@@ -118,10 +118,10 @@ Current state:
 Notes:
 
 1. heuristic `answer_outline` exists
-2. the current path still derives outline items from flattened `answer.text`, even though the live answer is already Markdown-rendered HTML
+2. the current path still derives outline items from flattened `answer.text` through heuristics instead of parsing the conversation payload as markdown structure
 3. H1-first extraction exists only as a partial checkpoint layered on top of that flattened text path
 4. paragraph/block-level source precision is still open
-5. the next acceptance target is DOM heading-tree-first extraction with empty-outline fallback when no headings exist
+5. the next acceptance target is payload-markdown-AST-first extraction with empty-outline fallback when no headings exist
 
 ### F-05 Short concept extraction
 

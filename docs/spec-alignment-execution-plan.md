@@ -116,7 +116,7 @@ Must include:
 
 1. `question` and `answer` abstraction quality
 2. real `answer_outline`
-   `answer_outline` must come from the rendered answer heading tree first, not from flattened `textContent` heuristics
+   `answer_outline` must come from markdown structure parsed from the conversation payload first, not from flattened `textContent` heuristics
 3. no-heading answers return an empty outline instead of paragraph/ sentence fallback guesses
 4. short concept extraction
 5. bounded concept counts
