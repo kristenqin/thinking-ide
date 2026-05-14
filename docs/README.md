@@ -25,6 +25,7 @@ This folder contains the operational engineering guardrails for autonomous execu
 19. Engineering review checklist: [engineering-review-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/engineering-review-checklist.md)
 20. Worktree hygiene policy: [worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md)
 21. Session handoff guide: [session-handoff.md](/Users/qyx/Desktop/project/thinking-ide/docs/session-handoff.md)
+22. UI/UX acceptance checklist: [ui-ux-acceptance-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/ui-ux-acceptance-checklist.md)
 
 ## Execution Tracking
 
@@ -44,6 +45,7 @@ This folder contains the operational engineering guardrails for autonomous execu
 8. Worktree hygiene policy: [worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md)
 9. Session handoff guide: [session-handoff.md](/Users/qyx/Desktop/project/thinking-ide/docs/session-handoff.md)
 10. Functional scope realignment baseline: [functional-scope-realignment.md](/Users/qyx/Desktop/project/thinking-ide/docs/functional-scope-realignment.md)
+11. UI/UX acceptance checklist: [ui-ux-acceptance-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/ui-ux-acceptance-checklist.md)
 
 ## Evaluation Fixtures
 
