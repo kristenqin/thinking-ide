@@ -102,7 +102,6 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 49. Landed the fifth Wave 2 source-semantics checkpoint: `SourceRef` now carries durable `anchor.type` metadata, `chatAdapter` can emit assistant H1 heading sources from the live DOM, `generateDraftMap()` assigns `answer_outline` nodes to those heading sources when available, and `sourceLocator` now resolves heading anchors directly before falling back to the parent answer block.
 50. Landed the fourth Wave 2 concept-quality checkpoint: concept extraction now produces shorter heuristic titles plus fuller summaries, and avoids re-emitting Markdown H1 headings as duplicate concept nodes. This is still a heuristic checkpoint rather than short-concept acceptance.
 51. Landed a third Wave 1 shell-productization checkpoint: on the real `chatgpt.com` host landing page, the sidePanel now reports an explicit entry state instead of pretending it is already attached to an active conversation, and the panel copy now consumes session-state semantics more directly for entry/restored/partial-history callouts. This is still a Wave 1 checkpoint, not shell acceptance.
-52. Added a fixed real-host Chrome test-profile helper: `npm run test:realhost:profile:open` now opens a reusable ChatGPT test profile, and `npm run test:realhost:profile:status` now probes whether that profile is logged in and conversation-ready. This improves real-host validation setup, but does not change the mock-host runtime gate or count as product acceptance.
 
 ## Quality Gate
 

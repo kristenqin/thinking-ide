@@ -76,7 +76,7 @@ This folder contains the operational engineering guardrails for autonomous execu
 4. Do not mark work done unless it satisfies `definition-of-done`.
 5. Install local repo hooks with `npm run setup:hooks`.
 6. Use `npm run runtime:validate` for the full extension-load smoke pass, or rely on `npm run ci` to run the built-artifact runtime gate automatically.
-7. Use `npm run test:realhost:profile:open` and `npm run test:realhost:profile:status` to prepare and reuse the fixed Chrome profile for real-ChatGPT validation.
+7. Use the currently open Chrome session for real-ChatGPT validation when a spec or runtime investigation requires production-host evidence.
 8. Use `document-sync-policy` whenever a slice changes runtime guarantees, repo gates, current focus, or risk posture.
 9. Use `debug-triage-policy` when investigating UI or runtime issues so rendered evidence is captured before code-first debugging.
 10. Use `frontend-ui-contract` whenever a slice changes user-visible UI or interaction behavior.

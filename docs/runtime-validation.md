@@ -101,25 +101,12 @@ Current limits:
 
 Because of active risks `R-01`, `R-02`, and `R-06`, real ChatGPT validation is still needed before claiming robust runtime behavior across production conversations. Treat this smoke test as the fast black-box guardrail for M1, not as final parity proof.
 
-## Fixed Real-Host Test Profile
+## Real-Host Validation
 
-For repeated real-ChatGPT validation, the repo now provides a fixed Chrome test profile helper instead of requiring manual profile setup every run.
-
-Commands:
-
-1. `npm run test:realhost:profile:open`
-   Opens Google Chrome with a fixed profile directory at `~/.thinking-ide/chrome-test-profile` by default.
-2. `npm run test:realhost:profile:status`
-   Clones that fixed profile into a temporary probe directory, opens `https://chatgpt.com/`, and reports whether the profile is logged in and whether a conversation is already open.
-
-Optional override:
-
-1. Set `THINKING_IDE_TEST_CHROME_PROFILE_DIR` to use a different fixed profile directory.
+When a spec case or runtime investigation needs production-host evidence, run it directly against the currently open Chrome session that already has the target ChatGPT conversation and the unpacked extension available.
 
 Recommended workflow:
 
-1. Run `npm run test:realhost:profile:open`.
-2. Log in to ChatGPT once inside that Chrome window.
-3. Reuse that same fixed profile for future real-host smoke and spec-case runs.
-
-This helper does not replace the mock-host runtime gate. It only reduces the setup friction for real-host validation that still sits outside `npm run runtime:validate`.
+1. Open the target ChatGPT conversation in Chrome.
+2. Make sure the unpacked Thinking IDE extension is loaded in that same browser session.
+3. Run the manual or assisted real-host check against the live page instead of using a separate profile-probe step.
