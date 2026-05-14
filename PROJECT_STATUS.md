@@ -31,7 +31,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 ## Next
 
 1. Continue Wave 2 by closing the product-facing long-session input gap, not just the adapter/runtime checkpoint gap: all relevant questions and answers from a usable historical conversation need to flow into graph generation.
-2. Continue Wave 2 by pushing `answer_outline` from H1-level checkpoint semantics toward more complete answer-structure and source anchoring behavior.
+2. Continue Wave 2 by replacing flattened-text `answer_outline` heuristics with a heading-tree-first path from the rendered assistant DOM; no-heading answers should return an empty outline instead of paragraph/sentence fallback guesses.
 3. Continue Wave 2 by improving concept quality toward actual short-concept behavior rather than only shorter heuristic titles.
 4. Start the first bounded Wave 3 runtime slice once the richer Wave 2 input path is stable enough to justify provider-backed structuring.
 5. Prioritize the still-open P0 privacy-boundary correction instead of letting it stay indefinitely behind local runtime refinement.

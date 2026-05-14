@@ -107,8 +107,9 @@ Notes:
 Spec expectation:
 
 1. generate `answer_outline`
-2. use Markdown/structure rather than flat text only
+2. use the rendered answer structure rather than flat text only
 3. allow users to jump back to relevant source structure
+4. if the answer has no heading structure, return an empty outline rather than guessing one from paragraphs
 
 Current state:
 
@@ -117,8 +118,10 @@ Current state:
 Notes:
 
 1. heuristic `answer_outline` exists
-2. H1-first extraction exists
-3. paragraph/block-level source precision is still open
+2. the current path still derives outline items from flattened `answer.text`, even though the live answer is already Markdown-rendered HTML
+3. H1-first extraction exists only as a partial checkpoint layered on top of that flattened text path
+4. paragraph/block-level source precision is still open
+5. the next acceptance target is DOM heading-tree-first extraction with empty-outline fallback when no headings exist
 
 ### F-05 Short concept extraction
 
