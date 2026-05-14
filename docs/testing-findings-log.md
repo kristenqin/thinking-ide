@@ -107,6 +107,17 @@ Use this log to track unresolved or recently resolved testing discoveries that n
 - Failed or gap cases: none newly confirmed as standalone product failures in this checkpoint slice; the important regression signal is that several earlier real-host passes do not generalize cleanly to this new history sample because the runtime falls back to partial-history protection before exposing a usable graph surface
 - Notes: this sample is useful precisely because it weakens the earlier assumption that a single real-host pass generalizes across conversation shapes. The same repo build that previously produced usable restored graphs on `6a049933-5204-83ec-ae8a-628b87d50442` now oscillates between `VISIBLE HISTORY ONLY` and `REFRESHING/RESTORED LOCALLY` on `6a0056a1-5d74-83a4-b767-b8a105284575`, while the canvas remains visually blank. Treat prior `pass` conclusions as sample-bounded checkpoints unless they are revalidated on additional host conversations.
 
+### TR-0009 Parallel UI/UX review synthesis from sidecar agents
+
+- Date: 2026-05-14
+- Spec / governing doc: [ui-ux-acceptance-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/ui-ux-acceptance-checklist.md), [review-reporting-protocol.md](/Users/qyx/Desktop/project/thinking-ide/docs/review-reporting-protocol.md), and [thinking_ide_测试用例文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_测试用例文档.md)
+- Environment: synthesized from the existing real-host evidence on `https://chatgpt.com/c/6a049933-5204-83ec-ae8a-628b87d50442` and `https://chatgpt.com/c/6a0056a1-5d74-83a4-b767-b8a105284575`
+- Status: `checkpoint`
+- Passed cases: none newly promoted to stronger acceptance language in this synthesis pass
+- Blocked cases: `entry` state expression remains blocked because `TR-0001` through `TR-0008` do not contain enough recorded evidence for a proper UI/UX judgment on the entry state
+- Failed or gap cases: state-expression clarity for `visible history only`, `refreshing`, and blank-canvas guarded states; information-architecture duplication across status chip / notice / footer / selected-node / tooltip surfaces; task-flow clarity for `Refresh`; task-flow controllability for edit-then-refresh or refresh-then-reload; cross-sample stability of restored/recovery semantics
+- Notes: three sidecar review passes were merged here: state-expression review, task-flow review, and information-architecture review. All three converged on the same high-level conclusion: many functional checkpoints remain sample-bounded and should not be treated as UX-ready. The most consistent issues are that `Refresh`, `RESTORED LOCALLY`, and `VISIBLE HISTORY ONLY` currently describe different system layers at once; blank-canvas guarded states do not clearly explain why no graph is shown or what specific next step will unblock the graph; and `source_lost` plus refresh-related messaging are duplicated across multiple UI surfaces without adding enough new meaning.
+
 ## Entry Template
 
 ```text
@@ -216,3 +227,29 @@ Use this log to track unresolved or recently resolved testing discoveries that n
 - Expected behavior: runtime semantics should distinguish at least three concepts clearly: reopening an existing local draft, validating whether enough host history is visible to trust that draft, and actively reanalyzing the current conversation into a refreshed graph. A user-triggered refresh should not look identical to a local restore when the system ultimately declines to recompute.
 - Evidence: in earlier runs on `6a049933-5204-83ec-ae8a-628b87d50442`, `Refresh` could lead back to an apparently usable restored graph; on `6a0056a1-5d74-83a4-b767-b8a105284575`, the same action sequence left the panel oscillating between `REFRESHING`, `RESTORED LOCALLY`, and `VISIBLE HISTORY ONLY`, while the canvas remained visually empty.
 - Development handoff notes: treat this as a product/runtime-semantics issue, not just copy polish. Separate the concepts of `restore local draft`, `rebind against visible host history`, and `reanalyze current conversation`, and make the panel state + action wording reflect which of those actually happened.
+
+### TF-0008 Blank-canvas guarded states do not explain the missing graph clearly enough
+
+- Date: 2026-05-14
+- Spec / governing doc: [ui-ux-acceptance-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/ui-ux-acceptance-checklist.md) and [thinking_ide_测试用例文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_测试用例文档.md)
+- Case or scope: UI/UX review of `VISIBLE HISTORY ONLY` and blank-canvas guarded variants, especially on `TR-0008`
+- Environment: real-host ChatGPT session in the currently open Chrome window, especially `https://chatgpt.com/c/6a0056a1-5d74-83a4-b767-b8a105284575`, with the unpacked extension loaded in the active browser session
+- Status: `confirmed`
+- Severity: `checkpoint-gap`
+- Observed behavior: on the regression sample, the sidepanel can remain in `VISIBLE HISTORY ONLY` with a visually blank canvas while previously passed graph-level interactions become unavailable. The current explanation tells users that only part of the conversation is visible, but does not strongly answer why the graph itself is blank or what concrete step will restore graph visibility.
+- Expected behavior: if the runtime intentionally guards the graph because visible history is incomplete, the panel should explain that the graph is being withheld or kept frozen, why that happened, and what exact next step should unblock it.
+- Evidence: `TR-0008` records the new sample falling back to `VISIBLE HISTORY ONLY` with a blank canvas and blocking previously used graph-level evidence; sidecar state-expression and information-architecture reviews both flagged this state as a direct experience gap.
+- Development handoff notes: treat this as more than copy cleanup. The guarded blank-canvas state needs a stronger reason-and-next-step contract so users can distinguish “no graph is currently shown” from “graph failed to load” or “refresh is still in progress.”
+
+### TF-0009 Panel messaging duplicates status meaning across multiple UI surfaces
+
+- Date: 2026-05-14
+- Spec / governing doc: [ui-ux-acceptance-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/ui-ux-acceptance-checklist.md) and [review-reporting-protocol.md](/Users/qyx/Desktop/project/thinking-ide/docs/review-reporting-protocol.md)
+- Case or scope: information-architecture review of status chip, notice, footer, selected-node copy, and tooltip duplication
+- Environment: synthesized from the recorded real-host evidence in `TR-0001` through `TR-0009` and `TF-0001` through `TF-0008`
+- Status: `confirmed`
+- Severity: `checkpoint-gap`
+- Observed behavior: the sidepanel frequently expresses the same state or failure through several overlapping surfaces at once. Examples include `REFRESHING` plus restore or partial-history notices, and `source_lost` meaning repeated through selected-node copy, toolbar tooltip, and panel-level orientation text.
+- Expected behavior: each state should have one primary status, one reason, and one next step, rather than requiring users to reconcile several parallel explanations that only partially differ.
+- Evidence: sidecar information-architecture review flagged repeated notices, competing status labels, summary/notice/footer duplication, and duplicated `source_lost` explanation; state-expression and task-flow reviews independently reached the same conclusion when analyzing refresh and guarded-state behavior.
+- Development handoff notes: prioritize simplifying the messaging hierarchy before polishing individual strings. Separate panel-global state, selected-object state, and action-result feedback so users do not need to infer which layer of the system each message belongs to.
