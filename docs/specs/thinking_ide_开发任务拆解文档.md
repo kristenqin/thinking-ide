@@ -41,6 +41,14 @@ MVP 必须满足：
 4. 右侧 Concept Map 支持直接操作。
 5. 页面刷新后用户编辑结果可恢复。
 
+## 2.1 当前 MVP 视图策略补充
+
+当前 MVP 主视图策略补充如下：
+
+1. 当前主渲染优先是 `Session -> Question -> Answer -> Outline` 的结构树。
+2. `Concept View` 相关 graph 渲染保留为后续增强路线。
+3. 因此，接下来的前端主任务优先是结构树渲染、展开/收起和原文联动，而不是继续深化 graph-first 主视图。
+
 ## 3. 任务优先级定义
 
 | 优先级 | 定义 |
@@ -56,7 +64,7 @@ Phase 0：工程初始化
 Phase 1：插件注入与右侧面板
 Phase 2：数据模型与本地存储
 Phase 3：ChatAdapter 与消息监听
-Phase 4：Concept Map Canvas
+Phase 4：Primary Structure View
 Phase 5：节点与关系直接操作
 Phase 6：AI 结构化生成流程
 Phase 7：SourceLocator 原文定位
@@ -1680,4 +1688,3 @@ TASK-1001 P0 回归测试
 □ 不长期存储完整用户提问和 AI 回答
 □ P0 测试用例全部通过
 ```
-

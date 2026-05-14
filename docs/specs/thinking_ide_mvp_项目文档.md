@@ -43,6 +43,19 @@ Thinking IDE 以浏览器插件 / 页面增强插件的形式运行在官方 AI 
 
 Thinking IDE 聚焦于 Chat Area 与 Thinking Panel 的连接：读取官方 Chat 页面中的对话内容，生成可编辑的 Concept Map 草稿，并支持用户通过节点跳转回原始聊天内容。
 
+### 4.1 当前 MVP 视图策略补充
+
+当前 MVP 先不把 graph / Concept Map 作为第一主视图，而是采用：
+
+```text
+Session
+└── Question
+    └── Answer
+        └── Outline
+```
+
+也就是说，用户首先看到和操作的是结构树视图；`Concept` 相关能力保留为后续独立 `Concept View` 的增强路线。
+
 核心模块包括：
 
 1. **Chat Adapter**：识别、读取、定位官方 Chat Area 中的消息。
@@ -172,6 +185,7 @@ source_lost：原文定位失效
 9. 支持用户点击节点后跳转到官方 Chat 页面中对应的原始问题或回答段落。
 10. 支持用户通过拖拽、重命名、连接、删除等直接操作整理节点。
 11. 支持用户将 AI 生成的结构草稿逐步整理成自己的 Concept Map。
+12. 在当前阶段，默认主视图优先呈现 `Session -> Question -> Answer -> Outline` 的结构树，而不是 graph-first 的 Concept Map Canvas。
 
 ### 6.2 MVP 边界
 
@@ -846,4 +860,3 @@ AI 草稿逐渐变成用户自己的 Concept Map
 Thinking IDE 的核心价值是：
 
 > **在不重做 Chat 的前提下，把官方 AI Chat 页面增强成一个 AI 辅助、用户主导、支持直接操作的 Concept Map 工作台。**
-

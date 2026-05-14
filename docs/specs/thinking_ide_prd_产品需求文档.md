@@ -19,6 +19,15 @@ Thinking IDE 是一个嵌入在官方 AI Chat 页面右侧的 Concept Map 工作
 
 Thinking IDE 不重做 AI Chat，不替代官方输入框、模型调用和聊天历史系统，而是专注于解决长对话中的定位、结构化、概念整理和认知模型构建问题。
 
+### 2.1 当前 MVP 视图策略补充
+
+为降低当前 MVP 的交互复杂度，主视图策略补充如下：
+
+1. 当前第一主视图不是 graph-first 的 Concept Map Canvas。
+2. 当前第一主视图优先采用 `Session -> Question -> Answer -> Outline` 的结构树。
+3. `Concept` 相关节点和关系继续保留在数据模型与后续能力范围中，但作为后续 `Concept View` 的增强路线，而不是当前第一渲染面。
+4. 因此，当前 MVP 首先要让用户更容易浏览长会话结构、展开/收起层级、跳回原文；再逐步升级到更强的 Concept View。
+
 核心产品价值：
 
 ```text
@@ -145,6 +154,7 @@ MVP 阶段需要实现以下目标：
 10. 支持用户手动创建、删除和修改关系。
 11. 支持点击节点跳转到官方 Chat 原文位置。
 12. 支持页面刷新后恢复 Concept Map 数据。
+13. 当前主视图优先将一次 Session 渲染成 `Session -> Question -> Answer -> Outline` 的结构树。
 
 ## 5.2 MVP 成功标准
 
@@ -201,6 +211,17 @@ MVP 暂不包含：
 Thinking Panel 是注入在官方 AI Chat 页面右侧的 Concept Map 工作区域。
 
 它负责展示 AI 生成的候选节点和候选关系，并支持用户编辑、调整和跳转原文。
+
+在当前 MVP 中，Thinking Panel 的默认主视图补充为：
+
+```text
+Session
+└── Question
+    └── Answer
+        └── Answer Outline
+```
+
+`Concept View` 仍属于后续增强方向。
 
 ## 7.2 Chat Adapter
 
@@ -1281,4 +1302,3 @@ MVP 完成时，需要满足以下总体验收条件：
 6. 用户删除候选节点后，后续重新解析是否需要避免重复出现？
 7. 本地数据清除入口放在哪里？
 8. 是否需要支持用户手动关闭某个会话的自动解析？
-

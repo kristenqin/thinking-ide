@@ -28,6 +28,14 @@
 将 Thinking IDE 拆成清晰的 React 组件、状态模块和业务服务，避免 UI 组件、画布逻辑、Chat DOM 适配、本地存储和 AI 结构化服务互相耦合。
 ```
 
+## 2.1 当前 MVP 主渲染补充
+
+当前 MVP 主渲染补充如下：
+
+1. 第一主视图优先是 `Session -> Question -> Answer -> Outline` 的结构树。
+2. 原有 `ConceptMapCanvas / React Flow` 路线保留为后续 `Concept View` 的增强基础。
+3. 因此，本阶段组件设计应优先考虑 `PrimaryStructureView` 一类结构树组件，而不是继续把 graph canvas 视为唯一主容器。
+
 ## 3. 组件设计原则
 
 ### 3.1 展示组件与业务逻辑分离
@@ -36,7 +44,19 @@
 
 业务逻辑放在 store、service、controller 或 hook 中。
 
-### 3.2 React Flow 承担画布基础能力
+### 3.2 当前 MVP 采用结构树主渲染
+
+当前 MVP 第一主视图优先承担：
+
+1. 结构树渲染。
+2. 展开/收起。
+3. 节点选中。
+4. 原文跳转入口。
+5. 轻量节点操作。
+
+`React Flow` 和 graph-canvas 路线仍保留为后续 `Concept View` 的增强基础。
+
+### 3.3 React Flow 承担后续 Concept View 的画布基础能力
 
 React Flow 负责：
 
@@ -49,7 +69,7 @@ React Flow 负责：
 
 Thinking IDE 自研部分只负责业务语义和交互联动。
 
-### 3.3 shadcn/ui 与 Radix UI 承担通用 UI
+### 3.4 shadcn/ui 与 Radix UI 承担通用 UI
 
 以下通用 UI 不自研：
 
@@ -67,7 +87,7 @@ Thinking IDE 自研部分只负责业务语义和交互联动。
 12. ScrollArea
 13. Separator
 
-### 3.4 Floating Toolbar 采用 Canvas Overlay 方案
+### 3.5 Floating Toolbar 采用渲染层外置方案
 
 Floating Toolbar 不放在节点内部，而作为 ConceptMapCanvas 的 overlay 子组件。
 
@@ -1077,4 +1097,3 @@ ConceptMapRepository
 3. 支持节点选中、重命名、拖拽、连接、删除。
 4. 支持通过 Toolbar 跳转原文。
 5. 支持本地保存和恢复用户编辑结果。
-
