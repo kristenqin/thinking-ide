@@ -1,10 +1,12 @@
 import { RefreshCcw, Settings2, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import type { SidepanelSessionState } from "../../services/sidepanelSessionState";
 import { useThinkingStore } from "../../stores/useThinkingStore";
 import { Button } from "../ui/button";
 import { ConceptMapCanvas } from "../canvas/ConceptMapCanvas";
 
 type ThinkingPanelProps = {
+  sessionState: SidepanelSessionState;
   onGenerate: () => Promise<void>;
   onCollapse: () => void;
 };
@@ -21,18 +23,19 @@ function getShellNoticeTone(options: {
   status: string;
   error?: string;
   notice?: string;
+  sessionState: SidepanelSessionState;
 }): ShellNoticeTone {
-  const { status, error, notice } = options;
+  const { status, error, notice, sessionState } = options;
 
   if (status === "failed" || error) {
     return "error";
   }
 
-  if (notice?.includes("only part of this conversation is visible")) {
+  if (sessionState.kind === "partial-history" || notice?.includes("only part of this conversation is visible")) {
     return "warning";
   }
 
-  if (notice?.startsWith("Restored")) {
+  if (sessionState.kind === "restored" || sessionState.kind === "entry") {
     return "info";
   }
 
@@ -44,13 +47,21 @@ function getShellNoticeTone(options: {
 }
 
 function getShellCallout(options: {
-  notice?: string;
   isWorkspaceEmpty: boolean;
   documentPresent: boolean;
+  sessionState: SidepanelSessionState;
 }): ShellCallout | null {
-  const { notice, isWorkspaceEmpty, documentPresent } = options;
+  const { isWorkspaceEmpty, documentPresent, sessionState } = options;
 
-  if (notice?.startsWith("Restored saved map")) {
+  if (sessionState.kind === "entry") {
+    return {
+      eyebrow: "Open a chat first",
+      message: "Start or open a ChatGPT conversation. Thinking IDE will draft the first node set after a completed assistant reply appears.",
+      tone: "info"
+    };
+  }
+
+  if (sessionState.kind === "restored") {
     return {
       eyebrow: "Restored locally",
       message: "This panel reopened a saved draft for the active conversation. Refresh again after more history loads if source links still need review.",
@@ -58,7 +69,7 @@ function getShellCallout(options: {
     };
   }
 
-  if (notice?.startsWith("Restored map rebound")) {
+  if (sessionState.kind === "rebound") {
     return {
       eyebrow: "Visible history rebound",
       message: "The saved draft is currently rebound against the visible conversation window. Review it before making structural edits.",
@@ -66,10 +77,13 @@ function getShellCallout(options: {
     };
   }
 
-  if (notice?.includes("only part of this conversation is visible")) {
+  if (sessionState.kind === "partial-history") {
     return {
       eyebrow: "Visible history only",
-      message: notice,
+      message:
+        sessionState.mode === "manual"
+          ? "Refresh is paused because only part of this conversation is visible right now. The saved map stays unchanged until more history loads."
+          : "Only part of this conversation is visible right now, so the saved map stays in place until more history loads.",
       tone: "warning"
     };
   }
@@ -87,7 +101,7 @@ function getShellCallout(options: {
   return null;
 }
 
-export function ThinkingPanel({ onGenerate, onCollapse: onClosePanel }: ThinkingPanelProps) {
+export function ThinkingPanel({ sessionState, onGenerate, onCollapse: onClosePanel }: ThinkingPanelProps) {
   const {
     document,
     status,
@@ -104,7 +118,12 @@ export function ThinkingPanel({ onGenerate, onCollapse: onClosePanel }: Thinking
   const settingsCardRef = useRef<HTMLDivElement>(null);
   const conversationTitle = document?.conversation.title || "Current chat";
   const isGenericConversationTitle = /^(chatgpt|current chat)$/i.test(conversationTitle.trim());
-  const displayConversationTitle = isGenericConversationTitle ? "Active chat" : conversationTitle;
+  const displayConversationTitle =
+    !document && sessionState.kind === "entry"
+      ? "Open a chat first"
+      : isGenericConversationTitle
+        ? "Active chat"
+        : conversationTitle;
   const autoGenerate = document?.settings.autoGenerate ?? true;
   const nodeCount = document?.nodes.filter((node) => node.data.status !== "removed").length ?? 0;
   const edgeCount = document?.edges.filter((edge) => edge.data?.status !== "removed").length ?? 0;
@@ -113,11 +132,11 @@ export function ThinkingPanel({ onGenerate, onCollapse: onClosePanel }: Thinking
   const mapSummary = document
     ? `${nodeCount} nodes · ${edgeCount} relations${sourceLostCount ? ` · ${sourceLostCount} source issue${sourceLostCount > 1 ? "s" : ""}` : ""}`
     : "Concept map workspace";
-  const shellNoticeTone = getShellNoticeTone({ status, error, notice });
+  const shellNoticeTone = getShellNoticeTone({ status, error, notice, sessionState });
   const shellCallout = getShellCallout({
-    notice,
     isWorkspaceEmpty,
-    documentPresent: Boolean(document)
+    documentPresent: Boolean(document),
+    sessionState
   });
 
   const statusLabel =
@@ -142,17 +161,21 @@ export function ThinkingPanel({ onGenerate, onCollapse: onClosePanel }: Thinking
   const headerSummary =
     status === "failed"
       ? "This side panel could not refresh from the active chat. Review the message below, then try again."
+      : sessionState.kind === "entry"
+        ? "Open or start a ChatGPT conversation. This panel stays ready and drafts the first map after the first completed assistant reply appears."
       : status === "generating"
         ? "Refreshing the active conversation into a side-panel concept map."
-        : shellCallout?.tone === "warning"
+        : sessionState.kind === "partial-history" || shellCallout?.tone === "warning"
           ? "Review the currently visible history before making larger changes to the draft."
-          : shellCallout?.tone === "info"
+          : sessionState.kind === "restored" || shellCallout?.tone === "info"
             ? "This side panel stays attached to the active conversation while history and source links settle."
             : document
               ? "Refine the current concept map without leaving the active chat."
               : "This panel stays ready for the active chat and drafts the first map once a completed reply is available.";
   const bottomLog = notice
     ? notice
+    : sessionState.kind === "entry"
+      ? "Open a ChatGPT conversation to start the first draft."
     : !document
       ? "Waiting for the active chat to yield the first draft."
       : isWorkspaceEmpty

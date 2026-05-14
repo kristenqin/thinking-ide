@@ -33,6 +33,17 @@ function createConversation(id: string): ConversationRef {
   };
 }
 
+function createGeneratedSessionConversation(): ConversationRef {
+  return {
+    id: "session:landing",
+    conversationKey: "session:landing",
+    identitySource: "generated-session",
+    title: "ChatGPT",
+    sourceUrl: "https://chatgpt.com/",
+    updatedAt: "2026-05-12T00:00:00.000Z"
+  };
+}
+
 function createDocument(conversation: ConversationRef): ThinkingDocument {
   return {
     conversation,
@@ -134,6 +145,70 @@ test("controller surfaces a restored idle notice after hydrating a saved convers
   assert.deepEqual(sessionStates.at(-1), {
     kind: "restored",
     conversationId: conversation.id,
+    historyCoverage: "unknown"
+  });
+});
+
+test("controller reports an entry state when the real host is open without an active conversation yet", async () => {
+  installWindowTimers();
+  const conversation = createGeneratedSessionConversation();
+  const notices: Array<string | undefined> = [];
+  const statuses: string[] = [];
+  const sessionStates: SidepanelSessionState[] = [];
+  let currentDocument: ThinkingDocument | undefined;
+
+  const controller = createSidepanelSessionController({
+    autoGenerate: false,
+    store: {
+      async hydrate() {},
+      getDocument() {
+        return currentDocument;
+      },
+      async replaceDocument(document) {
+        currentDocument = document;
+      },
+      setNotice(notice) {
+        notices.push(notice);
+      },
+      setStatus(status) {
+        statuses.push(status);
+      }
+    },
+    onSessionStateChange(state) {
+      sessionStates.push(state);
+    },
+    runtime: {
+      async closeSidePanel() {},
+      async fetchActiveChatContext() {
+        return {
+          conversation,
+          completion: {
+            latestMessageRole: null,
+            completionKey: null,
+            isStreaming: false
+          }
+        };
+      },
+      async scanActiveChat() {
+        throw new Error("scanActiveChat should not run in this test");
+      },
+      subscribeToActiveHostChanges() {
+        return () => undefined;
+      },
+      subscribeToSettledMessages() {
+        return () => undefined;
+      }
+    }
+  });
+
+  controller.start();
+  await flushMicrotasks();
+  controller.dispose();
+
+  assert.equal(notices.at(-1), "Open a ChatGPT conversation to draft the first map here.");
+  assert.equal(statuses.at(-1), "waiting");
+  assert.deepEqual(sessionStates.at(-1), {
+    kind: "entry",
     historyCoverage: "unknown"
   });
 });

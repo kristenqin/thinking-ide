@@ -4,6 +4,10 @@ export type SidepanelHistoryCoverageState = "unknown" | "available" | "partial";
 
 export type SidepanelSessionState =
   | {
+      kind: "entry";
+      historyCoverage: "unknown";
+    }
+  | {
       kind: "idle";
       historyCoverage: "unknown";
     }
@@ -34,6 +38,13 @@ export type SidepanelSessionState =
 export function createIdleSidepanelSessionState(): SidepanelSessionState {
   return {
     kind: "idle",
+    historyCoverage: "unknown"
+  };
+}
+
+export function createEntrySidepanelSessionState(): SidepanelSessionState {
+  return {
+    kind: "entry",
     historyCoverage: "unknown"
   };
 }

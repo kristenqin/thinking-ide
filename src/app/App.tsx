@@ -56,6 +56,7 @@ export function App() {
       style={{ height: "100%" }}
     >
       <ThinkingPanel
+        sessionState={sessionState}
         onGenerate={() => controllerRef.current?.regenerate("manual") ?? Promise.resolve()}
         onCollapse={() => void controllerRef.current?.closePanel()}
       />

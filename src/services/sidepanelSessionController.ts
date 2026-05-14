@@ -12,6 +12,7 @@ import {
 import { buildThinkingDocument } from "./documentBuilder";
 import { generateDraftMap } from "./generator";
 import {
+  createEntrySidepanelSessionState,
   createIdleSidepanelSessionState,
   type SidepanelSessionRefreshMode,
   type SidepanelSessionState
@@ -67,6 +68,10 @@ function getRestoredIdleNotice() {
   return "Restored saved map for this conversation. Refresh after more history loads if source links still need recovery.";
 }
 
+function getEntryIdleNotice() {
+  return "Open a ChatGPT conversation to draft the first map here.";
+}
+
 function getPartialHistoryNotice(mode: RegenerateMode) {
   return mode === "manual"
     ? "Refresh skipped because only part of this conversation is visible right now. The saved map remains unchanged."
@@ -79,6 +84,15 @@ function getReboundNotice() {
 
 function getManualRefreshNotice() {
   return "Map refreshed against the current chat history.";
+}
+
+function isEntryConversationContext(context: ActiveChatContext, documentPresent: boolean) {
+  return (
+    !documentPresent &&
+    context.conversation.identitySource === "generated-session" &&
+    context.completion.latestMessageRole === null &&
+    !context.completion.isStreaming
+  );
 }
 
 export function createSidepanelSessionController({
@@ -136,6 +150,9 @@ export function createSidepanelSessionController({
           historyCoverage: "unknown"
         });
         store.setNotice(getRestoredIdleNotice());
+      } else if (isEntryConversationContext(context, Boolean(restored))) {
+        setSessionState(createEntrySidepanelSessionState());
+        store.setNotice(getEntryIdleNotice());
       } else {
         setSessionState(createIdleSidepanelSessionState());
         if (source === "initial") {
