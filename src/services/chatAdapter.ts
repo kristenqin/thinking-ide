@@ -132,8 +132,8 @@ function buildMessageRef(
 }
 
 function buildSourceRef(message: MessageRef, occurrenceIndex: number): SourceRef {
-  const previewStart = clampText(message.text, 80);
-  const previewEnd = clampText(message.text.slice(-80), 80);
+  const previewStart = message.text.slice(0, 80).trim();
+  const previewEnd = message.text.slice(-80).trim();
 
   return {
     id: createId("source"),
@@ -168,8 +168,8 @@ function buildHeadingSourceRef(
       role: message.role,
       domId,
       occurrenceIndex,
-      previewStart: clampText(message.text, 80),
-      previewEnd: clampText(message.text.slice(-80), 80),
+      previewStart: message.text.slice(0, 80).trim(),
+      previewEnd: message.text.slice(-80).trim(),
       headingText,
       headingLevel
     }

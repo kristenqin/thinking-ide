@@ -1,4 +1,4 @@
-import { normalizeText } from "../utils/text";
+import { normalizeSourceComparableText, normalizeText } from "../utils/text";
 import type { SourceRef } from "../models/source";
 
 export type RevealSourceResult = "revealed" | "lost" | "missing";
@@ -13,9 +13,9 @@ type AnchorMatch = {
 };
 
 function getAnchorMatch(text: string, source: SourceRef): AnchorMatch {
-  const normalizedText = normalizeText(text);
-  const normalizedStart = normalizeText(source.anchor.previewStart);
-  const normalizedEnd = normalizeText(source.anchor.previewEnd);
+  const normalizedText = normalizeSourceComparableText(text);
+  const normalizedStart = normalizeSourceComparableText(source.anchor.previewStart);
+  const normalizedEnd = normalizeSourceComparableText(source.anchor.previewEnd);
 
   return {
     start: Boolean(normalizedStart) && normalizedText.includes(normalizedStart),

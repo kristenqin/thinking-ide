@@ -169,3 +169,53 @@ test("revealSource marks the source as lost instead of highlighting the wrong as
   assert.equal(wrongAssistant.scrolled, false);
   assert.equal(wrongAssistant.getAttribute("data-thinking-ide-highlight"), null);
 });
+
+test("revealSource tolerates markdown heading markers from stored assistant sources", () => {
+  const assistant = new FakeElement(
+    "assistant-heading",
+    "assistant",
+    "The response has a clear core thesis: It uses structural analysis to explain personal pain. The rest of the answer expands the same idea without the raw markdown markers."
+  );
+  const timers = installDom([assistant]);
+
+  const result = revealSource(
+    buildSource({
+      domId: "assistant-heading",
+      previewStart:
+        "The response has a clear core thesis: # It uses structural analysis to explain personal pain.",
+      previewEnd: "The rest of the answer expands the same idea without the raw markdown markers."
+    })
+  );
+
+  assert.equal(result, "revealed");
+  assert.equal(assistant.scrolled, true);
+  assert.equal(assistant.getAttribute("data-thinking-ide-highlight"), "true");
+
+  timers.flushTimers();
+  assert.equal(assistant.getAttribute("data-thinking-ide-highlight"), null);
+});
+
+test("revealSource tolerates clamped source previews from older stored documents", () => {
+  const assistant = new FakeElement(
+    "assistant-clamped",
+    "assistant",
+    "This assistant answer is intentionally long enough to exceed the eighty character preview boundary so that older saved sources would have stored a trailing ellipsis."
+  );
+  const timers = installDom([assistant]);
+
+  const result = revealSource(
+    buildSource({
+      domId: "assistant-clamped",
+      previewStart:
+        "This assistant answer is intentionally long enough to exceed the eighty charac…",
+      previewEnd: "preview boundary so that older saved sources would have stored a trailing ellipsis."
+    })
+  );
+
+  assert.equal(result, "revealed");
+  assert.equal(assistant.scrolled, true);
+  assert.equal(assistant.getAttribute("data-thinking-ide-highlight"), "true");
+
+  timers.flushTimers();
+  assert.equal(assistant.getAttribute("data-thinking-ide-highlight"), null);
+});

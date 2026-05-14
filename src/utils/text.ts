@@ -10,6 +10,22 @@ export function normalizeText(input: string): string {
   return input.replace(/\s+/g, " ").trim();
 }
 
+export function normalizeSourceComparableText(input: string): string {
+  return normalizeText(input)
+    .replace(/[…]+$/u, "")
+    .replace(/\.{3,}$/u, "")
+    .replace(/^#{1,6}\s+/u, "")
+    .replace(/\s#{1,6}\s+/gu, " ")
+    .replace(/^>\s+/u, "")
+    .replace(/\s>\s+/gu, " ")
+    .replace(/\s[-*+]\s+/gu, " ")
+    .replace(/\s\d+[\.\)]\s+/gu, " ")
+    .replace(/\*{1,3}([^*]+)\*{1,3}/gu, "$1")
+    .replace(/_{1,3}([^_]+)_{1,3}/gu, "$1")
+    .replace(/`([^`]+)`/gu, "$1")
+    .trim();
+}
+
 export type ConceptCandidate = {
   title: string;
   summary: string;
