@@ -96,6 +96,17 @@ Use this log to track unresolved or recently resolved testing discoveries that n
 - Failed or gap cases: none newly confirmed in this checkpoint slice; the `TC-TOOLBAR-003` interaction reused an already-known source gap on the selected answer node, but the toolbar entrypoint itself behaved correctly
 - Notes: toolbar presence, entry actions, and basic overlay avoidance are working on the real host. Current source-related instability should continue to be tracked under `TF-0001` through `TF-0003` rather than duplicated as a toolbar-specific issue
 
+### TR-0008 Real-host regression sample for previously passed cases
+
+- Date: 2026-05-14
+- Spec / governing doc: [thinking_ide_测试用例文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_测试用例文档.md)
+- Environment: current frontmost Chrome session on `https://chatgpt.com/c/6a0056a1-5d74-83a4-b767-b8a105284575` with the unpacked Thinking IDE extension loaded in the same browser session
+- Status: `checkpoint`
+- Passed cases: `TC-EXT-001` because the sidepanel still injected on the target ChatGPT conversation page; `TC-ADP-001` because a full browser refresh kept the same conversation URL and the panel reattached to the same conversation shell; `TC-GEN-005` because clicking browser refresh and waiting through the panel lifecycle showed the runtime moving through `REFRESHING` and then settling back into a guarded steady state without crashing the host page
+- Blocked cases: `TC-SRC-001`, `TC-ADP-002`, `TC-ADP-003`, `TC-ADP-004`, `TC-CANVAS-001`, `TC-CANVAS-002`, `TC-NODE-001`, `TC-EDGE-004`, and `TC-TOOLBAR-001` are blocked on this sample because the sidepanel stayed in a protected `VISIBLE HISTORY ONLY` hold with a blank canvas, so the previously used graph-level evidence for message recognition, rendered nodes, node selection, edge selection, toolbar display, and question-node source jump was unavailable in the current visible state
+- Failed or gap cases: none newly confirmed as standalone product failures in this checkpoint slice; the important regression signal is that several earlier real-host passes do not generalize cleanly to this new history sample because the runtime falls back to partial-history protection before exposing a usable graph surface
+- Notes: this sample is useful precisely because it weakens the earlier assumption that a single real-host pass generalizes across conversation shapes. The same repo build that previously produced usable restored graphs on `6a049933-5204-83ec-ae8a-628b87d50442` now oscillates between `VISIBLE HISTORY ONLY` and `REFRESHING/RESTORED LOCALLY` on `6a0056a1-5d74-83a4-b767-b8a105284575`, while the canvas remains visually blank. Treat prior `pass` conclusions as sample-bounded checkpoints unless they are revalidated on additional host conversations.
+
 ## Entry Template
 
 ```text
@@ -192,3 +203,16 @@ Use this log to track unresolved or recently resolved testing discoveries that n
 - Expected behavior: a node deleted by the user should stay removed after manual reparse of the same conversation unless the user explicitly undoes the deletion
 - Evidence: real-host smoke on `https://chatgpt.com/c/6a049933-5204-83ec-ae8a-628b87d50442`; the node disappeared before reparse, then after `REFRESHING -> UP TO DATE` the rebound graph again displayed the bottom `test -> test` pair
 - Development handoff notes: treat this as the delete-preservation twin of `TC-REGEN-001`. The runtime reparse path appears to rebuild directly from visible-history generation without honoring local user removal markers
+
+### TF-0007 Refresh semantics blur reanalysis with local-restore safety states
+
+- Date: 2026-05-14
+- Spec / governing doc: [thinking_ide_测试用例文档.md](/Users/qyx/Desktop/project/thinking-ide/docs/specs/thinking_ide_测试用例文档.md)
+- Case or scope: refresh / restore runtime semantics observed during `TC-GEN-005`, `TC-DB-006`, and the new real-host regression sample `TR-0008`
+- Environment: real-host ChatGPT sessions in the currently open Chrome window, especially `https://chatgpt.com/c/6a049933-5204-83ec-ae8a-628b87d50442` and `https://chatgpt.com/c/6a0056a1-5d74-83a4-b767-b8a105284575`, with the unpacked extension loaded in the active browser session
+- Status: `confirmed`
+- Severity: `checkpoint-gap`
+- Observed behavior: the user-visible `Refresh` action does not read as a single clear concept. In real-host testing it can appear to trigger reanalysis, local-draft reopening, and partial-history safety fallback in one blended flow. On the newer history sample, the panel moved through `REFRESHING`, `RESTORED LOCALLY`, and `VISIBLE HISTORY ONLY` while the canvas stayed blank, which makes it unclear whether the system actually reanalyzed the current conversation or simply restored and re-guarded existing local state.
+- Expected behavior: runtime semantics should distinguish at least three concepts clearly: reopening an existing local draft, validating whether enough host history is visible to trust that draft, and actively reanalyzing the current conversation into a refreshed graph. A user-triggered refresh should not look identical to a local restore when the system ultimately declines to recompute.
+- Evidence: in earlier runs on `6a049933-5204-83ec-ae8a-628b87d50442`, `Refresh` could lead back to an apparently usable restored graph; on `6a0056a1-5d74-83a4-b767-b8a105284575`, the same action sequence left the panel oscillating between `REFRESHING`, `RESTORED LOCALLY`, and `VISIBLE HISTORY ONLY`, while the canvas remained visually empty.
+- Development handoff notes: treat this as a product/runtime-semantics issue, not just copy polish. Separate the concepts of `restore local draft`, `rebind against visible host history`, and `reanalyze current conversation`, and make the panel state + action wording reflect which of those actually happened.
