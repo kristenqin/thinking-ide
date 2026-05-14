@@ -13,7 +13,9 @@
     "ci": "npm run verify && npm run runtime:validate:built",
     "runtime:validate": "npm run build && npm run runtime:validate:built",
     "runtime:validate:built": "node scripts/runtime-validation.mjs",
-    "setup:hooks": "node scripts/setup-git-hooks.mjs"
+    "setup:hooks": "node scripts/setup-git-hooks.mjs",
+    "test:realhost:profile:open": "node scripts/chrome-test-profile.mjs open",
+    "test:realhost:profile:status": "node scripts/chrome-test-profile.mjs status"
   },
   "dependencies": {
     "@xyflow/react": "^12.8.5",

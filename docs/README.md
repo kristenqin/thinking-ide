@@ -43,6 +43,7 @@ This folder contains the operational engineering guardrails for autonomous execu
 7. Engineering review checklist: [engineering-review-checklist.md](/Users/qyx/Desktop/project/thinking-ide/docs/engineering-review-checklist.md)
 8. Worktree hygiene policy: [worktree-hygiene-policy.md](/Users/qyx/Desktop/project/thinking-ide/docs/worktree-hygiene-policy.md)
 9. Session handoff guide: [session-handoff.md](/Users/qyx/Desktop/project/thinking-ide/docs/session-handoff.md)
+10. Functional scope realignment baseline: [functional-scope-realignment.md](/Users/qyx/Desktop/project/thinking-ide/docs/functional-scope-realignment.md)
 
 ## Evaluation Fixtures
 
@@ -75,12 +76,13 @@ This folder contains the operational engineering guardrails for autonomous execu
 4. Do not mark work done unless it satisfies `definition-of-done`.
 5. Install local repo hooks with `npm run setup:hooks`.
 6. Use `npm run runtime:validate` for the full extension-load smoke pass, or rely on `npm run ci` to run the built-artifact runtime gate automatically.
-7. Use `document-sync-policy` whenever a slice changes runtime guarantees, repo gates, current focus, or risk posture.
-8. Use `debug-triage-policy` when investigating UI or runtime issues so rendered evidence is captured before code-first debugging.
-9. Use `frontend-ui-contract` whenever a slice changes user-visible UI or interaction behavior.
-10. Use `design-system/README.md` whenever a slice needs a concrete visual baseline or reusable UI pattern guidance.
-11. For non-trivial work, default to sidecar agents with non-overlapping write sets and keep the main thread focused on orchestration and integration.
-12. During spec-parity work, use `spec-acceptance-commit-policy` so checkpoint commits are not misreported as accepted product alignment.
-13. During implementation work, use `code-authoring-policy`, `refactor-trigger-rules`, and `engineering-review-checklist` so code-writing behavior is governed as explicitly as task execution.
-14. During long-running or mixed-diff work, use `worktree-hygiene-policy` before starting another slice so local changes are classified and swept instead of silently accumulating.
-15. During cross-session takeover, use `session-handoff.md` so the new thread resumes from repo state and git checkpoints instead of relying on chat memory.
+7. Use `npm run test:realhost:profile:open` and `npm run test:realhost:profile:status` to prepare and reuse the fixed Chrome profile for real-ChatGPT validation.
+8. Use `document-sync-policy` whenever a slice changes runtime guarantees, repo gates, current focus, or risk posture.
+9. Use `debug-triage-policy` when investigating UI or runtime issues so rendered evidence is captured before code-first debugging.
+10. Use `frontend-ui-contract` whenever a slice changes user-visible UI or interaction behavior.
+11. Use `design-system/README.md` whenever a slice needs a concrete visual baseline or reusable UI pattern guidance.
+12. For non-trivial work, default to sidecar agents with non-overlapping write sets and keep the main thread focused on orchestration and integration.
+13. During spec-parity work, use `spec-acceptance-commit-policy` so checkpoint commits are not misreported as accepted product alignment.
+14. During implementation work, use `code-authoring-policy`, `refactor-trigger-rules`, and `engineering-review-checklist` so code-writing behavior is governed as explicitly as task execution.
+15. During long-running or mixed-diff work, use `worktree-hygiene-policy` before starting another slice so local changes are classified and swept instead of silently accumulating.
+16. During cross-session takeover, use `session-handoff.md` so the new thread resumes from repo state and git checkpoints instead of relying on chat memory.

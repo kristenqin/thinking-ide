@@ -18,7 +18,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 3. Wave 2 now has four landed partial adapter slices: stable `conversationKey` / locator identity, full-session conversation-payload history capture, bounded completion gating, and a first restoration-safety guard that preserves restored maps when the host only exposes a partial visible history window.
 4. Treat the first `sidePanel-first` runtime checkpoint as landed: browser-owned sidePanel entry, background lifecycle ownership, a lightweight content runtime bridge, a panel session controller, and a latest-exchange-aligned runtime harness are now working together.
 5. Treat the third Wave 2 restoration/runtime checkpoint and the second code-governance checkpoint as in integration: the sidePanel runtime now exposes explicit `restored` / `partial-history` / `rebound` / `refreshed` session states to the app shell, and store-side document sequencing has been narrowed into a dedicated runner, but none of this counts as shell or restoration `acceptance` yet.
-6. Keep the next main implementation focus on improving `answer_outline` source semantics beyond the new durable H1-level source anchors, deepening sidePanel consumption of explicit restored/partial-history runtime state beyond the newly landed entry-state honesty checkpoint, and deeper store/runtime boundary cleanup while privacy-boundary work stays queued behind those blockers.
+6. Treat [docs/functional-scope-realignment.md](/Users/qyx/Desktop/project/thinking-ide/docs/functional-scope-realignment.md) as the active reminder that broad MVP feature-range closure now outranks additional local checkpoint polish.
 7. Keep progress tracking, readiness rules, ADRs, risk tracking, and quality gates enforced through repo artifacts rather than memory.
 8. Use sidecar agents by default for non-overlapping slices so the main thread stays focused on orchestration, integration, and final gates.
 9. During the spec-alignment phase, distinguish `checkpoint` commits from `acceptance` commits for user-visible work; do not report alignment closure unless the rendered mismatch for that slice is actually gone.
@@ -30,14 +30,13 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 ## Next
 
-1. Execute the next Wave 2 slice from the alignment plan: move `answer_outline` source semantics from the landed durable H1-heading checkpoint toward richer block anchors and continue improving concept abstraction quality on top of the landed shorter-title heuristic checkpoint.
-2. Continue Wave 2A by finishing restoration semantics on top of the new partial-history guard, especially reopen/rebind behavior beyond the first visible-history checkpoint.
-3. Start the first bounded Wave 3 runtime slice: background-worker request plumbing, provider adapter interface, and schema validation around the landed fixture set and provider-draft contract.
-4. Continue the Wave 1 shell migration: consume the new explicit restored/partial/failed runtime state in panel UI instead of relying on notice-text inference.
-5. Continue the code-governance sequence after the second store checkpoint: keep peeling runtime sequencing and persistence boundary work away from the Zustand store.
-6. Realign acceptance testing around layout, history, completion detection, semantic fixtures, and privacy-boundary checks.
-7. Apply the new code-authoring governance layer while the sidePanel migration proceeds so runtime slices do not harden layout-era or mixed-layer structure by accident.
-8. Apply the new worktree-hygiene layer before starting additional slices on top of the current sidePanel migration tree, so unfinished runtime work and governance slices stay classifiable.
+1. Continue Wave 2 by closing the product-facing long-session input gap, not just the adapter/runtime checkpoint gap: all relevant questions and answers from a usable historical conversation need to flow into graph generation.
+2. Continue Wave 2 by pushing `answer_outline` from H1-level checkpoint semantics toward more complete answer-structure and source anchoring behavior.
+3. Continue Wave 2 by improving concept quality toward actual short-concept behavior rather than only shorter heuristic titles.
+4. Start the first bounded Wave 3 runtime slice once the richer Wave 2 input path is stable enough to justify provider-backed structuring.
+5. Prioritize the still-open P0 privacy-boundary correction instead of letting it stay indefinitely behind local runtime refinement.
+6. Realign acceptance testing around the actual MVP feature range defined in the PRD, MVP doc, task breakdown, and test-spec documents.
+7. Keep Wave 1 shell work bounded to obvious sidePanel product gaps; do not let shell polish continue to displace larger unimplemented MVP capabilities.
 
 ## Blocked
 
@@ -48,7 +47,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 
 1. The current `content.js` production bundle is above Vite's default chunk warning threshold at roughly `538 kB` minified, so bundle-splitting or dependency trimming should be scheduled before the extension grows much further.
 2. ChatGPT DOM selectors and source anchors are better than the first cut, but they are still heuristic and need stronger identity handling before the runtime spine can be treated as robust.
-3. The current implementation still diverges from the product spec on default layout mode, ChatAdapter completeness, semantic extraction quality, and privacy storage boundaries; see [docs/spec-gap-assessment-2026-05-12.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-gap-assessment-2026-05-12.md).
+3. The current implementation still diverges from the product spec on major feature-range items, especially full long-session usability, provider-backed structuring, privacy-boundary compliance, and acceptance-grade test coverage; see [docs/spec-gap-assessment-2026-05-12.md](/Users/qyx/Desktop/project/thinking-ide/docs/spec-gap-assessment-2026-05-12.md) and [docs/functional-scope-realignment.md](/Users/qyx/Desktop/project/thinking-ide/docs/functional-scope-realignment.md).
 
 ## Done
 
@@ -103,6 +102,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 49. Landed the fifth Wave 2 source-semantics checkpoint: `SourceRef` now carries durable `anchor.type` metadata, `chatAdapter` can emit assistant H1 heading sources from the live DOM, `generateDraftMap()` assigns `answer_outline` nodes to those heading sources when available, and `sourceLocator` now resolves heading anchors directly before falling back to the parent answer block.
 50. Landed the fourth Wave 2 concept-quality checkpoint: concept extraction now produces shorter heuristic titles plus fuller summaries, and avoids re-emitting Markdown H1 headings as duplicate concept nodes. This is still a heuristic checkpoint rather than short-concept acceptance.
 51. Landed a third Wave 1 shell-productization checkpoint: on the real `chatgpt.com` host landing page, the sidePanel now reports an explicit entry state instead of pretending it is already attached to an active conversation, and the panel copy now consumes session-state semantics more directly for entry/restored/partial-history callouts. This is still a Wave 1 checkpoint, not shell acceptance.
+52. Added a fixed real-host Chrome test-profile helper: `npm run test:realhost:profile:open` now opens a reusable ChatGPT test profile, and `npm run test:realhost:profile:status` now probes whether that profile is logged in and conversation-ready. This improves real-host validation setup, but does not change the mock-host runtime gate or count as product acceptance.
 
 ## Quality Gate
 
