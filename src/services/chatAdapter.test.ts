@@ -379,3 +379,144 @@ test("scanMessages prefers the conversation payload and returns the full active 
     ]
   );
 });
+
+test("scanMessages preserves payload markdownText while keeping normalized text for matching and summaries", async () => {
+  installEnvironment({
+    pathname: "/c/payload-markdown",
+    href: "https://chatgpt.com/c/payload-markdown",
+    title: "Payload markdown - ChatGPT",
+    elements: [new FakeMessageElement("assistant-visible", "assistant", "Visible tail only")],
+    fetchImpl: async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith("/api/auth/session")) {
+        return {
+          ok: true,
+          json: async () => ({ accessToken: "token-123" })
+        } as Response;
+      }
+
+      if (url.endsWith("/backend-api/conversation/payload-markdown")) {
+        return {
+          ok: true,
+          json: async () => ({
+            current_node: "assistant-1",
+            mapping: {
+              root: { id: "root", children: ["user-1"] },
+              "user-1": {
+                id: "user-1",
+                parent: "root",
+                children: ["assistant-1"],
+                message: {
+                  id: "user-1",
+                  author: { role: "user" },
+                  content: { content_type: "text", parts: ["Outline this answer"] },
+                  recipient: "all",
+                  create_time: 1715510000
+                }
+              },
+              "assistant-1": {
+                id: "assistant-1",
+                parent: "user-1",
+                children: [],
+                message: {
+                  id: "assistant-1",
+                  author: { role: "assistant" },
+                  content: {
+                    content_type: "text",
+                    parts: ["# Top level\n\nParagraph.\n\n## Nested section\n\nDetails"]
+                  },
+                  recipient: "all",
+                  create_time: 1715510010
+                }
+              }
+            }
+          })
+        } as Response;
+      }
+
+      throw new Error(`Unexpected fetch url: ${url}`);
+    }
+  });
+
+  const { messages } = await scanMessages();
+  const answer = messages.find((message) => message.role === "assistant");
+
+  assert.ok(answer);
+  assert.equal(answer?.text, "Top level Paragraph. Nested section Details");
+  assert.equal(answer?.markdownText, "# Top level\n\nParagraph.\n\n## Nested section\n\nDetails");
+});
+
+test("scanMessages merges consecutive assistant payload nodes while preserving markdownText", async () => {
+  installEnvironment({
+    pathname: "/c/payload-merge",
+    href: "https://chatgpt.com/c/payload-merge",
+    title: "Payload merge - ChatGPT",
+    elements: [new FakeMessageElement("assistant-visible", "assistant", "Visible tail only")],
+    fetchImpl: async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith("/api/auth/session")) {
+        return {
+          ok: true,
+          json: async () => ({ accessToken: "token-123" })
+        } as Response;
+      }
+
+      if (url.endsWith("/backend-api/conversation/payload-merge")) {
+        return {
+          ok: true,
+          json: async () => ({
+            current_node: "assistant-2",
+            mapping: {
+              root: { id: "root", children: ["user-1"] },
+              "user-1": {
+                id: "user-1",
+                parent: "root",
+                children: ["assistant-1"],
+                message: {
+                  id: "user-1",
+                  author: { role: "user" },
+                  content: { content_type: "text", parts: ["Keep going"] },
+                  recipient: "all",
+                  create_time: 1715510000
+                }
+              },
+              "assistant-1": {
+                id: "assistant-1",
+                parent: "user-1",
+                children: ["assistant-2"],
+                message: {
+                  id: "assistant-1",
+                  author: { role: "assistant" },
+                  content: { content_type: "text", parts: ["# First heading"] },
+                  recipient: "all",
+                  create_time: 1715510010
+                }
+              },
+              "assistant-2": {
+                id: "assistant-2",
+                parent: "assistant-1",
+                children: [],
+                message: {
+                  id: "assistant-2",
+                  author: { role: "assistant" },
+                  content: { content_type: "text", parts: ["## Continued heading"] },
+                  recipient: "all",
+                  create_time: 1715510020
+                }
+              }
+            }
+          })
+        } as Response;
+      }
+
+      throw new Error(`Unexpected fetch url: ${url}`);
+    }
+  });
+
+  const { messages } = await scanMessages();
+  const assistantMessages = messages.filter((message) => message.role === "assistant");
+
+  assert.equal(assistantMessages.length, 1);
+  assert.equal(assistantMessages[0]?.text, "First heading Continued heading");
+  assert.equal(assistantMessages[0]?.markdownText, "# First heading\n\n## Continued heading");
+});

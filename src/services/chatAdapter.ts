@@ -255,12 +255,33 @@ function shouldSkipConversationMessage(message: ApiConversationMessage | undefin
 function extractConversationText(message: ApiConversationMessage): string {
   const contentType = message.content?.content_type;
   if (contentType === "text" || contentType === "multimodal_text") {
+    return normalizeText(toDisplayText(extractConversationMarkdownText(message)));
+  }
+
+  return "";
+}
+
+function toDisplayText(markdownText: string): string {
+  return markdownText
+    .split(/\n+/)
+    .map((line) =>
+      line
+        .replace(/^#{1,6}\s+/, "")
+        .replace(/^>\s+/, "")
+        .replace(/^[-*+]\s+/, "")
+        .replace(/^\d+[\.\)]\s+/, "")
+        .replace(/^[一二三四五六七八九十]+[、.．]\s*/, "")
+        .trim()
+    )
+    .filter(Boolean)
+    .join(" ");
+}
+
+function extractConversationMarkdownText(message: ApiConversationMessage): string {
+  const contentType = message.content?.content_type;
+  if (contentType === "text" || contentType === "multimodal_text") {
     const parts = Array.isArray(message.content?.parts) ? message.content.parts : [];
-    return normalizeText(
-      parts
-        .filter((part): part is string => typeof part === "string")
-        .join("\n\n")
-    );
+    return parts.filter((part): part is string => typeof part === "string").join("\n\n");
   }
 
   return "";
@@ -295,7 +316,13 @@ function normalizeConversationMessages(conversation: ApiConversation, conversati
     currentNodeId = node.parent;
   }
 
-  const merged: Array<{ role: MessageRole; text: string; id: string; createdAt: string }> = [];
+  const merged: Array<{
+    role: MessageRole;
+    text: string;
+    markdownText?: string;
+    id: string;
+    createdAt: string;
+  }> = [];
 
   orderedNodes.forEach((node) => {
     const message = node.message;
@@ -303,6 +330,7 @@ function normalizeConversationMessages(conversation: ApiConversation, conversati
       return;
     }
 
+    const markdownText = extractConversationMarkdownText(message);
     const text = extractConversationText(message);
     if (!text) {
       return;
@@ -315,7 +343,8 @@ function normalizeConversationMessages(conversation: ApiConversation, conversati
         : new Date().toISOString();
     const previous = merged.at(-1);
     if (previous && previous.role === "assistant" && role === "assistant") {
-      previous.text = `${previous.text}\n\n${text}`;
+      previous.text = normalizeText([previous.text, text].filter(Boolean).join(" "));
+      previous.markdownText = [previous.markdownText, markdownText].filter(Boolean).join("\n\n");
       previous.createdAt = createdAt;
       return;
     }
@@ -323,12 +352,13 @@ function normalizeConversationMessages(conversation: ApiConversation, conversati
     merged.push({
       role,
       text,
+      markdownText: markdownText || undefined,
       id: message.id || `${conversationKey}:${role}:${merged.length}`,
       createdAt
     });
   });
 
-  return merged.map(({ role, text, id, createdAt }, orderIndex) => {
+  return merged.map(({ role, text, markdownText, id, createdAt }, orderIndex) => {
     const textHash = hashText(text);
     return {
       id,
@@ -336,6 +366,7 @@ function normalizeConversationMessages(conversation: ApiConversation, conversati
       role,
       orderIndex,
       text,
+      markdownText,
       textHash,
       textPreview: clampText(text, 80),
       domSelector: `[data-message-author-role="${role}"]`,

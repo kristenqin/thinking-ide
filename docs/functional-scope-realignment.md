@@ -117,11 +117,11 @@ Current state:
 
 Notes:
 
-1. heuristic `answer_outline` exists
-2. the current path still derives outline items from flattened `answer.text` through heuristics instead of parsing the conversation payload as markdown structure
-3. H1-first extraction exists only as a partial checkpoint layered on top of that flattened text path
+1. a payload-markdown-AST-first `answer_outline` checkpoint is now landed
+2. no-heading answers now return an empty outline instead of paragraph or sentence fallback guesses
+3. durable H1 source anchors still exist only as a partial source-semantics checkpoint layered on top of message-level source jumps
 4. paragraph/block-level source precision is still open
-5. the next acceptance target is payload-markdown-AST-first extraction with empty-outline fallback when no headings exist
+5. the next acceptance target is richer heading-tree and section semantics on top of the landed payload-markdown-AST-first extraction
 
 ### F-05 Short concept extraction
 

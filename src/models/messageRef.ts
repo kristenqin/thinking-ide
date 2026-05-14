@@ -6,6 +6,7 @@ export type MessageRef = {
   role: MessageRole;
   orderIndex: number;
   text: string;
+  markdownText?: string;
   textHash: string;
   textPreview: string;
   domSelector?: string;

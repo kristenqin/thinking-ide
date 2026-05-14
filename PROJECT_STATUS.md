@@ -31,7 +31,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 ## Next
 
 1. Continue Wave 2 by closing the product-facing long-session input gap, not just the adapter/runtime checkpoint gap: all relevant questions and answers from a usable historical conversation need to flow into graph generation.
-2. Continue Wave 2 by replacing flattened-text `answer_outline` heuristics with a payload-markdown-AST-first path; no-heading answers should return an empty outline instead of paragraph/sentence fallback guesses, and DOM should stay primarily as the source-anchor layer.
+2. Continue Wave 2 by deepening the landed payload-markdown-AST-first `answer_outline` checkpoint into richer heading-tree acceptance; no-heading answers now return an empty outline, and DOM should stay primarily as the source-anchor layer.
 3. Continue Wave 2 by improving concept quality toward actual short-concept behavior rather than only shorter heuristic titles.
 4. Start the first bounded Wave 3 runtime slice once the richer Wave 2 input path is stable enough to justify provider-backed structuring.
 5. Prioritize the still-open P0 privacy-boundary correction instead of letting it stay indefinitely behind local runtime refinement.
@@ -102,6 +102,7 @@ Ship a loadable Chrome Extension skeleton that can inject the right-side panel, 
 49. Landed the fifth Wave 2 source-semantics checkpoint: `SourceRef` now carries durable `anchor.type` metadata, `chatAdapter` can emit assistant H1 heading sources from the live DOM, `generateDraftMap()` assigns `answer_outline` nodes to those heading sources when available, and `sourceLocator` now resolves heading anchors directly before falling back to the parent answer block.
 50. Landed the fourth Wave 2 concept-quality checkpoint: concept extraction now produces shorter heuristic titles plus fuller summaries, and avoids re-emitting Markdown H1 headings as duplicate concept nodes. This is still a heuristic checkpoint rather than short-concept acceptance.
 51. Landed a third Wave 1 shell-productization checkpoint: on the real `chatgpt.com` host landing page, the sidePanel now reports an explicit entry state instead of pretending it is already attached to an active conversation, and the panel copy now consumes session-state semantics more directly for entry/restored/partial-history callouts. This is still a Wave 1 checkpoint, not shell acceptance.
+52. Landed the sixth Wave 2 answer-structure checkpoint: assistant payload text now preserves raw `markdownText` alongside normalized display `text`, and `generateDraftMap()` now derives `answer_outline` headings from a payload-markdown-AST-first path with empty-outline fallback when no headings exist. This closes the flattened-text heuristic path, but nested heading semantics, richer section modeling, and paragraph/block anchors are still open.
 
 ## Quality Gate
 

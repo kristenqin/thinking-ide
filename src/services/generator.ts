@@ -3,19 +3,26 @@ import type { MessageRef } from "../models/messageRef";
 import type { ConceptMapNodeRecord } from "../models/node";
 import type { SourceRef } from "../models/source";
 import { createId } from "../utils/id";
-import { clampText, normalizeText, splitIntoConcepts, splitIntoOutlineItems } from "../utils/text";
+import { extractOutlineHeadings } from "../utils/markdown";
+import { clampText, normalizeText, splitIntoConcepts } from "../utils/text";
 
 function resolveSourceId(messageId: string, sources: SourceRef[]): string | undefined {
   return sources.find((source) => source.messageId === messageId && source.anchor.type === "message")?.id;
 }
 
-function resolveOutlineSourceId(messageId: string, outline: string, sources: SourceRef[]): string | undefined {
+function resolveOutlineSourceId(
+  messageId: string,
+  outline: string,
+  headingLevel: number,
+  sources: SourceRef[]
+): string | undefined {
   const normalizedOutline = normalizeText(outline).toLowerCase();
   const headingSource = sources.find(
     (source) =>
       source.messageId === messageId &&
       source.anchor.type === "heading" &&
-      source.anchor.headingText?.toLowerCase() === normalizedOutline
+      source.anchor.headingText?.toLowerCase() === normalizedOutline &&
+      source.anchor.headingLevel === headingLevel
   );
   if (headingSource) {
     return headingSource.id;
@@ -133,21 +140,21 @@ export function generateDraftMap(
       label: "answers"
     });
 
-    splitIntoOutlineItems(answer.text).forEach((outline, index) => {
+    extractOutlineHeadings(answer.markdownText ?? answer.text).forEach((outline, index) => {
       const outlineNodeId = createId("node");
       nodes.push({
         id: outlineNodeId,
         type: "concept",
         position: {
-          x: 340,
+          x: 340 + Math.max(0, outline.level - 1) * 36,
           y: baseY + 96 + index * 96
         },
         data: {
-          title: clampText(outline, 34),
-          summary: outline,
+          title: clampText(outline.title, 34),
+          summary: outline.title,
           role: "answer_outline",
           status: "draft",
-          sourceId: resolveOutlineSourceId(answer.id, outline, sources)
+          sourceId: resolveOutlineSourceId(answer.id, outline.title, outline.level, sources)
         }
       });
 

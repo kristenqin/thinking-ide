@@ -20,6 +20,18 @@ function createMessage(id: string, role: MessageRef["role"], text: string): Mess
   };
 }
 
+function createPayloadMessage(
+  id: string,
+  role: MessageRef["role"],
+  text: string,
+  markdownText: string
+): MessageRef {
+  return {
+    ...createMessage(id, role, text),
+    markdownText
+  };
+}
+
 function createSource(id: string, messageId: string, anchorOverrides: Partial<SourceAnchor> = {}): SourceRef {
   return {
     id,
@@ -140,5 +152,84 @@ test("generateDraftMap builds multi-turn question, answer, and answer-outline no
   assert.equal(
     draft.edges.filter((edge) => edge.data?.relation === "relates" && edge.label === "next").length,
     1
+  );
+});
+
+test("generateDraftMap returns no answer_outline nodes when an answer has no markdown headings", () => {
+  const messages = [
+    createMessage("u1", "user", "What matters here?"),
+    createMessage(
+      "a1",
+      "assistant",
+      "This answer has bullets and sentences but no markdown heading.\n- First point\n- Second point"
+    )
+  ];
+  const sources = [createSource("source-question", "u1"), createSource("source-answer", "a1")];
+
+  const draft = generateDraftMap(messages, sources);
+  const outlineNodes = draft.nodes.filter((node) => node.data.role === "answer_outline");
+
+  assert.equal(outlineNodes.length, 0);
+  assert.equal(draft.edges.filter((edge) => edge.data?.relation === "contains").length, 0);
+});
+
+test("generateDraftMap preserves markdown heading levels for nested answer outlines", () => {
+  const messages = [
+    createMessage("u1", "user", "Outline this answer"),
+    createMessage(
+      "a1",
+      "assistant",
+      "# Top level\nIntro\n\n## Nested section\nDetails\n\n### Deep section\nMore details"
+    )
+  ];
+  const sources = [
+    createSource("source-question", "u1"),
+    createSource("source-answer", "a1"),
+    createSource("source-h1", "a1", { type: "heading", headingText: "Top level", headingLevel: 1 }),
+    createSource("source-h2", "a1", { type: "heading", headingText: "Nested section", headingLevel: 2 }),
+    createSource("source-h3", "a1", { type: "heading", headingText: "Deep section", headingLevel: 3 })
+  ];
+
+  const draft = generateDraftMap(messages, sources);
+  const outlineNodes = draft.nodes.filter((node) => node.data.role === "answer_outline");
+
+  assert.deepEqual(
+    outlineNodes.map((node) => ({
+      title: node.data.title,
+      sourceId: node.data.sourceId,
+      x: node.position.x
+    })),
+    [
+      { title: "Top level", sourceId: "source-h1", x: 340 },
+      { title: "Nested section", sourceId: "source-h2", x: 376 },
+      { title: "Deep section", sourceId: "source-h3", x: 412 }
+    ]
+  );
+});
+
+test("generateDraftMap reads answer_outline headings from markdownText when normalized text has lost heading syntax", () => {
+  const messages = [
+    createMessage("u1", "user", "Outline this answer"),
+    createPayloadMessage(
+      "a1",
+      "assistant",
+      "Top level Intro Nested section Details Deep section More details",
+      "# Top level\nIntro\n\n## Nested section\nDetails\n\n### Deep section\nMore details"
+    )
+  ];
+  const sources = [
+    createSource("source-question", "u1"),
+    createSource("source-answer", "a1"),
+    createSource("source-h1", "a1", { type: "heading", headingText: "Top level", headingLevel: 1 }),
+    createSource("source-h2", "a1", { type: "heading", headingText: "Nested section", headingLevel: 2 }),
+    createSource("source-h3", "a1", { type: "heading", headingText: "Deep section", headingLevel: 3 })
+  ];
+
+  const draft = generateDraftMap(messages, sources);
+  const outlineNodes = draft.nodes.filter((node) => node.data.role === "answer_outline");
+
+  assert.deepEqual(
+    outlineNodes.map((node) => node.data.title),
+    ["Top level", "Nested section", "Deep section"]
   );
 });
